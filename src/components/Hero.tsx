@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import ScrollIndicator from './ScrollIndicator';
 
 export default function Hero() {
   return (
@@ -21,7 +22,7 @@ export default function Hero() {
         />
         
         <motion.h1
-          className="text-5xl md:text-6xl font-bold mb-4"
+          className="text-5xl md:text-6xl font-bold mb-4 text-white"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -60,6 +61,8 @@ export default function Hero() {
           </motion.button>
         </motion.div>
       </motion.div>
+      
+      <ScrollIndicator />
     </header>
   );
 }
