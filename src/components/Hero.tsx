@@ -4,7 +4,7 @@ import ScrollIndicator from './ScrollIndicator';
 export default function Hero() {
   return (
     <header className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/80"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/80 to-black/95"></div>
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -22,7 +22,7 @@ export default function Hero() {
         />
         
         <motion.h1
-          className="text-5xl md:text-6xl font-bold mb-4 text-white"
+          className="text-5xl md:text-6xl font-bold mb-4 text-white bg-clip-text"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
