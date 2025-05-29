@@ -7,14 +7,28 @@ import { FcGoogle } from 'react-icons/fc';
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialMode?: boolean;
 }
 
-export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
-  const [isLogin, setIsLogin] = useState(true);
+export default function AuthModal({ isOpen, onClose, initialMode = true }: AuthModalProps) {
+  const [isLogin, setIsLogin] = useState(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { signIn, signUp, signInWithGoogle } = useAuth();
+
+  const handleError = (err: unknown) => {
+    if (err instanceof Error) {
+      // Check for rate limit error in the message
+      if (err.message.includes('over_email_send_rate_limit')) {
+        setError('تعداد درخواست‌ها زیاد است. لطفاً کمی صبر کنید و دوباره تلاش کنید.');
+      } else {
+        setError(err.message);
+      }
+    } else {
+      setError('خطایی رخ داد');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +42,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       }
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'خطایی رخ داد');
+      handleError(err);
     }
   };
 
@@ -37,7 +51,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       await signInWithGoogle();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'خطایی رخ داد');
+      handleError(err);
     }
   };
 

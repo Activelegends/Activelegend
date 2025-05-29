@@ -79,6 +79,7 @@ export default function Hero() {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
+        initialMode={initialAuthMode}
       />
     </header>
   );
