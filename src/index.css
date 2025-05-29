@@ -12,7 +12,7 @@ body {
   font-family: 'Vazirmatn', sans-serif;
   margin: 0;
   padding: 0;
-  @apply bg-gradient-to-br from-gray-900 to-black text-white;
+  @apply bg-white text-gray-900;
 }
 
 .glass {
@@ -34,7 +34,7 @@ body {
   }
 
   .nav-link {
-    @apply relative py-2 text-white/80 hover:text-white transition-colors duration-300
+    @apply relative py-2 text-gray-800 hover:text-gray-900 transition-colors duration-300
            after:absolute after:bottom-0 after:right-0 after:h-0.5 
            after:w-0 after:bg-primary after:transition-all after:duration-300
            hover:after:w-full;
