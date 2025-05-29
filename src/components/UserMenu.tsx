@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
-import { HiUser, HiLogout } from 'react-icons/hi';
+import { HiUser, HiLogout, HiShieldCheck, HiUserGroup, HiTrash } from 'react-icons/hi';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function UserMenu() {
@@ -33,6 +33,48 @@ export default function UserMenu() {
                 </span>
               )}
             </div>
+
+            {isAdmin && (
+              <>
+                <Menu.Item>
+                  {({ active }) => (
+                    <button
+                      className={`${
+                        active ? 'bg-white/10' : ''
+                      } group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}
+                    >
+                      <HiUserGroup className="w-5 h-5" />
+                      مدیریت کاربران
+                    </button>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <button
+                      className={`${
+                        active ? 'bg-white/10' : ''
+                      } group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}
+                    >
+                      <HiShieldCheck className="w-5 h-5" />
+                      مدیریت نظرات
+                    </button>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <button
+                      className={`${
+                        active ? 'bg-white/10' : ''
+                      } group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}
+                    >
+                      <HiTrash className="w-5 h-5" />
+                      حذف محتوا
+                    </button>
+                  )}
+                </Menu.Item>
+                <div className="my-1 border-t border-white/10"></div>
+              </>
+            )}
 
             <Menu.Item>
               {({ active }) => (

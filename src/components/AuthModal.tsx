@@ -19,20 +19,41 @@ export default function AuthModal({ isOpen, onClose, initialMode = true }: AuthM
 
   const handleError = (err: unknown) => {
     if (err instanceof Error) {
-      // Check for rate limit error in the message
       if (err.message.includes('over_email_send_rate_limit')) {
         setError('تعداد درخواست‌ها زیاد است. لطفاً کمی صبر کنید و دوباره تلاش کنید.');
+      } else if (err.message.includes('invalid_credentials')) {
+        setError('ایمیل یا رمز عبور اشتباه است.');
+      } else if (err.message.includes('Email not confirmed')) {
+        setError('لطفاً ایمیل خود را تایید کنید.');
       } else {
-        setError(err.message);
+        setError('خطایی رخ داد. لطفاً دوباره تلاش کنید.');
       }
     } else {
       setError('خطایی رخ داد');
     }
   };
 
+  const validateForm = () => {
+    if (!email || !password) {
+      setError('لطفاً تمام فیلدها را پر کنید.');
+      return false;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('لطفاً یک ایمیل معتبر وارد کنید.');
+      return false;
+    }
+    if (password.length < 6) {
+      setError('رمز عبور باید حداقل ۶ کاراکتر باشد.');
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    
+    if (!validateForm()) return;
     
     try {
       if (isLogin) {
@@ -92,6 +113,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = true }: AuthM
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-white focus:border-primary focus:ring-primary"
+                    dir="ltr"
                     required
                   />
                 </div>
@@ -105,7 +127,9 @@ export default function AuthModal({ isOpen, onClose, initialMode = true }: AuthM
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-white focus:border-primary focus:ring-primary"
+                    dir="ltr"
                     required
+                    minLength={6}
                   />
                 </div>
 
@@ -119,6 +143,15 @@ export default function AuthModal({ isOpen, onClose, initialMode = true }: AuthM
                 >
                   {isLogin ? 'ورود' : 'ثبت‌نام'}
                 </button>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-white/10"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 text-gray-500 bg-black">یا</span>
+                  </div>
+                </div>
 
                 <button
                   type="button"
