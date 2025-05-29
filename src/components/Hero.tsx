@@ -1,7 +1,17 @@
 import { motion } from 'framer-motion';
 import ScrollIndicator from './ScrollIndicator';
+import { useState } from 'react';
+import AuthModal from './AuthModal';
 
 export default function Hero() {
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [initialAuthMode, setInitialAuthMode] = useState(true);
+
+  const handleAuthClick = (isLogin: boolean) => {
+    setInitialAuthMode(isLogin);
+    setIsAuthModalOpen(true);
+  };
+
   return (
     <header className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/80 to-black/95"></div>
@@ -49,6 +59,7 @@ export default function Hero() {
             className="btn-primary"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => handleAuthClick(false)}
           >
             ثبت‌نام
           </motion.button>
@@ -56,6 +67,7 @@ export default function Hero() {
             className="btn-secondary"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => handleAuthClick(true)}
           >
             ورود
           </motion.button>
@@ -63,6 +75,11 @@ export default function Hero() {
       </motion.div>
       
       <ScrollIndicator />
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
     </header>
   );
 }
