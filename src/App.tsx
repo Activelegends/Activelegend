@@ -1,34 +1,26 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+)
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="min-h-screen bg-gray-50">
+      <header className="relative h-screen flex items-center justify-center bg-black text-white">
+        <div className="absolute inset-0 bg-black bg-opacity-60"></div>
+        <div className="relative z-10 text-center">
+          <img src="/logo.svg" alt="Active Legends" className="w-32 h-32 mx-auto mb-8" />
+          <h1 className="text-5xl font-bold mb-4">به دنیای اکتیو لجندز خوش آمدید</h1>
+          <p className="text-xl mb-8">توسعه‌دهنده بازی‌های موبایل و کامپیوتر</p>
+          <div className="space-x-4 space-x-reverse">
+            <button className="btn-primary">ثبت‌نام</button>
+            <button className="btn-secondary">ورود</button>
+          </div>
+        </div>
+      </header>
+    </div>
   )
 }
 
