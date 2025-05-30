@@ -5,10 +5,10 @@ import AuthModal from './AuthModal';
 
 export default function Hero() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [initialAuthMode, setInitialAuthMode] = useState(true);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
 
-  const handleAuthClick = (isLogin: boolean) => {
-    setInitialAuthMode(isLogin);
+  const handleAuthClick = (mode: 'login' | 'signup') => {
+    setAuthMode(mode);
     setIsAuthModalOpen(true);
   };
 
@@ -59,7 +59,7 @@ export default function Hero() {
             className="btn-primary"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => handleAuthClick(false)}
+            onClick={() => handleAuthClick('signup')}
           >
             ثبت‌نام
           </motion.button>
@@ -67,7 +67,7 @@ export default function Hero() {
             className="btn-secondary"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => handleAuthClick(true)}
+            onClick={() => handleAuthClick('login')}
           >
             ورود
           </motion.button>
@@ -79,7 +79,7 @@ export default function Hero() {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        initialMode={initialAuthMode}
+        initialMode={authMode === 'login'}
       />
     </header>
   );

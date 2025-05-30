@@ -7,6 +7,7 @@ import AuthModal from './AuthModal';
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const { user } = useAuth();
 
   useEffect(() => {
@@ -16,6 +17,11 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleAuthClick = (mode: 'login' | 'signup') => {
+    setAuthMode(mode);
+    setIsAuthModalOpen(true);
+  };
 
   return (
     <>
@@ -40,14 +46,24 @@ export default function Navbar() {
             {user ? (
               <UserMenu />
             ) : (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="btn-primary"
-                onClick={() => setIsAuthModalOpen(true)}
-              >
-                شروع کنید
-              </motion.button>
+              <div className="flex items-center gap-4">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="btn-secondary"
+                  onClick={() => handleAuthClick('login')}
+                >
+                  ورود
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="btn-primary"
+                  onClick={() => handleAuthClick('signup')}
+                >
+                  ثبت‌نام
+                </motion.button>
+              </div>
             )}
           </div>
         </div>
@@ -56,6 +72,7 @@ export default function Navbar() {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
+        initialMode={authMode === 'login'}
       />
     </>
   );
