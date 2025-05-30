@@ -25,7 +25,7 @@ export default function Hero() {
         <motion.img
           src="/AE logo.png"
           alt="Active Legends"
-          className="w-32 h-32 mx-auto mb-8"
+          className="w-40 h-40 mx-auto mb-8"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", duration: 1 }}
