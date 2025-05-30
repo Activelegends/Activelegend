@@ -16,6 +16,12 @@ export default {
         'iransans': ['IRANSans', ...defaultTheme.fontFamily.sans],
         'vazir': ['Vazir', ...defaultTheme.fontFamily.sans],
       },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+      },
+      animation: {
+        'pulse-slow': 'pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
     },
   },
   plugins: [],
