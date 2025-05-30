@@ -7,9 +7,9 @@ import { AuthProvider } from './contexts/AuthContext';
 function App() {
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-black relative">
+      <div className="min-h-screen relative">
         <AnimatedBackground />
-        <div className="relative z-10">
+        <div className="relative z-20">
           <Navbar />
           <Hero />
         </div>
