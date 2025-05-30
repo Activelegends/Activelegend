@@ -5,10 +5,10 @@ import AuthModal from './AuthModal';
 
 export default function Hero() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [initialAuthMode, setInitialAuthMode] = useState(true);
 
-  const handleAuthClick = (mode: 'login' | 'signup') => {
-    setAuthMode(mode);
+  const handleAuthClick = (isLogin: boolean) => {
+    setInitialAuthMode(isLogin);
     setIsAuthModalOpen(true);
   };
 
@@ -25,7 +25,7 @@ export default function Hero() {
         <motion.img
           src="/AE logo.png"
           alt="Active Legends"
-          className="w-40 h-40 mx-auto mb-8"
+          className="w-32 h-32 mx-auto mb-8"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", duration: 1 }}
@@ -59,7 +59,7 @@ export default function Hero() {
             className="btn-primary"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => handleAuthClick('signup')}
+            onClick={() => handleAuthClick(false)}
           >
             ثبت‌نام
           </motion.button>
@@ -67,7 +67,7 @@ export default function Hero() {
             className="btn-secondary"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => handleAuthClick('login')}
+            onClick={() => handleAuthClick(true)}
           >
             ورود
           </motion.button>
@@ -79,7 +79,7 @@ export default function Hero() {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        initialMode={authMode === 'login'}
+        initialMode={initialAuthMode}
       />
     </header>
   );
