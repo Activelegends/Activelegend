@@ -2,7 +2,7 @@
   "name": "activelegend",
   "version": "0.0.1",
   "private": true,
-  "homepage": "https://<GitHubUsername>.github.io/Activelegend",
+  "homepage": "https://Activelegend.github.io/Activelegend",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
