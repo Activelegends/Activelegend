@@ -5,8 +5,8 @@ const COLORS = ["#FACC15", "#FBBF24", "#F59E0B"];
 
 function getRandomPosition() {
   return {
-    x: Math.random() * window.innerWidth * 0.8 + window.innerWidth * 0.1,
-    y: Math.random() * window.innerHeight * 0.8 + window.innerHeight * 0.1,
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
   };
 }
 
@@ -16,78 +16,83 @@ export default function InteractiveShapes() {
   const [shapes, setShapes] = useState(() =>
     Array.from({ length: shapeCount }).map(() => ({
       id: crypto.randomUUID(),
-      size: 150 + Math.random() * 100,
+      size: 200 + Math.random() * 100,
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
       position: getRandomPosition(),
       target: getRandomPosition(),
     }))
   );
 
-  // ساخت کنترل‌ها فقط یکبار
   const controlsRef = useRef(shapes.map(() => useAnimation()));
+  const containerRef = useRef(null);
+  const mouse = useRef({ x: 0, y: 0 });
 
+  // حرکت دائمی شکل‌ها
   useEffect(() => {
     shapes.forEach((shape, i) => {
-      function animateToTarget() {
+      const move = () => {
+        const newTarget = getRandomPosition();
         controlsRef.current[i]
           .start({
-            x: shape.target.x,
-            y: shape.target.y,
-            transition: { duration: 15 + Math.random() * 10, ease: "easeInOut" },
+            x: newTarget.x,
+            y: newTarget.y,
+            transition: { duration: 20 + Math.random() * 10, ease: "easeInOut" },
           })
-          .then(() => {
-            const newTarget = getRandomPosition();
-            setShapes((prev) => {
-              const updated = [...prev];
-              updated[i] = { ...updated[i], target: newTarget };
-              return updated;
-            });
-          });
-      }
-      animateToTarget();
+          .then(move); // بعد از پایان حرکت دوباره اجرا بشه
+      };
+      move();
     });
+  }, []);
+
+  // دنبال کردن موس
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      mouse.current = { x: e.clientX, y: e.clientY };
+
+      shapes.forEach((shape, i) => {
+        const dx = shape.position.x - mouse.current.x;
+        const dy = shape.position.y - mouse.current.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < 200) {
+          // اگر موس نزدیک بود، مسیر تغییر کنه
+          const angle = Math.atan2(dy, dx);
+          const newX = shape.position.x + Math.cos(angle) * 200;
+          const newY = shape.position.y + Math.sin(angle) * 200;
+
+          controlsRef.current[i].start({
+            x: newX,
+            y: newY,
+            transition: { duration: 0.8, ease: "easeOut" },
+          });
+        }
+      });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [shapes]);
 
-  const handleMouseEnter = (i) => {
-    const newTarget = getRandomPosition();
-    controlsRef.current[i].start({
-      x: newTarget.x,
-      y: newTarget.y,
-      transition: { duration: 1.2, ease: "easeOut" },
-    });
-    setShapes((prev) => {
-      const updated = [...prev];
-      updated[i] = { ...updated[i], target: newTarget };
-      return updated;
-    });
-  };
-
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 bg-gradient-to-br from-amber-900 via-orange-900 to-amber-900 overflow-hidden">
+    <div
+      ref={containerRef}
+      className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-gradient-to-br from-amber-900 via-orange-900 to-amber-900"
+    >
       {shapes.map(({ id, size, color, position }, i) => (
         <motion.div
           key={id}
-          className="pointer-events-auto rounded-full"
+          className="absolute rounded-full"
           style={{
             width: size,
             height: size,
             backgroundColor: color,
-            position: "absolute",
-            top: position.y,
-            left: position.x,
-            filter: "blur(12px)",
-            boxShadow: `0 0 30px ${color}`,
-            opacity: 0.7,
+            filter: "blur(80px)",
+            opacity: 0.35,
+            top: 0,
+            left: 0,
           }}
+          initial={{ x: position.x, y: position.y }}
           animate={controlsRef.current[i]}
-          initial={{ x: position.x, y: position.y, opacity: 0.7, scale: 1 }}
-          whileHover={{
-            scale: 1.2,
-            opacity: 1,
-            boxShadow: `0 0 50px ${color}`,
-            transition: { duration: 0.3 },
-          }}
-          onMouseEnter={() => handleMouseEnter(i)}
         />
       ))}
     </div>
