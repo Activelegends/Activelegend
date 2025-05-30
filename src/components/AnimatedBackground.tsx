@@ -7,16 +7,16 @@ const shapes = Array.from({ length: 15 }, (_, i) => ({
   y: Math.random() * 100,
   duration: Math.random() * 30 + 25,
   delay: Math.random() * 8,
-  color: i % 3 === 0 ? 'from-primary/40 to-purple-500/30' :
-         i % 3 === 1 ? 'from-blue-500/30 to-primary/40' :
-                       'from-purple-500/30 to-blue-500/30'
+  color: i % 3 === 0 ? 'from-primary/40 to-amber-700/30' :
+         i % 3 === 1 ? 'from-amber-900/30 to-primary/40' :
+                       'from-orange-800/30 to-amber-600/30'
 }));
 
 export default function AnimatedBackground() {
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-10">
       {/* Base background */}
-      <div className="absolute inset-0 bg-black/90" />
+      <div className="absolute inset-0 bg-gradient-to-br from-amber-950 via-orange-950 to-amber-950" />
       
       {/* Animated shapes */}
       {shapes.map((shape) => (
@@ -55,8 +55,8 @@ export default function AnimatedBackground() {
       />
       
       {/* Gradient overlays */}
-      <div className="absolute inset-0 bg-gradient-radial from-transparent via-black/40 to-black pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-t from-primary/10 via-transparent to-transparent opacity-70" />
+      <div className="absolute inset-0 bg-gradient-radial from-transparent via-amber-950/40 to-amber-950 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-primary/20 via-transparent to-transparent opacity-70" />
     </div>
   );
 }
