@@ -1,78 +1,71 @@
-import { motion, useAnimation } from "framer-motion";
-import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 
-const SHAPES_COUNT = 3;
-const COLORS = [
-  "rgba(255, 191, 0, 0.25)",  // Gold Amber
-  "rgba(255, 94, 0, 0.25)",   // Soft Orange
-  "rgba(255, 255, 255, 0.08)" // Subtle white
-];
+const COLORS = ["#FACC15", "#FBBF24", "#F59E0B"];
 
-function getRandomPosition(size: number) {
-  return {
-    x: Math.random() * (window.innerWidth - size),
-    y: Math.random() * (window.innerHeight - size),
-  };
+function getRandomShapes(count) {
+  return Array.from({ length: count }).map(() => ({
+    id: crypto.randomUUID(),
+    size: 150 + Math.random() * 100,
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    parallax: 10 + Math.random() * 30, // شدت حرکت معکوس نسبت به موس
+  }));
 }
 
-function createShapes() {
-  return Array.from({ length: SHAPES_COUNT }).map((_, i) => {
-    const size = 300 + Math.random() * 150;
-    const initial = getRandomPosition(size);
-    return {
-      id: i,
-      size,
-      x: initial.x,
-      y: initial.y,
-      color: COLORS[i % COLORS.length],
-      controller: useAnimation(),
-    };
-  });
-}
+export default function ParallaxShapes() {
+  const shapeCount = 5;
+  const [shapes, setShapes] = useState(() => getRandomShapes(shapeCount));
+  const mouse = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
 
-export default function ElegantFloatingCircles() {
-  const [shapes, setShapes] = useState(() => createShapes());
+  const [offsets, setOffsets] = useState(
+    shapes.map(() => ({ x: 0, y: 0 }))
+  );
 
   useEffect(() => {
-    shapes.forEach((shape) => {
-      const animate = () => {
-        const target = getRandomPosition(shape.size);
-        shape.controller
-          .start({
-            x: target.x,
-            y: target.y,
-            transition: {
-              duration: 12 + Math.random() * 8,
-              ease: "easeInOut",
-            },
-          })
-          .then(animate);
-      };
-      animate();
-    });
+    const handleMouseMove = (e) => {
+      const mx = e.clientX;
+      const my = e.clientY;
+
+      const newOffsets = shapes.map((shape) => {
+        const dx = (mx - window.innerWidth / 2) / shape.parallax;
+        const dy = (my - window.innerHeight / 2) / shape.parallax;
+        return {
+          x: -dx,
+          y: -dy,
+        };
+      });
+
+      setOffsets(newOffsets);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [shapes]);
 
   return (
-    <div className="fixed inset-0 z-0 overflow-hidden bg-black pointer-events-none">
-      {shapes.map((shape) => (
+    <div className="fixed inset-0 z-0 overflow-hidden bg-gradient-to-br from-amber-950 via-orange-950 to-amber-950 pointer-events-none">
+      {shapes.map((shape, i) => (
         <motion.div
           key={shape.id}
-          initial={{ x: shape.x, y: shape.y }}
-          animate={shape.controller}
-          className="absolute rounded-full"
+          className="absolute rounded-full pointer-events-none"
           style={{
             width: shape.size,
             height: shape.size,
-            background: `radial-gradient(circle at center, ${shape.color}, transparent 70%)`,
-            filter: "blur(80px)",
-            boxShadow: `0 0 160px ${shape.color}`,
-            opacity: 0.5,
+            backgroundColor: shape.color,
+            top: 0,
+            left: 0,
+            opacity: 0.25,
+            filter: "blur(60px)",
           }}
+          animate={{
+            x: shape.x + offsets[i]?.x,
+            y: shape.y + offsets[i]?.y,
+          }}
+          transition={{ duration: 0.3 }}
         />
       ))}
-
-      {/* optional noise or gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-radial from-transparent via-black/60 to-black pointer-events-none" />
     </div>
   );
 }
