@@ -23,7 +23,7 @@ export default function Hero() {
         className="relative z-10 text-center max-w-4xl mx-auto px-4"
       >
         <motion.img
-          src="/AE logo.png"
+          src="/AE-logo.png"
           alt="Active Legends"
           className="w-32 h-32 mx-auto mb-8"
           initial={{ scale: 0 }}
