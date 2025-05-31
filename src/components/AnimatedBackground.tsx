@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
 const COLORS = ["#FACC15", "#FBBF24", "#F59E0B"];
@@ -10,7 +10,8 @@ function getRandomShapes(count) {
     x: Math.random() * window.innerWidth,
     y: Math.random() * window.innerHeight,
     color: COLORS[Math.floor(Math.random() * COLORS.length)],
-    parallax: 10 + Math.random() * 30, // شدت حرکت معکوس نسبت به موس
+    parallax: 10 + Math.random() * 30,
+    controller: useAnimation(),
   }));
 }
 
@@ -23,6 +24,7 @@ export default function ParallaxShapes() {
     shapes.map(() => ({ x: 0, y: 0 }))
   );
 
+  // حرکت موس
   useEffect(() => {
     const handleMouseMove = (e) => {
       const mx = e.clientX;
@@ -44,6 +46,25 @@ export default function ParallaxShapes() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [shapes]);
 
+  // پالس دائمی برای ایجاد تپش و حرکت دائمی
+  useEffect(() => {
+    shapes.forEach((shape) => {
+      const pulse = () => {
+        shape.controller
+          .start({
+            scale: [1, 1.05, 1],
+            transition: {
+              duration: 6 + Math.random() * 4,
+              repeat: Infinity,
+              repeatType: "mirror",
+              ease: "easeInOut",
+            },
+          });
+      };
+      pulse();
+    });
+  }, [shapes]);
+
   return (
     <div className="fixed inset-0 z-0 overflow-hidden bg-gradient-to-br from-amber-950 via-orange-950 to-amber-950 pointer-events-none">
       {shapes.map((shape, i) => (
@@ -53,17 +74,22 @@ export default function ParallaxShapes() {
           style={{
             width: shape.size,
             height: shape.size,
-            backgroundColor: shape.color,
             top: 0,
             left: 0,
-            opacity: 0.25,
-            filter: "blur(60px)",
+            background: `radial-gradient(circle at center, ${shape.color} 0%, transparent 80%)`,
+            filter: "blur(80px)",
+            opacity: 0.4,
           }}
           animate={{
             x: shape.x + offsets[i]?.x,
             y: shape.y + offsets[i]?.y,
           }}
           transition={{ duration: 0.3 }}
+          initial={{ scale: 0.8, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          whileHover={{ scale: 1.1 }}
+          // pulse
+          {...shape.controller}
         />
       ))}
     </div>
