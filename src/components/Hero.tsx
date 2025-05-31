@@ -2,13 +2,15 @@ import { motion } from 'framer-motion';
 import ScrollIndicator from './ScrollIndicator';
 import { useState } from 'react';
 import AuthModal from './AuthModal';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Hero() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [initialAuthMode, setInitialAuthMode] = useState(true);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const { user } = useAuth();
 
-  const handleAuthClick = (isLogin: boolean) => {
-    setInitialAuthMode(isLogin);
+  const handleAuthClick = (mode: 'login' | 'signup') => {
+    setAuthMode(mode);
     setIsAuthModalOpen(true);
   };
 
@@ -49,29 +51,31 @@ export default function Hero() {
           توسعه‌دهنده بازی‌های موبایل و کامپیوتر
         </motion.p>
         
-        <motion.div
-          className="space-x-4 space-x-reverse"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-        >
-          <motion.button
-            className="btn-primary"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => handleAuthClick(false)}
+        {!user && (
+          <motion.div
+            className="space-x-4 space-x-reverse"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
           >
-            ثبت‌نام
-          </motion.button>
-          <motion.button
-            className="btn-secondary"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => handleAuthClick(true)}
-          >
-            ورود
-          </motion.button>
-        </motion.div>
+            <motion.button
+              className="btn-primary"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleAuthClick('signup')}
+            >
+              ثبت‌نام
+            </motion.button>
+            <motion.button
+              className="btn-secondary"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleAuthClick('login')}
+            >
+              ورود
+            </motion.button>
+          </motion.div>
+        )}
       </motion.div>
       
       <ScrollIndicator />
@@ -79,7 +83,7 @@ export default function Hero() {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        initialMode={initialAuthMode}
+        initialMode={authMode}
       />
     </header>
   );

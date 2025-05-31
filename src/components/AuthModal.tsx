@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog } from '@headlessui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
@@ -7,15 +7,19 @@ import { FcGoogle } from 'react-icons/fc';
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialMode?: boolean;
+  initialMode?: 'login' | 'signup';
 }
 
-export default function AuthModal({ isOpen, onClose, initialMode = true }: AuthModalProps) {
-  const [isLogin, setIsLogin] = useState(initialMode);
+export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalProps) {
+  const [isLogin, setIsLogin] = useState(initialMode === 'login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { signIn, signUp, signInWithGoogle } = useAuth();
+
+  useEffect(() => {
+    setIsLogin(initialMode === 'login');
+  }, [initialMode]);
 
   const handleError = (err: unknown) => {
     if (err instanceof Error) {
