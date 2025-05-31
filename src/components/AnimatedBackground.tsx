@@ -1,89 +1,78 @@
 import { motion, useAnimation } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
+const SHAPES_COUNT = 3;
 const COLORS = [
-  "rgba(250, 204, 21, 0.4)", // yellow
-  "rgba(251, 191, 36, 0.35)", // amber
-  "rgba(249, 115, 22, 0.35)", // orange
-  "rgba(255, 255, 255, 0.05)", // subtle light
+  "rgba(255, 191, 0, 0.25)",  // Gold Amber
+  "rgba(255, 94, 0, 0.25)",   // Soft Orange
+  "rgba(255, 255, 255, 0.08)" // Subtle white
 ];
 
-const SHAPE_COUNT = 7;
-
-function createShapes() {
-  return Array.from({ length: SHAPE_COUNT }).map(() => {
-    const size = 180 + Math.random() * 120;
-    return {
-      id: crypto.randomUUID(),
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      size,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      controller: useAnimation(),
-    };
-  });
-}
-
-function getRandomPosition(size) {
+function getRandomPosition(size: number) {
   return {
     x: Math.random() * (window.innerWidth - size),
     y: Math.random() * (window.innerHeight - size),
   };
 }
 
-export default function FancyBackground() {
+function createShapes() {
+  return Array.from({ length: SHAPES_COUNT }).map((_, i) => {
+    const size = 300 + Math.random() * 150;
+    const initial = getRandomPosition(size);
+    return {
+      id: i,
+      size,
+      x: initial.x,
+      y: initial.y,
+      color: COLORS[i % COLORS.length],
+      controller: useAnimation(),
+    };
+  });
+}
+
+export default function ElegantFloatingCircles() {
   const [shapes, setShapes] = useState(() => createShapes());
 
   useEffect(() => {
-    const animateShape = (shape) => {
-      const nextPos = getRandomPosition(shape.size);
-      shape.controller.start({
-        x: nextPos.x,
-        y: nextPos.y,
-        transition: {
-          duration: 10 + Math.random() * 10,
-          ease: "easeInOut",
-        },
-      }).then(() => {
-        animateShape(shape);
-      });
-    };
-
-    shapes.forEach(animateShape);
+    shapes.forEach((shape) => {
+      const animate = () => {
+        const target = getRandomPosition(shape.size);
+        shape.controller
+          .start({
+            x: target.x,
+            y: target.y,
+            transition: {
+              duration: 12 + Math.random() * 8,
+              ease: "easeInOut",
+            },
+          })
+          .then(animate);
+      };
+      animate();
+    });
   }, [shapes]);
 
   return (
-    <div className="fixed inset-0 z-0 overflow-hidden bg-gradient-to-br from-amber-950 via-orange-950 to-amber-950 pointer-events-none">
-      {/* glowing animated shapes */}
+    <div className="fixed inset-0 z-0 overflow-hidden bg-black pointer-events-none">
       {shapes.map((shape) => (
         <motion.div
           key={shape.id}
-          className="absolute rounded-full pointer-events-none"
+          initial={{ x: shape.x, y: shape.y }}
+          animate={shape.controller}
+          className="absolute rounded-full"
           style={{
             width: shape.size,
             height: shape.size,
             background: `radial-gradient(circle at center, ${shape.color}, transparent 70%)`,
-            filter: "blur(70px)",
+            filter: "blur(80px)",
+            boxShadow: `0 0 160px ${shape.color}`,
             opacity: 0.5,
-            boxShadow: `0 0 150px ${shape.color}`,
           }}
-          animate={shape.controller}
-          initial={{ x: shape.x, y: shape.y }}
         />
       ))}
 
-      {/* gradient overlay layer */}
-      <div className="absolute inset-0 bg-gradient-radial from-transparent via-amber-950/30 to-black opacity-70 pointer-events-none mix-blend-screen" />
-
-      {/* optional noise texture */}
-      <div
-        className="absolute inset-0 opacity-[0.06] mix-blend-overlay"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' /%3E%3C/svg%3E")`,
-          backgroundSize: "cover",
-          transform: "translate3d(0,0,0)",
-        }}
-      />
+      {/* optional noise or gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-radial from-transparent via-black/60 to-black pointer-events-none" />
     </div>
   );
 }
