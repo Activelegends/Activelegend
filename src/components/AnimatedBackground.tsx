@@ -1,69 +1,61 @@
 import { motion, useAnimation } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
-const COLORS = ["#FACC15", "#FBBF24", "#F59E0B"];
+const COLORS = [
+  "rgba(250, 204, 21, 0.4)", // yellow
+  "rgba(251, 191, 36, 0.35)", // amber
+  "rgba(249, 115, 22, 0.35)", // orange
+  "rgba(255, 255, 255, 0.05)", // subtle light
+];
 
-function getRandomShapes(count) {
-  return Array.from({ length: count }).map(() => ({
-    id: crypto.randomUUID(),
-    size: 160 + Math.random() * 120,
-    x: Math.random() * window.innerWidth,
-    y: Math.random() * window.innerHeight,
-    color: COLORS[Math.floor(Math.random() * COLORS.length)],
-    parallax: 10 + Math.random() * 25,
-    controller: useAnimation(),
-  }));
+const SHAPE_COUNT = 7;
+
+function createShapes() {
+  return Array.from({ length: SHAPE_COUNT }).map(() => {
+    const size = 180 + Math.random() * 120;
+    return {
+      id: crypto.randomUUID(),
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      size,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      controller: useAnimation(),
+    };
+  });
 }
 
-export default function ParallaxInteractiveShapes() {
-  const shapeCount = 6;
-  const [shapes, setShapes] = useState(() => getRandomShapes(shapeCount));
-  const mouse = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+function getRandomPosition(size) {
+  return {
+    x: Math.random() * (window.innerWidth - size),
+    y: Math.random() * (window.innerHeight - size),
+  };
+}
 
-  const [offsets, setOffsets] = useState(
-    shapes.map(() => ({ x: 0, y: 0 }))
-  );
+export default function FancyBackground() {
+  const [shapes, setShapes] = useState(() => createShapes());
 
-  // حرکت معکوس موس (Parallax)
   useEffect(() => {
-    const handleMouseMove = (e) => {
-      mouse.current = { x: e.clientX, y: e.clientY };
-
-      const newOffsets = shapes.map((shape) => {
-        const dx = (e.clientX - window.innerWidth / 2) / shape.parallax;
-        const dy = (e.clientY - window.innerHeight / 2) / shape.parallax;
-        return {
-          x: -dx,
-          y: -dy,
-        };
-      });
-
-      setOffsets(newOffsets);
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [shapes]);
-
-  // کلیک => جهش شکل‌ها به سمت موقعیت موس
-  useEffect(() => {
-    const handleClick = (e) => {
-      shapes.forEach((shape) => {
-        shape.controller.start({
-          x: e.clientX - shape.size / 2,
-          y: e.clientY - shape.size / 2,
-          transition: { duration: 0.7, ease: "easeOut" },
-        });
+    const animateShape = (shape) => {
+      const nextPos = getRandomPosition(shape.size);
+      shape.controller.start({
+        x: nextPos.x,
+        y: nextPos.y,
+        transition: {
+          duration: 10 + Math.random() * 10,
+          ease: "easeInOut",
+        },
+      }).then(() => {
+        animateShape(shape);
       });
     };
 
-    window.addEventListener("click", handleClick);
-    return () => window.removeEventListener("click", handleClick);
+    shapes.forEach(animateShape);
   }, [shapes]);
 
   return (
     <div className="fixed inset-0 z-0 overflow-hidden bg-gradient-to-br from-amber-950 via-orange-950 to-amber-950 pointer-events-none">
-      {shapes.map((shape, i) => (
+      {/* glowing animated shapes */}
+      {shapes.map((shape) => (
         <motion.div
           key={shape.id}
           className="absolute rounded-full pointer-events-none"
@@ -71,24 +63,27 @@ export default function ParallaxInteractiveShapes() {
             width: shape.size,
             height: shape.size,
             background: `radial-gradient(circle at center, ${shape.color}, transparent 70%)`,
-            top: 0,
-            left: 0,
-            opacity: 0.4,
-            filter: "blur(45px)",
-            boxShadow: `0 0 120px ${shape.color}`,
+            filter: "blur(70px)",
+            opacity: 0.5,
+            boxShadow: `0 0 150px ${shape.color}`,
           }}
-          initial={{
-            x: shape.x,
-            y: shape.y,
-          }}
-          animate={{
-            x: shape.x + offsets[i]?.x,
-            y: shape.y + offsets[i]?.y,
-            ...shape.controller,
-          }}
-          transition={{ duration: 0.3 }}
+          animate={shape.controller}
+          initial={{ x: shape.x, y: shape.y }}
         />
       ))}
+
+      {/* gradient overlay layer */}
+      <div className="absolute inset-0 bg-gradient-radial from-transparent via-amber-950/30 to-black opacity-70 pointer-events-none mix-blend-screen" />
+
+      {/* optional noise texture */}
+      <div
+        className="absolute inset-0 opacity-[0.06] mix-blend-overlay"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' /%3E%3C/svg%3E")`,
+          backgroundSize: "cover",
+          transform: "translate3d(0,0,0)",
+        }}
+      />
     </div>
   );
 }
