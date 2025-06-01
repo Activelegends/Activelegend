@@ -1,13 +1,13 @@
 #root {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0.75rem;
   text-align: center;
 }
 
 .logo {
-  height: 8em;
-  padding: 2em;
+  height: 5em;
+  padding: 1em;
   will-change: filter;
   transition: filter 300ms;
 }
@@ -34,31 +34,49 @@
 }
 
 .card {
-  padding: 2.5em;
+  padding: 1.5em;
 }
 
 .read-the-docs {
   color: #888;
-  font-size: 1.1em;
+  font-size: 0.9em;
 }
 
 /* Responsive container padding */
 @media (min-width: 640px) {
   #root {
-    padding: 1.5rem;
+    padding: 1rem;
+  }
+  
+  .logo {
+    height: 6em;
+    padding: 1.5em;
   }
   
   .card {
-    padding: 3em;
+    padding: 2em;
+  }
+  
+  .read-the-docs {
+    font-size: 1em;
   }
 }
 
 @media (min-width: 1024px) {
   #root {
-    padding: 2rem;
+    padding: 1.5rem;
+  }
+  
+  .logo {
+    height: 8em;
+    padding: 2em;
   }
   
   .card {
-    padding: 3.5em;
+    padding: 2.5em;
+  }
+  
+  .read-the-docs {
+    font-size: 1.1em;
   }
 }
