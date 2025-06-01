@@ -42,6 +42,7 @@ export default function Navbar() {
           <div className="flex items-center gap-8">
             <a href="#about" className="nav-link">درباره ما</a>
             <a href="#games" className="nav-link">بازی‌ها</a>
+            <a href="#gallery" className="nav-link">گالری تصاویر</a>
             <a href="#contact" className="nav-link">تماس</a>
             {user ? (
               <UserMenu />

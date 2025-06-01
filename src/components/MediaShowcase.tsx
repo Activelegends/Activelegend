@@ -441,6 +441,7 @@ export default function MediaShowcase() {
       variants={containerVariants}
       initial="hidden"
       animate={controls}
+      id="gallery"
       className="py-12 sm:py-16 md:py-20 px-4 md:px-8 lg:px-12 bg-gray-950 relative overflow-hidden min-h-screen"
     >
       {/* Animated Background */}
