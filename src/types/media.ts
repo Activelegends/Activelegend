@@ -1,12 +1,12 @@
 export interface MediaItem {
-  id: string;
+  media_id: string;
   type: 'image' | 'video';
   url: string;
   title: string;
   description: string;
-  isVisible: boolean;
-  createdAt: string;
-  updatedAt: string;
+  is_visible: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface MediaFormData {

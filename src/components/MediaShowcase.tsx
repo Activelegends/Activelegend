@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import type { MediaItem, MediaFormData } from '../types/media';
 import { FaPlus, FaEdit, FaTrash, FaEye, FaEyeSlash, FaPlay, FaPause } from 'react-icons/fa';
 import React from 'react';
+import { supabase } from '../supabaseClient';
 
 interface AparatVideoInfo {
   uid: string;
@@ -152,40 +153,35 @@ export default function MediaShowcase() {
   };
 
   useEffect(() => {
-    // بارگذاری آیتم‌ها از localStorage
-    const savedItems = localStorage.getItem('mediaItems');
-    if (savedItems) {
-      const items = JSON.parse(savedItems);
-      setMediaItems(items);
-      
-      // دریافت اطلاعات ویدیوهای آپارات
-      items.forEach(async (item: MediaItem) => {
-        if (item.type === 'video' && item.url.includes('aparat.com')) {
-          const videoInfo = await fetchAparatVideoInfo(item.url);
-          if (videoInfo) {
-            setVideoPreviews(prev => ({
-              ...prev,
-              [item.id]: videoInfo
-            }));
-          }
-        }
-      });
-    } else {
-      // اگر آیتمی در localStorage نباشد، از داده‌های پیش‌فرض استفاده کن
-      setMediaItems([
-        {
-          id: '1',
-          type: 'image',
-          url: '/images/AE-logo.png',
-          title: 'لوگوی اکتیو لجندز',
-          description: 'لوگوی رسمی شرکت اکتیو لجندز',
-          isVisible: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }
-      ]);
-    }
+    fetchMediaItems();
   }, []);
+
+  const fetchMediaItems = async () => {
+    try {
+      const { data, error } = await supabase.from('media_gallery').select();
+      
+      if (error) throw error;
+      
+      if (data) {
+        setMediaItems(data);
+        
+        // دریافت اطلاعات ویدیوهای آپارات
+        data.forEach(async (item: MediaItem) => {
+          if (item.type === 'video' && item.url.includes('aparat.com')) {
+            const videoInfo = await fetchAparatVideoInfo(item.url);
+            if (videoInfo) {
+              setVideoPreviews(prev => ({
+                ...prev,
+                [item.media_id]: videoInfo
+              }));
+            }
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching media items:', error);
+    }
+  };
 
   useEffect(() => {
     if (isInView) {
@@ -246,32 +242,55 @@ export default function MediaShowcase() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submitted:', formData);
     
     try {
       if (editingItem) {
-        const updatedItems = mediaItems.map(item =>
-          item.id === editingItem.id
-            ? { ...item, ...formData, updatedAt: new Date().toISOString() }
-            : item
-        );
-        setMediaItems(updatedItems);
-        localStorage.setItem('mediaItems', JSON.stringify(updatedItems));
+        console.log('Updating item:', editingItem.media_id);
+        const { data, error } = await supabase
+          .from('media_gallery')
+          .update({
+            type: formData.type,
+            url: formData.url,
+            title: formData.title,
+            description: formData.description,
+            updated_at: new Date().toISOString()
+          })
+          .eq('media_id', editingItem.media_id)
+          .select();
+
+        if (error) {
+          console.error('Update error:', error);
+          throw error;
+        }
+        console.log('Update successful:', data);
       } else {
-        const newItem: MediaItem = {
-          id: Date.now().toString(),
-          ...formData,
-          isVisible: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-        const updatedItems = [...mediaItems, newItem];
-        setMediaItems(updatedItems);
-        localStorage.setItem('mediaItems', JSON.stringify(updatedItems));
+        console.log('Inserting new item');
+        const { data, error } = await supabase
+          .from('media_gallery')
+          .insert([{
+            type: formData.type,
+            url: formData.url,
+            title: formData.title,
+            description: formData.description,
+            is_visible: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }])
+          .select();
+
+        if (error) {
+          console.error('Insert error:', error);
+          throw error;
+        }
+        console.log('Insert successful:', data);
       }
       
       handleCloseModal();
+      await fetchMediaItems();
     } catch (error) {
-      console.error('Error in handleSubmit:', error);
+      console.error('Error saving media item:', error);
+      alert('خطا در ذخیره اطلاعات. لطفاً دوباره تلاش کنید.');
     }
   };
 
@@ -280,17 +299,29 @@ export default function MediaShowcase() {
   };
 
   const handleDelete = async (id: string) => {
-    const updatedItems = mediaItems.filter(item => item.id !== id);
-    setMediaItems(updatedItems);
-    localStorage.setItem('mediaItems', JSON.stringify(updatedItems));
+    try {
+      const { error } = await supabase
+        .from('media_gallery')
+        .delete();
+
+      if (error) throw error;
+      fetchMediaItems();
+    } catch (error) {
+      console.error('Error deleting media item:', error);
+    }
   };
 
-  const handleToggleVisibility = async (id: string) => {
-    const updatedItems = mediaItems.map(item =>
-      item.id === id ? { ...item, isVisible: !item.isVisible } : item
-    );
-    setMediaItems(updatedItems);
-    localStorage.setItem('mediaItems', JSON.stringify(updatedItems));
+  const handleToggleVisibility = async (id: string, currentVisibility: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('media_gallery')
+        .update({ is_visible: !currentVisibility });
+
+      if (error) throw error;
+      fetchMediaItems();
+    } catch (error) {
+      console.error('Error toggling visibility:', error);
+    }
   };
 
   const getEmbedUrl = (url: string) => {
@@ -377,7 +408,7 @@ export default function MediaShowcase() {
   };
 
   // فیلتر کردن آیتم‌ها برای نمایش
-  const visibleItems = isAdmin ? mediaItems : mediaItems.filter(item => item.isVisible);
+  const visibleItems = isAdmin ? mediaItems : mediaItems.filter(item => item.is_visible);
 
   const containerVariants = {
     hidden: { opacity: 0, y: 100 },
@@ -459,7 +490,7 @@ export default function MediaShowcase() {
             <AnimatePresence mode="wait">
               {visibleItems.map((item) => (
                 <motion.div
-                  key={item.id}
+                  key={item.media_id}
                   variants={itemVariants}
                   initial="hidden"
                   animate="visible"
@@ -468,7 +499,7 @@ export default function MediaShowcase() {
                     scale: 1.02,
                     boxShadow: "0 0 30px rgba(0, 0, 0, 0.3)"
                   }}
-                  onHoverStart={() => setHoveredItem(item.id)}
+                  onHoverStart={() => setHoveredItem(item.media_id)}
                   onHoverEnd={() => setHoveredItem(null)}
                   className="bg-gray-800/50 backdrop-blur-sm rounded-lg overflow-hidden shadow-lg transform transition-all duration-300 border border-gray-700/50"
                 >
@@ -490,16 +521,16 @@ export default function MediaShowcase() {
                          item.url.includes('vimeo.com') || 
                          item.url.includes('aparat.com') ? (
                           <>
-                            {item.url.includes('aparat.com') && videoPreviews[item.id] ? (
+                            {item.url.includes('aparat.com') && videoPreviews[item.media_id] ? (
                               <div className="relative w-full h-full">
                                 <img
-                                  src={videoPreviews[item.id].big_poster}
-                                  alt={videoPreviews[item.id].title}
+                                  src={videoPreviews[item.media_id].big_poster}
+                                  alt={videoPreviews[item.media_id].title}
                                   className="w-full h-full object-cover"
                                 />
                                 <motion.button
                                   initial={{ opacity: 0 }}
-                                  animate={{ opacity: hoveredItem === item.id ? 1 : 0 }}
+                                  animate={{ opacity: hoveredItem === item.media_id ? 1 : 0 }}
                                   onClick={() => window.open(item.url, '_blank')}
                                   className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-4xl hover:bg-black/60 transition-colors duration-200"
                                 >
@@ -520,14 +551,14 @@ export default function MediaShowcase() {
                         ) : (
                           <>
                             <video
-                              ref={el => videoRefs.current[item.id] = el}
+                              ref={el => videoRefs.current[item.media_id] = el}
                               src={item.url}
                               className="w-full h-full object-cover"
                               loop
                               muted
                               playsInline
                               onLoadedData={() => {
-                                const video = videoRefs.current[item.id];
+                                const video = videoRefs.current[item.media_id];
                                 if (video) {
                                   video.currentTime = 0;
                                 }
@@ -535,11 +566,11 @@ export default function MediaShowcase() {
                             />
                             <motion.button
                               initial={{ opacity: 0 }}
-                              animate={{ opacity: hoveredItem === item.id ? 1 : 0 }}
-                              onClick={() => handleVideoPlay(item.id)}
+                              animate={{ opacity: hoveredItem === item.media_id ? 1 : 0 }}
+                              onClick={() => handleVideoPlay(item.media_id)}
                               className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-4xl hover:bg-black/60 transition-colors duration-200"
                             >
-                              {playingVideos.has(item.id) ? <FaPause /> : <FaPlay />}
+                              {playingVideos.has(item.media_id) ? <FaPause /> : <FaPlay />}
                             </motion.button>
                           </>
                         )}
@@ -580,15 +611,15 @@ export default function MediaShowcase() {
                       <motion.button
                         whileHover={{ scale: 1.1, color: "#FCD34D" }}
                         whileTap={{ scale: 0.9 }}
-                        onClick={() => handleToggleVisibility(item.id)}
+                        onClick={() => handleToggleVisibility(item.media_id, item.is_visible)}
                         className="p-2 text-yellow-400 hover:text-yellow-300 transition-colors duration-200"
                       >
-                        {item.isVisible ? <FaEyeSlash /> : <FaEye />}
+                        {item.is_visible ? <FaEyeSlash /> : <FaEye />}
                       </motion.button>
                       <motion.button
                         whileHover={{ scale: 1.1, color: "#F87171" }}
                         whileTap={{ scale: 0.9 }}
-                        onClick={() => handleDelete(item.id)}
+                        onClick={() => handleDelete(item.media_id)}
                         className="p-2 text-red-400 hover:text-red-300 transition-colors duration-200"
                       >
                         <FaTrash />
