@@ -441,7 +441,7 @@ export default function MediaShowcase() {
       variants={containerVariants}
       initial="hidden"
       animate={controls}
-      className="py-8 sm:py-12 md:py-16 px-4 md:px-8 lg:px-12 bg-gray-950 relative overflow-hidden min-h-screen"
+      className="py-12 sm:py-16 md:py-20 px-4 md:px-8 lg:px-12 bg-gray-950 relative overflow-hidden min-h-screen"
     >
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
@@ -454,7 +454,7 @@ export default function MediaShowcase() {
       <div className="container mx-auto px-4 relative z-10">
         <motion.h2
           variants={itemVariants}
-          className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-8 sm:mb-12 text-center"
+          className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-10 sm:mb-14 text-center"
         >
           گالری رسانه‌ها
         </motion.h2>
@@ -462,15 +462,15 @@ export default function MediaShowcase() {
         {isAdmin && (
           <motion.div
             variants={itemVariants}
-            className="flex justify-end mb-6 sm:mb-8"
+            className="flex justify-end mb-8 sm:mb-10"
           >
             <motion.button
               whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(59, 130, 246, 0.5)" }}
               whileTap={{ scale: 0.95 }}
               onClick={handleAdd}
-              className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-all duration-200 text-sm sm:text-base"
+              className="flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-all duration-200 text-base sm:text-lg"
             >
-              <FaPlus /> افزودن رسانه جدید
+              <FaPlus className="text-lg sm:text-xl" /> افزودن رسانه جدید
             </motion.button>
           </motion.div>
         )}
@@ -478,14 +478,14 @@ export default function MediaShowcase() {
         {visibleItems.length === 0 ? (
           <motion.div
             variants={itemVariants}
-            className="text-center text-gray-400 py-8 text-lg sm:text-xl"
+            className="text-center text-gray-400 py-12 text-xl sm:text-2xl"
           >
             {isAdmin ? 'هیچ رسانه‌ای وجود ندارد' : 'در حال حاضر هیچ رسانه‌ای برای نمایش وجود ندارد'}
           </motion.div>
         ) : (
           <motion.div
             variants={containerVariants}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10"
           >
             <AnimatePresence mode="wait">
               {visibleItems.map((item) => (
@@ -532,7 +532,7 @@ export default function MediaShowcase() {
                                   initial={{ opacity: 0 }}
                                   animate={{ opacity: hoveredItem === item.media_id ? 1 : 0 }}
                                   onClick={() => window.open(item.url, '_blank')}
-                                  className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-4xl hover:bg-black/60 transition-colors duration-200 backdrop-blur-sm"
+                                  className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-5xl hover:bg-black/60 transition-colors duration-200 backdrop-blur-sm"
                                 >
                                   <FaPlay className="transform hover:scale-110 transition-transform duration-200" />
                                 </motion.button>
@@ -568,7 +568,7 @@ export default function MediaShowcase() {
                               initial={{ opacity: 0 }}
                               animate={{ opacity: hoveredItem === item.media_id ? 1 : 0 }}
                               onClick={() => handleVideoPlay(item.media_id)}
-                              className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-4xl hover:bg-black/60 transition-colors duration-200 backdrop-blur-sm"
+                              className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-5xl hover:bg-black/60 transition-colors duration-200 backdrop-blur-sm"
                             >
                               {playingVideos.has(item.media_id) ? 
                                 <FaPause className="transform hover:scale-110 transition-transform duration-200" /> : 
@@ -580,11 +580,11 @@ export default function MediaShowcase() {
                       </div>
                     )}
                   </div>
-                  <div className="p-4 sm:p-6">
+                  <div className="p-6 sm:p-8">
                     <motion.h3
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3"
+                      className="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4"
                     >
                       {item.title}
                     </motion.h3>
@@ -592,7 +592,7 @@ export default function MediaShowcase() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.2 }}
-                      className="text-gray-300 leading-relaxed text-sm sm:text-base"
+                      className="text-gray-300 leading-relaxed text-base sm:text-lg"
                     >
                       {item.description}
                     </motion.p>
@@ -601,34 +601,34 @@ export default function MediaShowcase() {
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="p-3 sm:p-4 border-t border-gray-700/50 flex justify-end gap-2 sm:gap-3 bg-gray-900/50 backdrop-blur-sm"
+                      className="p-4 sm:p-6 border-t border-gray-700/50 flex justify-end gap-3 sm:gap-4 bg-gray-900/50 backdrop-blur-sm"
                     >
                       <motion.button
                         whileHover={{ scale: 1.1, color: "#60A5FA" }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => handleEdit(item)}
-                        className="p-2 text-blue-400 hover:text-blue-300 transition-colors duration-200"
+                        className="p-2 sm:p-3 text-blue-400 hover:text-blue-300 transition-colors duration-200"
                       >
-                        <FaEdit className="text-lg sm:text-xl" />
+                        <FaEdit className="text-xl sm:text-2xl" />
                       </motion.button>
                       <motion.button
                         whileHover={{ scale: 1.1, color: "#FCD34D" }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => handleToggleVisibility(item.media_id, item.is_visible)}
-                        className="p-2 text-yellow-400 hover:text-yellow-300 transition-colors duration-200"
+                        className="p-2 sm:p-3 text-yellow-400 hover:text-yellow-300 transition-colors duration-200"
                       >
                         {item.is_visible ? 
-                          <FaEyeSlash className="text-lg sm:text-xl" /> : 
-                          <FaEye className="text-lg sm:text-xl" />
+                          <FaEyeSlash className="text-xl sm:text-2xl" /> : 
+                          <FaEye className="text-xl sm:text-2xl" />
                         }
                       </motion.button>
                       <motion.button
                         whileHover={{ scale: 1.1, color: "#F87171" }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => handleDelete(item.media_id)}
-                        className="p-2 text-red-400 hover:text-red-300 transition-colors duration-200"
+                        className="p-2 sm:p-3 text-red-400 hover:text-red-300 transition-colors duration-200"
                       >
-                        <FaTrash className="text-lg sm:text-xl" />
+                        <FaTrash className="text-xl sm:text-2xl" />
                       </motion.button>
                     </motion.div>
                   )}
@@ -645,70 +645,70 @@ export default function MediaShowcase() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-gray-900 rounded-xl p-4 sm:p-6 max-w-md w-full shadow-2xl border border-gray-700"
+            className="bg-gray-900 rounded-xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-gray-700"
           >
-            <h3 className="text-xl sm:text-2xl font-bold mb-6 text-white text-center">
+            <h3 className="text-2xl sm:text-3xl font-bold mb-8 text-white text-center">
               {editingItem ? 'ویرایش رسانه' : 'افزودن رسانه جدید'}
             </h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-gray-300 mb-2 text-right text-sm sm:text-base">نوع رسانه</label>
+                <label className="block text-gray-300 mb-3 text-right text-base sm:text-lg">نوع رسانه</label>
                 <select
                   value={formData.type}
                   onChange={(e) => handleInputChange('type', e.target.value)}
-                  className="w-full bg-gray-800 text-white rounded-lg p-2 sm:p-3 border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-sm sm:text-base"
+                  className="w-full bg-gray-800 text-white rounded-lg p-3 sm:p-4 border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-base sm:text-lg"
                 >
                   <option value="image">تصویر</option>
                   <option value="video">ویدیو</option>
                 </select>
               </div>
               <div>
-                <label className="block text-gray-300 mb-2 text-right text-sm sm:text-base">آدرس</label>
+                <label className="block text-gray-300 mb-3 text-right text-base sm:text-lg">آدرس</label>
                 <input
                   type="text"
                   value={formData.url}
                   onChange={(e) => handleInputChange('url', e.target.value)}
-                  className="w-full bg-gray-800 text-white rounded-lg p-2 sm:p-3 border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-sm sm:text-base"
+                  className="w-full bg-gray-800 text-white rounded-lg p-3 sm:p-4 border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-base sm:text-lg"
                   placeholder={formData.type === 'image' ? 'آدرس تصویر' : 'آدرس ویدیو (YouTube یا Vimeo)'}
                   dir="ltr"
                   required
                 />
               </div>
               <div>
-                <label className="block text-gray-300 mb-2 text-right text-sm sm:text-base">عنوان</label>
+                <label className="block text-gray-300 mb-3 text-right text-base sm:text-lg">عنوان</label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
-                  className="w-full bg-gray-800 text-white rounded-lg p-2 sm:p-3 border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-sm sm:text-base"
+                  className="w-full bg-gray-800 text-white rounded-lg p-3 sm:p-4 border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-base sm:text-lg"
                   placeholder="عنوان به فارسی"
                   dir="rtl"
                   required
                 />
               </div>
               <div>
-                <label className="block text-gray-300 mb-2 text-right text-sm sm:text-base">توضیحات</label>
+                <label className="block text-gray-300 mb-3 text-right text-base sm:text-lg">توضیحات</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
-                  className="w-full bg-gray-800 text-white rounded-lg p-2 sm:p-3 border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 resize-none text-sm sm:text-base"
-                  rows={3}
+                  className="w-full bg-gray-800 text-white rounded-lg p-3 sm:p-4 border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 resize-none text-base sm:text-lg"
+                  rows={4}
                   placeholder="توضیحات به فارسی"
                   dir="rtl"
                   required
                 />
               </div>
-              <div className="flex justify-end gap-2 mt-6">
+              <div className="flex justify-end gap-4 mt-8">
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="px-4 sm:px-6 py-2 sm:py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200 text-sm sm:text-base"
+                  className="px-6 sm:px-8 py-3 sm:py-4 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200 text-base sm:text-lg"
                 >
                   انصراف
                 </button>
                 <button
                   type="submit"
-                  className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors duration-200 text-sm sm:text-base"
+                  className="px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors duration-200 text-base sm:text-lg"
                 >
                   {editingItem ? 'ویرایش' : 'افزودن'}
                 </button>
