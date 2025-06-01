@@ -437,24 +437,24 @@ export default function MediaShowcase() {
 
   return (
     <motion.section
-    ref={sectionRef}
-    variants={containerVariants}
-    initial="hidden"
-    animate={controls}
-    className="py-16 px-4 md:px-8 lg:px-12 bg-gray-950 relative overflow-hidden"
-  >
+      ref={sectionRef}
+      variants={containerVariants}
+      initial="hidden"
+      animate={controls}
+      className="py-8 sm:py-12 md:py-16 px-4 md:px-8 lg:px-12 bg-gray-950 relative overflow-hidden min-h-screen"
+    >
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/80 to-black/95"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-transparent"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-500/10 via-transparent to-transparent"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-pink-500/10 via-transparent to-transparent"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-transparent animate-pulse"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-500/10 via-transparent to-transparent animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-pink-500/10 via-transparent to-transparent animate-pulse" style={{ animationDelay: '2s' }}></div>
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
         <motion.h2
           variants={itemVariants}
-          className="text-4xl font-bold text-white mb-12 text-center"
+          className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-8 sm:mb-12 text-center"
         >
           گالری رسانه‌ها
         </motion.h2>
@@ -462,13 +462,13 @@ export default function MediaShowcase() {
         {isAdmin && (
           <motion.div
             variants={itemVariants}
-            className="flex justify-end mb-8"
+            className="flex justify-end mb-6 sm:mb-8"
           >
             <motion.button
               whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(59, 130, 246, 0.5)" }}
               whileTap={{ scale: 0.95 }}
               onClick={handleAdd}
-              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-all duration-200"
+              className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-all duration-200 text-sm sm:text-base"
             >
               <FaPlus /> افزودن رسانه جدید
             </motion.button>
@@ -478,14 +478,14 @@ export default function MediaShowcase() {
         {visibleItems.length === 0 ? (
           <motion.div
             variants={itemVariants}
-            className="text-center text-gray-400 py-8"
+            className="text-center text-gray-400 py-8 text-lg sm:text-xl"
           >
             {isAdmin ? 'هیچ رسانه‌ای وجود ندارد' : 'در حال حاضر هیچ رسانه‌ای برای نمایش وجود ندارد'}
           </motion.div>
         ) : (
           <motion.div
             variants={containerVariants}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"
           >
             <AnimatePresence mode="wait">
               {visibleItems.map((item) => (
@@ -497,11 +497,11 @@ export default function MediaShowcase() {
                   exit="hidden"
                   whileHover={{ 
                     scale: 1.02,
-                    boxShadow: "0 0 30px rgba(0, 0, 0, 0.3)"
+                    boxShadow: "0 0 30px rgba(59, 130, 246, 0.2)"
                   }}
                   onHoverStart={() => setHoveredItem(item.media_id)}
                   onHoverEnd={() => setHoveredItem(null)}
-                  className="bg-gray-800/50 backdrop-blur-sm rounded-lg overflow-hidden shadow-lg transform transition-all duration-300 border border-gray-700/50"
+                  className="bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden shadow-lg transform transition-all duration-300 border border-gray-700/50 hover:border-blue-500/50"
                 >
                   <div className="relative aspect-video group">
                     {item.type === 'image' ? (
@@ -532,9 +532,9 @@ export default function MediaShowcase() {
                                   initial={{ opacity: 0 }}
                                   animate={{ opacity: hoveredItem === item.media_id ? 1 : 0 }}
                                   onClick={() => window.open(item.url, '_blank')}
-                                  className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-4xl hover:bg-black/60 transition-colors duration-200"
+                                  className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-4xl hover:bg-black/60 transition-colors duration-200 backdrop-blur-sm"
                                 >
-                                  <FaPlay />
+                                  <FaPlay className="transform hover:scale-110 transition-transform duration-200" />
                                 </motion.button>
                               </div>
                             ) : (
@@ -568,20 +568,23 @@ export default function MediaShowcase() {
                               initial={{ opacity: 0 }}
                               animate={{ opacity: hoveredItem === item.media_id ? 1 : 0 }}
                               onClick={() => handleVideoPlay(item.media_id)}
-                              className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-4xl hover:bg-black/60 transition-colors duration-200"
+                              className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-4xl hover:bg-black/60 transition-colors duration-200 backdrop-blur-sm"
                             >
-                              {playingVideos.has(item.media_id) ? <FaPause /> : <FaPlay />}
+                              {playingVideos.has(item.media_id) ? 
+                                <FaPause className="transform hover:scale-110 transition-transform duration-200" /> : 
+                                <FaPlay className="transform hover:scale-110 transition-transform duration-200" />
+                              }
                             </motion.button>
                           </>
                         )}
                       </div>
                     )}
                   </div>
-                  <div className="p-6">
+                  <div className="p-4 sm:p-6">
                     <motion.h3
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="text-2xl font-bold text-white mb-3"
+                      className="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3"
                     >
                       {item.title}
                     </motion.h3>
@@ -589,7 +592,7 @@ export default function MediaShowcase() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.2 }}
-                      className="text-gray-300 leading-relaxed"
+                      className="text-gray-300 leading-relaxed text-sm sm:text-base"
                     >
                       {item.description}
                     </motion.p>
@@ -598,7 +601,7 @@ export default function MediaShowcase() {
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="p-4 border-t border-gray-700/50 flex justify-end gap-3"
+                      className="p-3 sm:p-4 border-t border-gray-700/50 flex justify-end gap-2 sm:gap-3 bg-gray-900/50 backdrop-blur-sm"
                     >
                       <motion.button
                         whileHover={{ scale: 1.1, color: "#60A5FA" }}
@@ -606,7 +609,7 @@ export default function MediaShowcase() {
                         onClick={() => handleEdit(item)}
                         className="p-2 text-blue-400 hover:text-blue-300 transition-colors duration-200"
                       >
-                        <FaEdit />
+                        <FaEdit className="text-lg sm:text-xl" />
                       </motion.button>
                       <motion.button
                         whileHover={{ scale: 1.1, color: "#FCD34D" }}
@@ -614,7 +617,10 @@ export default function MediaShowcase() {
                         onClick={() => handleToggleVisibility(item.media_id, item.is_visible)}
                         className="p-2 text-yellow-400 hover:text-yellow-300 transition-colors duration-200"
                       >
-                        {item.is_visible ? <FaEyeSlash /> : <FaEye />}
+                        {item.is_visible ? 
+                          <FaEyeSlash className="text-lg sm:text-xl" /> : 
+                          <FaEye className="text-lg sm:text-xl" />
+                        }
                       </motion.button>
                       <motion.button
                         whileHover={{ scale: 1.1, color: "#F87171" }}
@@ -622,7 +628,7 @@ export default function MediaShowcase() {
                         onClick={() => handleDelete(item.media_id)}
                         className="p-2 text-red-400 hover:text-red-300 transition-colors duration-200"
                       >
-                        <FaTrash />
+                        <FaTrash className="text-lg sm:text-xl" />
                       </motion.button>
                     </motion.div>
                   )}
@@ -635,52 +641,57 @@ export default function MediaShowcase() {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-          <div className="bg-gray-900 rounded-lg p-6 max-w-md w-full shadow-2xl border border-gray-700">
-            <h3 className="text-2xl font-bold mb-6 text-white text-center">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-gray-900 rounded-xl p-4 sm:p-6 max-w-md w-full shadow-2xl border border-gray-700"
+          >
+            <h3 className="text-xl sm:text-2xl font-bold mb-6 text-white text-center">
               {editingItem ? 'ویرایش رسانه' : 'افزودن رسانه جدید'}
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-gray-300 mb-2 text-right">نوع رسانه</label>
+                <label className="block text-gray-300 mb-2 text-right text-sm sm:text-base">نوع رسانه</label>
                 <select
                   value={formData.type}
                   onChange={(e) => handleInputChange('type', e.target.value)}
-                  className="w-full bg-gray-800 text-white rounded p-3 border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                  className="w-full bg-gray-800 text-white rounded-lg p-2 sm:p-3 border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-sm sm:text-base"
                 >
                   <option value="image">تصویر</option>
                   <option value="video">ویدیو</option>
                 </select>
               </div>
               <div>
-                <label className="block text-gray-300 mb-2 text-right">آدرس</label>
+                <label className="block text-gray-300 mb-2 text-right text-sm sm:text-base">آدرس</label>
                 <input
                   type="text"
                   value={formData.url}
                   onChange={(e) => handleInputChange('url', e.target.value)}
-                  className="w-full bg-gray-800 text-white rounded p-3 border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                  className="w-full bg-gray-800 text-white rounded-lg p-2 sm:p-3 border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-sm sm:text-base"
                   placeholder={formData.type === 'image' ? 'آدرس تصویر' : 'آدرس ویدیو (YouTube یا Vimeo)'}
                   dir="ltr"
                   required
                 />
               </div>
               <div>
-                <label className="block text-gray-300 mb-2 text-right">عنوان</label>
+                <label className="block text-gray-300 mb-2 text-right text-sm sm:text-base">عنوان</label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
-                  className="w-full bg-gray-800 text-white rounded p-3 border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                  className="w-full bg-gray-800 text-white rounded-lg p-2 sm:p-3 border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-sm sm:text-base"
                   placeholder="عنوان به فارسی"
                   dir="rtl"
                   required
                 />
               </div>
               <div>
-                <label className="block text-gray-300 mb-2 text-right">توضیحات</label>
+                <label className="block text-gray-300 mb-2 text-right text-sm sm:text-base">توضیحات</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
-                  className="w-full bg-gray-800 text-white rounded p-3 border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 resize-none"
+                  className="w-full bg-gray-800 text-white rounded-lg p-2 sm:p-3 border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 resize-none text-sm sm:text-base"
                   rows={3}
                   placeholder="توضیحات به فارسی"
                   dir="rtl"
@@ -691,19 +702,19 @@ export default function MediaShowcase() {
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200"
+                  className="px-4 sm:px-6 py-2 sm:py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200 text-sm sm:text-base"
                 >
                   انصراف
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors duration-200"
+                  className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors duration-200 text-sm sm:text-base"
                 >
                   {editingItem ? 'ویرایش' : 'افزودن'}
                 </button>
               </div>
             </form>
-          </div>
+          </motion.div>
         </div>
       )}
     </motion.section>
