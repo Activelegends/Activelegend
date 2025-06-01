@@ -437,12 +437,12 @@ export default function MediaShowcase() {
 
   return (
     <motion.section
-      ref={sectionRef}
-      variants={containerVariants}
-      initial="hidden"
-      animate={controls}
-      className="py-16 bg-gray-900 relative overflow-hidden"
-    >
+    ref={sectionRef}
+    variants={containerVariants}
+    initial="hidden"
+    animate={controls}
+    className="py-16 px-4 md:px-8 lg:px-12 bg-gray-950 relative overflow-hidden"
+  >
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/80 to-black/95"></div>
