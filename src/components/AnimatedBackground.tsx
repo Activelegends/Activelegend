@@ -23,7 +23,7 @@ interface Shape {
 function getRandomShapes(count: number): Shape[] {
   return Array.from({ length: count }).map(() => ({
     id: crypto.randomUUID(),
-    size: 200 + Math.random() * 200, // افزایش سایز برای وضوح بیشتر
+    size: 200 + Math.random() * 250, // افزایش سایز برای وضوح بیشتر
     x: Math.random() * window.innerWidth,
     y: Math.random() * window.innerHeight,
     color: COLORS[Math.floor(Math.random() * COLORS.length)],
@@ -34,7 +34,7 @@ function getRandomShapes(count: number): Shape[] {
 }
 
 export default function ParallaxShapes() {
-  const shapeCount = 6; // کاهش تعداد برای عملکرد بهتر
+  const shapeCount = 5; // کاهش تعداد برای عملکرد بهتر
   const [shapes, setShapes] = useState<Shape[]>(() => getRandomShapes(shapeCount));
   const mouse = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
   const [offsets, setOffsets] = useState(shapes.map(() => ({ x: 0, y: 0 })));
@@ -87,8 +87,8 @@ export default function ParallaxShapes() {
             backgroundColor: shape.color,
             top: 0,
             left: 0,
-            opacity: 0.3, // افزایش شفافیت
-            filter: "blur(40px)", // کاهش بلور برای وضوح بیشتر
+            opacity: 0.5, // افزایش شفافیت
+            filter: "blur(25px)", // کاهش بلور برای وضوح بیشتر
             mixBlendMode: "screen",
           }}
           animate={{
