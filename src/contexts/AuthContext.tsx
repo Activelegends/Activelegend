@@ -20,15 +20,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check initial session
+    // بررسی توکن در URL
+    const handleAuthCallback = async () => {
+      try {
+        const hash = window.location.hash;
+        if (hash) {
+          console.log('دریافت هش از URL:', hash);
+          const params = new URLSearchParams(hash.substring(1));
+          const accessToken = params.get('access_token');
+          const refreshToken = params.get('refresh_token');
+          
+          if (accessToken && refreshToken) {
+            console.log('توکن‌ها در URL یافت شدند');
+            const { data: { session }, error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken
+            });
+            
+            if (error) {
+              console.error('خطا در تنظیم سشن:', error);
+              throw error;
+            }
+            
+            console.log('سشن با موفقیت تنظیم شد:', session);
+            setUser(session?.user ?? null);
+            setIsAdmin(session?.user?.email === 'active.legendss@gmail.com');
+            
+            // پاک کردن هش از URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+        }
+      } catch (error) {
+        console.error('خطا در مدیریت ریدایرکت:', error);
+      }
+    };
+
+    // اجرای تابع در لود اولیه
+    handleAuthCallback();
+
+    // بررسی سشن اولیه
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('بررسی سشن اولیه:', session);
       setUser(session?.user ?? null);
       setIsAdmin(session?.user?.email === 'active.legendss@gmail.com');
       setIsLoading(false);
     });
 
-    // Listen for auth changes
+    // گوش دادن به تغییرات احراز هویت
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log('تغییر وضعیت احراز هویت:', _event, session);
       setUser(session?.user ?? null);
       setIsAdmin(session?.user?.email === 'active.legendss@gmail.com');
       setIsLoading(false);
@@ -91,11 +131,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     setIsLoading(true);
     try {
-      console.log('تلاش برای ورود با گوگل');
+      console.log('شروع فرآیند ورود با گوگل');
       const { error, data } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: `${window.location.origin}${window.location.pathname}`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
