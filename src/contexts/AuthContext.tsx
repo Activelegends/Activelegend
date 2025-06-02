@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
       options: {
-        emailRedirectTo: `${getBaseUrl()}/auth/callback`,
+        emailRedirectTo: `${getBaseUrl()}/#/auth/callback`,
       },
     });
     if (error) throw new Error('خطا در ثبت نام: ' + error.message);
@@ -68,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${getBaseUrl()}/auth/callback`,
+        redirectTo: `${getBaseUrl()}/#/auth/callback`,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',

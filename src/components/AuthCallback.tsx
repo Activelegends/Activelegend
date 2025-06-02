@@ -38,7 +38,7 @@ export default function AuthCallback() {
             
             // Clear the URL hash and update the URL
             const baseUrl = getBaseUrl();
-            window.history.replaceState(null, '', `${baseUrl}/auth/callback`);
+            window.history.replaceState(null, '', `${baseUrl}/#/auth/callback`);
           }
         }
 
