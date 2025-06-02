@@ -8,6 +8,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { supabase } from './lib/supabase';
 import Dashboard from './components/Dashboard';
+import AuthCallback from './components/AuthCallback';
 import type { Session } from '@supabase/supabase-js';
 
 function App() {
@@ -59,6 +60,7 @@ function App() {
     <Router>
       <AuthProvider>
         <Routes>
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/dashboard" element={
             session ? <Dashboard /> : <Navigate to="/" replace />
           } />
