@@ -158,11 +158,15 @@ export default function MediaShowcase() {
 
   const fetchMediaItems = async () => {
     try {
-      const { data, error } = await supabase.from('media_gallery').select();
+      const { data, error } = await supabase
+        .from('media_gallery')
+        .select('*')
+        .order('created_at', { ascending: false });
       
       if (error) throw error;
       
       if (data) {
+        console.log('Fetched media items:', data);
         setMediaItems(data);
         
         // دریافت اطلاعات ویدیوهای آپارات
@@ -172,7 +176,7 @@ export default function MediaShowcase() {
             if (videoInfo) {
               setVideoPreviews(prev => ({
                 ...prev,
-                [item.media_id]: videoInfo
+                [item.id]: videoInfo
               }));
             }
           }
@@ -180,6 +184,7 @@ export default function MediaShowcase() {
       }
     } catch (error) {
       console.error('Error fetching media items:', error);
+      alert('خطا در دریافت اطلاعات. لطفاً صفحه را رفرش کنید.');
     }
   };
 
@@ -246,7 +251,7 @@ export default function MediaShowcase() {
     
     try {
       if (editingItem) {
-        console.log('Updating item:', editingItem.media_id);
+        console.log('Updating item:', editingItem.id);
         const { data, error } = await supabase
           .from('media_gallery')
           .update({
@@ -256,7 +261,7 @@ export default function MediaShowcase() {
             description: formData.description,
             updated_at: new Date().toISOString()
           })
-          .eq('media_id', editingItem.media_id)
+          .eq('id', editingItem.id)
           .select();
 
         if (error) {
@@ -299,28 +304,57 @@ export default function MediaShowcase() {
   };
 
   const handleDelete = async (id: string) => {
+    if (!confirm('آیا از حذف این رسانه اطمینان دارید؟')) {
+      return;
+    }
+    
     try {
-      const { error } = await supabase
+      console.log('Deleting media with ID:', id);
+      
+      const { data, error } = await supabase
         .from('media_gallery')
-        .delete();
+        .delete()
+        .eq('id', id)
+        .select();
 
-      if (error) throw error;
-      fetchMediaItems();
+      if (error) {
+        console.error('Supabase delete error:', error);
+        throw error;
+      }
+
+      console.log('Delete response:', data);
+      await fetchMediaItems();
     } catch (error) {
-      console.error('Error deleting media item:', error);
+      console.error('Error in handleDelete:', error);
+      alert('خطا در حذف رسانه. لطفاً دوباره تلاش کنید.');
     }
   };
 
   const handleToggleVisibility = async (id: string, currentVisibility: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('media_gallery')
-        .update({ is_visible: !currentVisibility });
+    if (!id) {
+      console.error('Media ID is undefined');
+      return;
+    }
 
-      if (error) throw error;
-      fetchMediaItems();
+    try {
+      console.log('Toggling visibility for ID:', id, 'Current visibility:', currentVisibility);
+      
+      const { data, error } = await supabase
+        .from('media_gallery')
+        .update({ is_visible: !currentVisibility })
+        .eq('id', id)
+        .select();
+
+      if (error) {
+        console.error('Supabase update error:', error);
+        throw error;
+      }
+
+      console.log('Update response:', data);
+      await fetchMediaItems();
     } catch (error) {
-      console.error('Error toggling visibility:', error);
+      console.error('Error in handleToggleVisibility:', error);
+      alert('خطا در تغییر وضعیت نمایش. لطفاً دوباره تلاش کنید.');
     }
   };
 
@@ -488,10 +522,10 @@ export default function MediaShowcase() {
             variants={containerVariants}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10"
           >
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="sync">
               {visibleItems.map((item) => (
                 <motion.div
-                  key={item.media_id}
+                  key={item.id}
                   variants={itemVariants}
                   initial="hidden"
                   animate="visible"
@@ -500,7 +534,7 @@ export default function MediaShowcase() {
                     scale: 1.02,
                     boxShadow: "0 0 30px rgba(59, 130, 246, 0.2)"
                   }}
-                  onHoverStart={() => setHoveredItem(item.media_id)}
+                  onHoverStart={() => setHoveredItem(item.id)}
                   onHoverEnd={() => setHoveredItem(null)}
                   className="bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden shadow-lg transform transition-all duration-300 border border-gray-700/50 hover:border-blue-500/50"
                 >
@@ -522,16 +556,16 @@ export default function MediaShowcase() {
                          item.url.includes('vimeo.com') || 
                          item.url.includes('aparat.com') ? (
                           <>
-                            {item.url.includes('aparat.com') && videoPreviews[item.media_id] ? (
+                            {item.url.includes('aparat.com') && videoPreviews[item.id] ? (
                               <div className="relative w-full h-full">
                                 <img
-                                  src={videoPreviews[item.media_id].big_poster}
-                                  alt={videoPreviews[item.media_id].title}
+                                  src={videoPreviews[item.id].big_poster}
+                                  alt={videoPreviews[item.id].title}
                                   className="w-full h-full object-cover"
                                 />
                                 <motion.button
                                   initial={{ opacity: 0 }}
-                                  animate={{ opacity: hoveredItem === item.media_id ? 1 : 0 }}
+                                  animate={{ opacity: hoveredItem === item.id ? 1 : 0 }}
                                   onClick={() => window.open(item.url, '_blank')}
                                   className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-5xl hover:bg-black/60 transition-colors duration-200 backdrop-blur-sm"
                                 >
@@ -552,14 +586,14 @@ export default function MediaShowcase() {
                         ) : (
                           <>
                             <video
-                              ref={el => videoRefs.current[item.media_id] = el}
+                              ref={el => videoRefs.current[item.id] = el}
                               src={item.url}
                               className="w-full h-full object-cover"
                               loop
                               muted
                               playsInline
                               onLoadedData={() => {
-                                const video = videoRefs.current[item.media_id];
+                                const video = videoRefs.current[item.id];
                                 if (video) {
                                   video.currentTime = 0;
                                 }
@@ -567,11 +601,11 @@ export default function MediaShowcase() {
                             />
                             <motion.button
                               initial={{ opacity: 0 }}
-                              animate={{ opacity: hoveredItem === item.media_id ? 1 : 0 }}
-                              onClick={() => handleVideoPlay(item.media_id)}
+                              animate={{ opacity: hoveredItem === item.id ? 1 : 0 }}
+                              onClick={() => handleVideoPlay(item.id)}
                               className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-5xl hover:bg-black/60 transition-colors duration-200 backdrop-blur-sm"
                             >
-                              {playingVideos.has(item.media_id) ? 
+                              {playingVideos.has(item.id) ? 
                                 <FaPause className="transform hover:scale-110 transition-transform duration-200" /> : 
                                 <FaPlay className="transform hover:scale-110 transition-transform duration-200" />
                               }
@@ -615,7 +649,7 @@ export default function MediaShowcase() {
                       <motion.button
                         whileHover={{ scale: 1.1, color: "#FCD34D" }}
                         whileTap={{ scale: 0.9 }}
-                        onClick={() => handleToggleVisibility(item.media_id, item.is_visible)}
+                        onClick={() => handleToggleVisibility(item.id, item.is_visible)}
                         className="p-2 sm:p-3 text-yellow-400 hover:text-yellow-300 transition-colors duration-200"
                       >
                         {item.is_visible ? 
@@ -626,7 +660,7 @@ export default function MediaShowcase() {
                       <motion.button
                         whileHover={{ scale: 1.1, color: "#F87171" }}
                         whileTap={{ scale: 0.9 }}
-                        onClick={() => handleDelete(item.media_id)}
+                        onClick={() => handleDelete(item.id)}
                         className="p-2 sm:p-3 text-red-400 hover:text-red-300 transition-colors duration-200"
                       >
                         <FaTrash className="text-xl sm:text-2xl" />
