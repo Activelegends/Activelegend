@@ -23,6 +23,21 @@ export default function Navbar() {
     setIsAuthModalOpen(true);
   };
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    const targetElement = document.getElementById(targetId);
+    if (targetElement) {
+      const headerOffset = 80; // ارتفاع هدر
+      const elementPosition = targetElement.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
     <>
       <motion.nav
@@ -31,6 +46,12 @@ export default function Navbar() {
         className={`fixed top-0 right-0 left-0 z-50 transition-all duration-300 ${
           isScrolled ? 'backdrop-blur-md bg-black/50 py-4' : 'py-6'
         }`}
+        style={{
+          willChange: 'transform',
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden',
+          perspective: '1000px'
+        }}
       >
         <div className="container mx-auto px-4 flex items-center justify-between">
           <motion.img
@@ -40,10 +61,10 @@ export default function Navbar() {
             whileHover={{ scale: 1.05 }}
           />
           <div className="flex items-center gap-8">
-            <a href="#about" className="nav-link">درباره ما</a>
-            <a href="#games" className="nav-link">بازی‌ها</a>
-            <a href="#gallery" className="nav-link">گالری تصاویر</a>
-            <a href="#contact" className="nav-link">تماس</a>
+            <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="nav-link">درباره ما</a>
+            <a href="#games" onClick={(e) => handleNavClick(e, 'games')} className="nav-link">بازی‌ها</a>
+            <a href="#gallery" onClick={(e) => handleNavClick(e, 'gallery')} className="nav-link">گالری تصاویر</a>
+            <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
             {user ? (
               <UserMenu />
             ) : (

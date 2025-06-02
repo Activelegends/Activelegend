@@ -23,12 +23,18 @@ export default function Hero() {
   };
 
   return (
-    <header className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <header className="relative min-h-screen flex items-center justify-center overflow-hidden scroll-container">
       <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/80 to-black/95"></div>
       
       <motion.div
         {...animationConfig}
         className="relative z-10 text-center max-w-4xl mx-auto px-4"
+        style={{
+          willChange: 'transform',
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden',
+          perspective: '1000px'
+        }}
       >
         <motion.img
           src={import.meta.env.BASE_URL + 'AE-logo.png'}

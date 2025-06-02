@@ -476,7 +476,7 @@ export default function MediaShowcase() {
       initial="hidden"
       animate={controls}
       id="gallery"
-      className="py-12 sm:py-16 md:py-20 px-4 md:px-8 lg:px-12 bg-gray-950 relative overflow-hidden min-h-screen"
+      className="py-12 sm:py-16 md:py-20 px-4 md:px-8 lg:px-12 bg-gray-950 relative overflow-hidden min-h-screen scroll-container"
     >
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
@@ -520,7 +520,13 @@ export default function MediaShowcase() {
         ) : (
           <motion.div
             variants={containerVariants}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 scroll-container"
+            style={{
+              willChange: 'transform',
+              transform: 'translateZ(0)',
+              backfaceVisibility: 'hidden',
+              perspective: '1000px'
+            }}
           >
             <AnimatePresence mode="sync">
               {visibleItems.map((item) => (

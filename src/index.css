@@ -6,6 +6,14 @@
 
 :root {
   direction: rtl;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
 }
 
 body {
@@ -13,6 +21,22 @@ body {
   margin: 0;
   padding: 0;
   @apply bg-black text-white text-sm sm:text-base md:text-lg;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  touch-action: pan-y pinch-zoom;
+  overscroll-behavior-y: contain;
+}
+
+/* Optimize scrolling containers */
+.scroll-container {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  scroll-behavior: smooth;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 .glass {
