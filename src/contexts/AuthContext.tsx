@@ -2,6 +2,16 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { type User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 
+// Get the base URL for GitHub Pages
+const getBaseUrl = () => {
+  // Check if we're in development
+  if (window.location.hostname === 'localhost') {
+    return window.location.origin;
+  }
+  // For GitHub Pages
+  return 'https://activelegends.github.io/Activelegend';
+};
+
 interface AuthContextType {
   user: User | null;
   isAdmin: boolean;
@@ -34,7 +44,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ 
+      email, 
+      password,
+      options: {
+        redirectTo: `${getBaseUrl()}/#/auth/callback`
+      }
+    });
     if (error) throw new Error('خطا در ورود به سیستم: ' + error.message);
   };
 
@@ -43,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: `${getBaseUrl()}/#/auth/callback`,
       },
     });
     if (error) throw new Error('خطا در ثبت نام: ' + error.message);
@@ -58,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: `${getBaseUrl()}/#/auth/callback`,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
