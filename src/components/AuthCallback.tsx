@@ -8,17 +8,27 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // Get the current URL
-        const currentUrl = window.location.href;
+        // Get the hash from the URL
+        const hash = window.location.hash;
         
-        // If we have a hash in the URL, we need to handle the auth callback
-        if (currentUrl.includes('#')) {
-          // Let Supabase handle the auth callback
-          const { error } = await supabase.auth.getSession();
-          if (error) throw error;
+        if (hash) {
+          // Parse the hash parameters
+          const params = new URLSearchParams(hash.substring(1));
+          const accessToken = params.get('access_token');
+          const refreshToken = params.get('refresh_token');
           
-          // Clear the URL hash to remove the tokens
-          window.history.replaceState(null, '', window.location.pathname);
+          if (accessToken && refreshToken) {
+            // Set the session using the tokens
+            const { error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
+            
+            if (error) throw error;
+            
+            // Clear the URL hash
+            window.history.replaceState(null, '', window.location.pathname);
+          }
         }
         
         // Redirect to home page after successful authentication

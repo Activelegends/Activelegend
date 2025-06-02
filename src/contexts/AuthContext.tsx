@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw new Error('خطا در ورود به سیستم: ' + error.message);
+    if (error) throw error;
   };
 
   const signUp = async (email: string, password: string) => {
@@ -43,29 +43,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: window.location.origin,
       },
     });
-    if (error) throw new Error('خطا در ثبت نام: ' + error.message);
+    if (error) throw error;
   };
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
-    if (error) throw new Error('خطا در خروج از سیستم: ' + error.message);
+    if (error) throw error;
   };
 
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
-        },
+        redirectTo: window.location.origin,
       },
     });
-    if (error) throw new Error('خطا در ورود با گوگل: ' + error.message);
+    if (error) throw error;
   };
 
   return (
@@ -78,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth باید درون AuthProvider استفاده شود');
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 }
