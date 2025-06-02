@@ -34,7 +34,7 @@ export default function Navbar() {
       >
         <div className="container mx-auto px-4 flex items-center justify-between">
           <motion.img
-            src="/Activelegend/AE-logo.png"
+            src={import.meta.env.BASE_URL + 'AE-logo.png'}
             alt="Active Legends"
             className="h-8 w-auto"
             whileHover={{ scale: 1.05 }}
