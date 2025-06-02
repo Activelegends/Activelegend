@@ -2,6 +2,16 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 
+// Get the base URL for GitHub Pages
+const getBaseUrl = () => {
+  // Check if we're in development
+  if (window.location.hostname === 'localhost') {
+    return window.location.origin;
+  }
+  // For GitHub Pages
+  return 'https://activelegends.github.io/Activelegend';
+};
+
 export default function AuthCallback() {
   const navigate = useNavigate();
 
@@ -26,8 +36,9 @@ export default function AuthCallback() {
             
             if (error) throw error;
             
-            // Clear the URL hash
-            window.history.replaceState(null, '', window.location.pathname);
+            // Clear the URL hash and update the URL
+            const baseUrl = getBaseUrl();
+            window.history.replaceState(null, '', `${baseUrl}/auth/callback`);
           }
         }
 
