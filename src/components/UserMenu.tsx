@@ -3,8 +3,33 @@ import { Menu, Transition } from '@headlessui/react';
 import { HiUser, HiLogout, HiShieldCheck, HiUserGroup, HiTrash } from 'react-icons/hi';
 import { useAuth } from '../contexts/AuthContext';
 
+const LogoutButton = ({ active }: { active: boolean }) => {
+  const { signOut } = useAuth();
+  
+  const handleLogout = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    signOut();
+  };
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onTouchStart={handleLogout}
+      onClick={handleLogout}
+      className={`${
+        active ? 'bg-white/10' : ''
+      } group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2 cursor-pointer select-none`}
+    >
+      <HiLogout className="w-5 h-5" />
+      خروج
+    </div>
+  );
+};
+
 export default function UserMenu() {
-  const { user, isAdmin, signOut } = useAuth();
+  const { user, isAdmin } = useAuth();
 
   if (!user) return null;
 
@@ -87,24 +112,7 @@ export default function UserMenu() {
             )}
 
             <Menu.Item>
-              {({ active }) => (
-                <button
-                  onTouchEnd={(e) => {
-                    e.stopPropagation();
-                    signOut();
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    signOut();
-                  }}
-                  className={`${
-                    active ? 'bg-white/10' : ''
-                  } group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2 touch-manipulation`}
-                >
-                  <HiLogout className="w-5 h-5" />
-                  خروج
-                </button>
-              )}
+              {({ active }) => <LogoutButton active={active} />}
             </Menu.Item>
           </div>
         </Menu.Items>
