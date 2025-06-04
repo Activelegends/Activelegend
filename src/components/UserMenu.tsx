@@ -7,20 +7,27 @@ export default function UserMenu() {
   const { user, isAdmin, signOut } = useAuth();
   if (!user) return null;
 
+  const avatar = user.user_metadata?.avatar_url || null;
+
   return (
     <Menu as="div" className="relative inline-block text-right">
+      {/* دکمهٔ آواتار / آیکون */}
       <Menu.Button className="inline-flex items-center justify-center rounded-full w-10 h-10 bg-white/10 text-white hover:bg-white/20 transition-colors">
-        {user.user_metadata?.avatar_url ? (
+        {avatar ? (
           <img
-            src={user.user_metadata.avatar_url}
+            src={avatar}
             alt="User avatar"
             className="w-full h-full rounded-full object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/fallback-avatar.png';
+            }}
           />
         ) : (
-          <HiUser className="w-5 h-5" />
+          <HiUser className="w-5 h-5" title="پروفایل" />
         )}
       </Menu.Button>
 
+      {/* منوی کشویی */}
       <Transition
         as={Fragment}
         enter="transition ease-out duration-100"
@@ -30,10 +37,25 @@ export default function UserMenu() {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute left-0 mt-2 w-56 max-w-[90vw] origin-top-left rounded-md bg-black border border-white/10 shadow-lg focus:outline-none z-50 overflow-hidden">
+        <Menu.Items
+          className="
+            absolute right-0 mt-2 
+            w-[240px]       /* عرض ثابت برای دسکتاپ */
+            max-w-[90vw]    /* محدودیت عرض برای موبایل */
+            origin-top-right 
+            rounded-md 
+            bg-black 
+            border border-white/10 
+            shadow-lg 
+            focus:outline-none 
+            z-50 
+            overflow-hidden
+          "
+        >
           <div className="p-2">
+            {/* بخش ایمیل یا نام کاربر */}
             <div className="px-3 py-2 text-sm text-gray-300 flex items-center gap-2 w-full">
-              <span className="truncate flex-1 min-w-0 max-w-[160px] overflow-hidden text-ellipsis">
+              <span className="truncate flex-1 min-w-0 overflow-hidden text-ellipsis">
                 {user.user_metadata?.full_name || user.email}
               </span>
               {isAdmin && (
@@ -43,11 +65,17 @@ export default function UserMenu() {
               )}
             </div>
 
+            {/* گزینه‌های مدیریت (در صورت ادمین بودن) */}
             {isAdmin && (
               <>
                 <Menu.Item>
                   {({ active }) => (
-                    <button className={`${active ? 'bg-white/10' : ''} group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}>
+                    <button
+                      onClick={() => console.log('مدیریت کاربران')}
+                      className={`${
+                        active ? 'bg-white/10' : ''
+                      } group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}
+                    >
                       <HiUserGroup className="w-5 h-5" />
                       مدیریت کاربران
                     </button>
@@ -55,7 +83,12 @@ export default function UserMenu() {
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
-                    <button className={`${active ? 'bg-white/10' : ''} group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}>
+                    <button
+                      onClick={() => console.log('مدیریت نظرات')}
+                      className={`${
+                        active ? 'bg-white/10' : ''
+                      } group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}
+                    >
                       <HiShieldCheck className="w-5 h-5" />
                       مدیریت نظرات
                     </button>
@@ -63,7 +96,12 @@ export default function UserMenu() {
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
-                    <button className={`${active ? 'bg-white/10' : ''} group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}>
+                    <button
+                      onClick={() => console.log('حذف محتوا')}
+                      className={`${
+                        active ? 'bg-white/10' : ''
+                      } group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}
+                    >
                       <HiTrash className="w-5 h-5" />
                       حذف محتوا
                     </button>
@@ -73,11 +111,14 @@ export default function UserMenu() {
               </>
             )}
 
+            {/* گزینهٔ خروج */}
             <Menu.Item>
               {({ active }) => (
                 <button
                   onClick={() => signOut()}
-                  className={`${active ? 'bg-white/10' : ''} group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}
+                  className={`${
+                    active ? 'bg-white/10' : ''
+                  } group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}
                 >
                   <HiLogout className="w-5 h-5" />
                   خروج
