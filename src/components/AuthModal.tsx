@@ -15,38 +15,29 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { signIn, signUp, signInWithGoogle, isLoading } = useAuth();
+  const { signIn, signUp, signInWithGoogle } = useAuth();
 
   useEffect(() => {
     setIsLogin(initialMode === 'login');
   }, [initialMode]);
 
   const handleError = (err: unknown) => {
-    console.log('دریافت خطا در AuthModal:', err);
     if (err instanceof Error) {
-      console.log('نوع خطا:', err.message);
       if (err.message.includes('over_email_send_rate_limit')) {
         setError('تعداد درخواست‌ها زیاد است. لطفاً کمی صبر کنید و دوباره تلاش کنید.');
       } else if (err.message.includes('invalid_credentials')) {
         setError('ایمیل یا رمز عبور اشتباه است.');
       } else if (err.message.includes('Email not confirmed')) {
         setError('لطفاً ایمیل خود را تایید کنید.');
-      } else if (err.message.includes('popup_closed_by_user')) {
-        setError('ورود با گوگل لغو شد');
-      } else if (err.message.includes('popup_blocked')) {
-        setError('پاپ‌آپ مسدود شده است. لطفاً مسدودکننده پاپ‌آپ را غیرفعال کنید');
       } else {
-        console.error('خطای ناشناخته:', err.message);
         setError('خطایی رخ داد. لطفاً دوباره تلاش کنید.');
       }
     } else {
-      console.error('خطای غیر Error:', err);
       setError('خطایی رخ داد');
     }
   };
 
   const validateForm = () => {
-    console.log('اعتبارسنجی فرم:', { email, passwordLength: password.length });
     if (!email || !password) {
       setError('لطفاً تمام فیلدها را پر کنید.');
       return false;
@@ -64,39 +55,27 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('شروع فرآیند ورود/ثبت‌نام');
     setError('');
     
-    if (!validateForm()) {
-      console.log('اعتبارسنجی فرم ناموفق بود');
-      return;
-    }
+    if (!validateForm()) return;
     
     try {
       if (isLogin) {
-        console.log('تلاش برای ورود');
         await signIn(email, password);
       } else {
-        console.log('تلاش برای ثبت‌نام');
         await signUp(email, password);
       }
-      console.log('عملیات موفقیت‌آمیز');
       onClose();
     } catch (err) {
-      console.error('خطا در handleSubmit:', err);
       handleError(err);
     }
   };
 
   const handleGoogleSignIn = async () => {
-    console.log('شروع فرآیند ورود با گوگل');
-    setError('');
     try {
       await signInWithGoogle();
-      console.log('درخواست ورود با گوگل ارسال شد');
       onClose();
     } catch (err) {
-      console.error('خطا در handleGoogleSignIn:', err);
       handleError(err);
     }
   };
@@ -140,7 +119,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
                     className="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-white focus:border-primary focus:ring-primary"
                     dir="ltr"
                     required
-                    disabled={isLoading}
                   />
                 </div>
 
@@ -156,7 +134,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
                     dir="ltr"
                     required
                     minLength={6}
-                    disabled={isLoading}
                   />
                 </div>
 
@@ -166,20 +143,9 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
 
                 <button
                   type="submit"
-                  className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={isLoading}
+                  className="w-full btn-primary"
                 >
-                  {isLoading ? (
-                    <span className="flex items-center justify-center">
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      در حال پردازش...
-                    </span>
-                  ) : (
-                    isLogin ? 'ورود' : 'ثبت‌نام'
-                  )}
+                  {isLogin ? 'ورود' : 'ثبت‌نام'}
                 </button>
 
                 <div className="relative">
@@ -194,30 +160,16 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
                 <button
                   type="button"
                   onClick={handleGoogleSignIn}
-                  className="w-full btn-secondary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={isLoading}
+                  className="w-full btn-secondary flex items-center justify-center gap-2"
                 >
-                  {isLoading ? (
-                    <span className="flex items-center justify-center">
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      در حال پردازش...
-                    </span>
-                  ) : (
-                    <>
-                      <FcGoogle className="w-5 h-5" />
-                      <span>ورود با گوگل</span>
-                    </>
-                  )}
+                  <FcGoogle className="w-5 h-5" />
+                  <span>ورود با گوگل</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setIsLogin(!isLogin)}
-                  className="w-full text-sm text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={isLoading}
+                  className="w-full text-sm text-gray-400 hover:text-white"
                 >
                   {isLogin ? 'حساب کاربری ندارید؟ ثبت‌نام کنید' : 'قبلاً ثبت‌نام کرده‌اید؟ وارد شوید'}
                 </button>
