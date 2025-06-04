@@ -13,6 +13,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const BASE_URL = 'https://activelegends.github.io/Activelegend';
+const CALLBACK_URL = `${BASE_URL}/auth/callback`;
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -22,31 +25,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const handleAuthCallback = async () => {
       try {
         const hash = window.location.hash;
-        if (hash) {
-          console.log('دریافت هش از URL:', hash);
-          const params = new URLSearchParams(hash.substring(1));
-          const accessToken = params.get('access_token');
-          const refreshToken = params.get('refresh_token');
+        const search = window.location.search;
+        
+        console.log('URL Hash:', hash);
+        console.log('URL Search:', search);
+
+        // بررسی پارامترهای URL
+        const params = new URLSearchParams(hash.substring(1) || search.substring(1));
+        const accessToken = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
+        const type = params.get('type');
+        
+        console.log('Token Type:', type);
+        console.log('Access Token Present:', !!accessToken);
+        console.log('Refresh Token Present:', !!refreshToken);
+
+        if (accessToken && refreshToken) {
+          console.log('تنظیم سشن با توکن‌های دریافتی');
+          const { data: { session }, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
           
-          if (accessToken && refreshToken) {
-            console.log('توکن‌ها در URL یافت شدند');
-            const { data: { session }, error } = await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken
-            });
-            
-            if (error) {
-              console.error('خطا در تنظیم سشن:', error);
-              throw error;
-            }
-            
-            console.log('سشن با موفقیت تنظیم شد:', session);
-            setUser(session?.user ?? null);
-            setIsAdmin(session?.user?.email === 'active.legendss@gmail.com');
-            
-            // پاک کردن هش از URL
-            window.history.replaceState({}, document.title, window.location.pathname);
+          if (error) {
+            console.error('خطا در تنظیم سشن:', error);
+            throw error;
           }
+          
+          console.log('سشن با موفقیت تنظیم شد:', session);
+          setUser(session?.user ?? null);
+          setIsAdmin(session?.user?.email === 'active.legendss@gmail.com');
+          
+          // پاک کردن پارامترها از URL
+          const cleanUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, cleanUrl);
         }
       } catch (error) {
         console.error('خطا در مدیریت ریدایرکت:', error);
@@ -83,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}${window.location.pathname}`,
+        emailRedirectTo: CALLBACK_URL,
       },
     });
     if (error) throw error;
@@ -96,17 +108,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
+      console.log('شروع فرآیند ورود با گوگل');
+      console.log('Redirect URL:', CALLBACK_URL);
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}${window.location.pathname}`,
+          redirectTo: CALLBACK_URL,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
           },
         },
       });
-      if (error) throw error;
+      
+      if (error) {
+        console.error('خطا در فراخوانی OAuth:', error);
+        throw error;
+      }
+      
+      console.log('درخواست OAuth با موفقیت ارسال شد');
     } catch (error) {
       console.error('خطا در ورود با گوگل:', error);
       if (error instanceof Error) {
