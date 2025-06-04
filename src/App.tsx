@@ -1,8 +1,12 @@
 import { motion } from 'framer-motion';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import AnimatedBackground from './components/AnimatedBackground';
 import MediaShowcase from './components/MediaShowcase';
+import Games from './pages/Games';
+import GameDetail from './pages/GameDetail';
+import NotFound from './pages/NotFound';
 import { AuthProvider } from './contexts/AuthContext';
 import { useEffect } from 'react';
 
@@ -23,16 +27,27 @@ function App() {
   }, []);
 
   return (
-    <AuthProvider>
-      <div className="min-h-screen relative scroll-container">
-        <AnimatedBackground />
-        <div className="relative z-20">
-          <Navbar />
-          <Hero />
-          <MediaShowcase />
+    <Router>
+      <AuthProvider>
+        <div className="min-h-screen relative scroll-container">
+          <AnimatedBackground />
+          <div className="relative z-20">
+            <Navbar />
+            <Routes>
+              <Route path="/" element={
+                <>
+                  <Hero />
+                  <MediaShowcase />
+                </>
+              } />
+              <Route path="/games" element={<Games />} />
+              <Route path="/games/:slug" element={<GameDetail />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
         </div>
-      </div>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 import UserMenu from './UserMenu';
 import AuthModal from './AuthModal';
 
@@ -54,15 +55,17 @@ export default function Navbar() {
         }}
       >
         <div className="container mx-auto px-4 flex items-center justify-between">
-          <motion.img
-            src={import.meta.env.BASE_URL + 'AE-logo.png'}
-            alt="Active Legends"
-            className="h-8 w-auto"
-            whileHover={{ scale: 1.05 }}
-          />
+          <Link to="/">
+            <motion.img
+              src={import.meta.env.BASE_URL + 'AE-logo.png'}
+              alt="Active Legends"
+              className="h-8 w-auto"
+              whileHover={{ scale: 1.05 }}
+            />
+          </Link>
           <div className="flex items-center gap-8">
             <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="nav-link">درباره ما</a>
-            <a href="#games" onClick={(e) => handleNavClick(e, 'games')} className="nav-link">بازی‌ها</a>
+            <Link to="/games" className="nav-link">بازی‌ها</Link>
             <a href="#gallery" onClick={(e) => handleNavClick(e, 'gallery')} className="nav-link">گالری تصاویر</a>
             <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
             {user ? (

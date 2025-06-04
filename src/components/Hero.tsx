@@ -3,6 +3,7 @@ import ScrollIndicator from './ScrollIndicator';
 import { useState } from 'react';
 import AuthModal from './AuthModal';
 import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 
 export default function Hero() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -64,30 +65,41 @@ export default function Hero() {
           توسعه‌دهنده بازی‌های موبایل و کامپیوتر
         </motion.p>
         
-        {!user && (
-          <motion.div
-            className="space-x-4 space-x-reverse"
-            {...animationConfig}
-            transition={{ ...animationConfig.transition, delay: isMobile ? 0.3 : 0.7 }}
-          >
+        <motion.div
+          className="space-x-4 space-x-reverse"
+          {...animationConfig}
+          transition={{ ...animationConfig.transition, delay: isMobile ? 0.3 : 0.7 }}
+        >
+          <Link to="/games">
             <motion.button
               className="btn-primary"
               whileHover={{ scale: isMobile ? 1.02 : 1.05 }}
               whileTap={{ scale: isMobile ? 0.98 : 0.95 }}
-              onClick={() => handleAuthClick('signup')}
             >
-              ثبت‌نام
+              مشاهده بازی‌ها
             </motion.button>
-            <motion.button
-              className="btn-secondary"
-              whileHover={{ scale: isMobile ? 1.02 : 1.05 }}
-              whileTap={{ scale: isMobile ? 0.98 : 0.95 }}
-              onClick={() => handleAuthClick('login')}
-            >
-              ورود
-            </motion.button>
-          </motion.div>
-        )}
+          </Link>
+          {!user && (
+            <>
+              <motion.button
+                className="btn-secondary"
+                whileHover={{ scale: isMobile ? 1.02 : 1.05 }}
+                whileTap={{ scale: isMobile ? 0.98 : 0.95 }}
+                onClick={() => handleAuthClick('signup')}
+              >
+                ثبت‌نام
+              </motion.button>
+              <motion.button
+                className="btn-secondary"
+                whileHover={{ scale: isMobile ? 1.02 : 1.05 }}
+                whileTap={{ scale: isMobile ? 0.98 : 0.95 }}
+                onClick={() => handleAuthClick('login')}
+              >
+                ورود
+              </motion.button>
+            </>
+          )}
+        </motion.div>
       </motion.div>
       
       <ScrollIndicator />
