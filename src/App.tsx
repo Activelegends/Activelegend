@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import AnimatedBackground from './components/AnimatedBackground';
 import MediaShowcase from './components/MediaShowcase';
+import GamesSection from './components/GamesSection';
 import { AuthProvider } from './contexts/AuthContext';
 import { useEffect } from 'react';
 
@@ -30,6 +31,7 @@ function App() {
           <Navbar />
           <Hero />
           <MediaShowcase />
+          <GamesSection />
         </div>
       </div>
     </AuthProvider>
