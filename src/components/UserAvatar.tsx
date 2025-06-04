@@ -41,7 +41,7 @@ export function UserAvatar({ size = 'medium', showName = true, className = '' }:
     large: 'w-12 h-12'
   };
 
-  const avatarUrl = userData?.avatar_url || '/images/default-avatar.png';
+  const avatarUrl = userData?.avatar_url || '/images/default-avatar.svg';
   const displayName = userData?.full_name || 'مهمان';
 
   return (
