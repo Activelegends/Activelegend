@@ -37,7 +37,7 @@ export default function UserMenu() {
               <div className="flex items-center gap-2">
                 <span className="truncate">{user.email}</span>
                 {isAdmin && (
-                  <span className="flex-shrink-0 text-sm bg-primary/20 text-primary px-1 py-0 rounded">
+                  <span className="flex-shrink-0 text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded">
                     مدیر
                   </span>
                 )}
