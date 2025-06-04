@@ -89,7 +89,14 @@ export default function UserMenu() {
             <Menu.Item>
               {({ active }) => (
                 <button
-                  onClick={signOut}
+                  onTouchEnd={(e) => {
+                    e.stopPropagation();
+                    signOut();
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    signOut();
+                  }}
                   className={`${
                     active ? 'bg-white/10' : ''
                   } group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2 touch-manipulation`}
