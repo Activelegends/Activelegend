@@ -18,14 +18,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // Check initial session
+    // بررسی توکن در URL
+    const handleAuthCallback = async () => {
+      try {
+        const hash = window.location.hash;
+        if (hash) {
+          console.log('دریافت هش از URL:', hash);
+          const params = new URLSearchParams(hash.substring(1));
+          const accessToken = params.get('access_token');
+          const refreshToken = params.get('refresh_token');
+          
+          if (accessToken && refreshToken) {
+            console.log('توکن‌ها در URL یافت شدند');
+            const { data: { session }, error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken
+            });
+            
+            if (error) {
+              console.error('خطا در تنظیم سشن:', error);
+              throw error;
+            }
+            
+            console.log('سشن با موفقیت تنظیم شد:', session);
+            setUser(session?.user ?? null);
+            setIsAdmin(session?.user?.email === 'active.legendss@gmail.com');
+            
+            // پاک کردن هش از URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+        }
+      } catch (error) {
+        console.error('خطا در مدیریت ریدایرکت:', error);
+      }
+    };
+
+    // اجرای تابع در لود اولیه
+    handleAuthCallback();
+
+    // بررسی سشن اولیه
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('بررسی سشن اولیه:', session);
       setUser(session?.user ?? null);
       setIsAdmin(session?.user?.email === 'active.legendss@gmail.com');
     });
 
-    // Listen for auth changes
+    // گوش دادن به تغییرات احراز هویت
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log('تغییر وضعیت احراز هویت:', _event, session);
       setUser(session?.user ?? null);
       setIsAdmin(session?.user?.email === 'active.legendss@gmail.com');
     });
@@ -43,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: `${window.location.origin}${window.location.pathname}`,
       },
     });
     if (error) throw error;
@@ -55,13 +95,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
-    if (error) throw error;
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}${window.location.pathname}`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+      if (error) throw error;
+    } catch (error) {
+      console.error('خطا در ورود با گوگل:', error);
+      if (error instanceof Error) {
+        if (error.message.includes('popup_closed_by_user')) {
+          throw new Error('ورود با گوگل لغو شد');
+        } else if (error.message.includes('popup_blocked')) {
+          throw new Error('پاپ‌آپ مسدود شده است. لطفاً مسدودکننده پاپ‌آپ را غیرفعال کنید');
+        } else {
+          throw new Error('خطا در ورود با گوگل. لطفاً دوباره تلاش کنید');
+        }
+      }
+      throw error;
+    }
   };
 
   return (
