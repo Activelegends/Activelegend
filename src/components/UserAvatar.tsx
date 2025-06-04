@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabase';
+// نیازی به ایمپورت supabase در اینجا نیست زیرا اطلاعات کاربر از AuthContext می‌آید
+// import { supabase } from '../lib/supabase';
 
 interface UserAvatarProps {
   size?: 'small' | 'medium' | 'large';
@@ -10,41 +11,43 @@ interface UserAvatarProps {
 
 export function UserAvatar({ size = 'medium', showName = true, className = '' }: UserAvatarProps) {
   const { user } = useAuth();
-  const [userData, setUserData] = useState<{
-    avatar_url: string | null;
-    full_name: string | null;
-  } | null>(null);
+  // نیازی به state جداگانه برای userData نیست
+  // const [userData, setUserData] = useState<{
+  //   avatar_url: string | null;
+  //   full_name: string | null;
+  // } | null>(null);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (user) {
-        try {
-          console.log('دریافت اطلاعات کاربر:', user);
-          const { data: { user: userData }, error } = await supabase.auth.getUser();
+  // این useEffect دیگر نیازی به فراخوانی getUser() ندارد
+  // useEffect(() => {
+  //   const fetchUserData = async () => {
+  //     if (user) {
+  //       try {
+  //         console.log('دریافت اطلاعات کاربر از useAuth:', user);
+  //         // const { data: { user: userData }, error } = await supabase.auth.getUser();
           
-          if (error) {
-            console.error('خطا در دریافت اطلاعات کاربر:', error);
-            throw error;
-          }
+  //         // if (error) {
+  //         //   console.error('خطا در دریافت اطلاعات کاربر:', error);
+  //         //   throw error;
+  //         // }
           
-          console.log('اطلاعات کاربر دریافت شد:', userData);
-          console.log('آواتار:', userData?.user_metadata?.avatar_url);
-          console.log('نام:', userData?.user_metadata?.full_name);
+  //         // console.log('اطلاعات کاربر دریافت شد:', userData);
+  //         // console.log('آواتار:', userData?.user_metadata?.avatar_url);
+  //         // console.log('نام:', userData?.user_metadata?.full_name);
           
-          setUserData({
-            avatar_url: userData?.user_metadata?.avatar_url || null,
-            full_name: userData?.user_metadata?.full_name || null
-          });
-        } catch (error) {
-          console.error('خطا در دریافت اطلاعات کاربر:', error);
-        }
-      } else {
-        console.log('کاربر لاگین نکرده است');
-      }
-    };
+  //         // setUserData({
+  //         //   avatar_url: userData?.user_metadata?.avatar_url || null,
+  //         //   full_name: userData?.user_metadata?.full_name || null
+  //         // });
+  //       } catch (error) {
+  //         console.error('خطا در پردازش اطلاعات کاربر:', error);
+  //       }
+  //     } else {
+  //       console.log('کاربر لاگین نکرده است');
+  //     }
+  //   };
 
-    fetchUserData();
-  }, [user]);
+  //   fetchUserData();
+  // }, [user]);
 
   const sizeClasses = {
     small: 'w-8 h-8',
@@ -52,11 +55,14 @@ export function UserAvatar({ size = 'medium', showName = true, className = '' }:
     large: 'w-12 h-12'
   };
 
-  const avatarUrl = userData?.avatar_url || '/images/default-avatar.svg';
-  const displayName = userData?.full_name || 'مهمان';
+  // دسترسی مستقیم به اطلاعات کاربر از شیء user
+  const avatarUrl = user?.user_metadata?.avatar_url || '/images/default-avatar.svg';
+  const displayName = user?.user_metadata?.full_name || 'مهمان';
 
-  console.log('آواتار نهایی:', avatarUrl);
-  console.log('نام نهایی:', displayName);
+  // لاگ‌های دیباگ قبلی حذف شدند
+  // console.log('آواتار نهایی:', avatarUrl);
+  // console.log('نام نهایی:', displayName);
+  // console.log('Rendering UserAvatar. User status:', !!user);
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
