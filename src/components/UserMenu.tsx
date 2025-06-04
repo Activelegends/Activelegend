@@ -5,7 +5,6 @@ import { useAuth } from '../contexts/AuthContext';
 
 export default function UserMenu() {
   const { user, isAdmin, signOut } = useAuth();
-
   if (!user) return null;
 
   return (
@@ -31,12 +30,14 @@ export default function UserMenu() {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute left-0 mt-2 w-56 origin-top-left rounded-md bg-black border border-white/10 shadow-lg focus:outline-none">
+        <Menu.Items className="absolute left-0 mt-2 w-56 max-w-[90vw] origin-top-left rounded-md bg-black border border-white/10 shadow-lg focus:outline-none z-50 overflow-hidden">
           <div className="p-2">
-            <div className="px-3 py-2 text-sm text-gray-300">
-              {user.email}
+            <div className="px-3 py-2 text-sm text-gray-300 flex items-center gap-2 w-full">
+              <span className="truncate flex-1 min-w-0 max-w-[160px] overflow-hidden text-ellipsis">
+                {user.user_metadata?.full_name || user.email}
+              </span>
               {isAdmin && (
-                <span className="mr-2 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">
+                <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded whitespace-nowrap flex-shrink-0">
                   مدیر
                 </span>
               )}
@@ -46,11 +47,7 @@ export default function UserMenu() {
               <>
                 <Menu.Item>
                   {({ active }) => (
-                    <button
-                      className={`${
-                        active ? 'bg-white/10' : ''
-                      } group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}
-                    >
+                    <button className={`${active ? 'bg-white/10' : ''} group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}>
                       <HiUserGroup className="w-5 h-5" />
                       مدیریت کاربران
                     </button>
@@ -58,11 +55,7 @@ export default function UserMenu() {
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
-                    <button
-                      className={`${
-                        active ? 'bg-white/10' : ''
-                      } group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}
-                    >
+                    <button className={`${active ? 'bg-white/10' : ''} group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}>
                       <HiShieldCheck className="w-5 h-5" />
                       مدیریت نظرات
                     </button>
@@ -70,11 +63,7 @@ export default function UserMenu() {
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
-                    <button
-                      className={`${
-                        active ? 'bg-white/10' : ''
-                      } group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}
-                    >
+                    <button className={`${active ? 'bg-white/10' : ''} group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}>
                       <HiTrash className="w-5 h-5" />
                       حذف محتوا
                     </button>
@@ -88,9 +77,7 @@ export default function UserMenu() {
               {({ active }) => (
                 <button
                   onClick={() => signOut()}
-                  className={`${
-                    active ? 'bg-white/10' : ''
-                  } group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}
+                  className={`${active ? 'bg-white/10' : ''} group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}
                 >
                   <HiLogout className="w-5 h-5" />
                   خروج
