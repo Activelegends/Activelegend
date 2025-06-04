@@ -11,7 +11,15 @@ export default function UserMenu() {
   return (
     <Menu as="div" className="relative inline-block text-right">
       <Menu.Button className="inline-flex items-center justify-center rounded-full w-10 h-10 bg-white/10 text-white hover:bg-white/20 transition-colors">
-        <HiUser className="w-5 h-5" />
+        {user.user_metadata?.avatar_url ? (
+          <img
+            src={user.user_metadata.avatar_url}
+            alt="User avatar"
+            className="w-full h-full rounded-full object-cover"
+          />
+        ) : (
+          <HiUser className="w-5 h-5" />
+        )}
       </Menu.Button>
 
       <Transition
