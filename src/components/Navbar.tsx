@@ -120,7 +120,7 @@ export default function Navbar() {
   return (
     <>
       <motion.nav
-        initial={{ y: -100 }}
+        initial={{ y: 0 }}
         animate={{ y: 0 }}
         className={`fixed top-0 right-0 left-0 z-50 transition-all duration-300 ${
           isScrolled ? 'backdrop-blur-md bg-black/50 py-4' : 'py-6'
