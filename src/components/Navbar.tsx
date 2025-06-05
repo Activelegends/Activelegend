@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -12,6 +12,13 @@ export default function Navbar() {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 100], [0, -100]);
+  const springY = useSpring(y, {
+    stiffness: 100,
+    damping: 30,
+    mass: 0.5
+  });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -120,17 +127,16 @@ export default function Navbar() {
   return (
     <>
       <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className={`fixed top-0 right-0 left-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'backdrop-blur-md bg-black/50 py-4' : 'py-6'
-        }`}
         style={{
+          y: springY,
           willChange: 'transform',
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden',
           perspective: '1000px'
         }}
+        className={`fixed top-0 right-0 left-0 z-50 transition-all duration-300 ${
+          isScrolled ? 'backdrop-blur-md bg-black/50 py-4' : 'py-6'
+        }`}
       >
         <div className="container mx-auto px-4 flex items-center justify-between">
           <Link to="/">
