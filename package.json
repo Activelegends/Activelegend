@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://Activelegend.github.io/Activelegend",
+  "homepage": "https://activelegends.github.io/Activelegends",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
