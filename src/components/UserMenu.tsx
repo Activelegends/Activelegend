@@ -33,7 +33,12 @@ export default function UserMenu() {
       >
         <Menu.Items className="absolute left-0 mt-2 w-56 origin-top-left rounded-md bg-black border border-white/10 shadow-lg focus:outline-none">
           <div className="p-2">
-            <div className="px-3 py-2 text-sm text-gray-300">
+            <div className="px-3 py-2 text-sm text-gray-300" style={{
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: '100%'
+            }}>
               {user.email}
               {isAdmin && (
                 <span className="mr-2 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">
