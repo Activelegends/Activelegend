@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import UserMenu from './UserMenu';
 import AuthModal from './AuthModal';
 
@@ -10,6 +10,8 @@ export default function Navbar() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,11 +26,45 @@ export default function Navbar() {
     setIsAuthModalOpen(true);
   };
 
+  const handleGalleryClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    
+    if (location.pathname !== '/') {
+      // اگر در صفحه اصلی نیستیم، اول به صفحه اصلی برویم
+      navigate('/');
+      // یک تایمر کوتاه برای اطمینان از لود شدن صفحه اصلی
+      setTimeout(() => {
+        const galleryElement = document.getElementById('gallery');
+        if (galleryElement) {
+          const headerOffset = 80;
+          const elementPosition = galleryElement.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+    } else {
+      // اگر در صفحه اصلی هستیم، مستقیماً به گالری اسکرول کنیم
+      const galleryElement = document.getElementById('gallery');
+      if (galleryElement) {
+        const headerOffset = 80;
+        const elementPosition = galleryElement.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    }
+  };
+
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
     const targetElement = document.getElementById(targetId);
     if (targetElement) {
-      const headerOffset = 80; // ارتفاع هدر
+      const headerOffset = 80;
       const elementPosition = targetElement.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
@@ -66,7 +102,7 @@ export default function Navbar() {
           <div className="flex items-center gap-8">
             <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="nav-link">درباره ما</a>
             <Link to="/games" className="nav-link">بازی‌ها</Link>
-            <a href="#gallery" onClick={(e) => handleNavClick(e, 'gallery')} className="nav-link">گالری تصاویر</a>
+            <a href="#gallery" onClick={handleGalleryClick} className="nav-link">گالری تصاویر</a>
             <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
             {user ? (
               <UserMenu />
