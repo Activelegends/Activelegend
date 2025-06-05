@@ -30,9 +30,7 @@ export default function Navbar() {
     e.preventDefault();
     
     if (location.pathname !== '/') {
-      // اگر در صفحه اصلی نیستیم، اول به صفحه اصلی برویم
       navigate('/');
-      // یک تایمر کوتاه برای اطمینان از لود شدن صفحه اصلی
       setTimeout(() => {
         const galleryElement = document.getElementById('gallery');
         if (galleryElement) {
@@ -46,7 +44,6 @@ export default function Navbar() {
         }
       }, 100);
     } else {
-      // اگر در صفحه اصلی هستیم، مستقیماً به گالری اسکرول کنیم
       const galleryElement = document.getElementById('gallery');
       if (galleryElement) {
         const headerOffset = 80;
@@ -62,17 +59,62 @@ export default function Navbar() {
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
-    const targetElement = document.getElementById(targetId);
-    if (targetElement) {
-      const headerOffset = 80;
-      const elementPosition = targetElement.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          const headerOffset = 80;
+          const elementPosition = targetElement.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+    } else {
+      const targetElement = document.getElementById(targetId);
+      if (targetElement) {
+        const headerOffset = 80;
+        const elementPosition = targetElement.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
     }
+  };
+
+  const renderNavLinks = () => {
+    if (location.pathname === '/') {
+      return (
+        <>
+          <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="nav-link">درباره ما</a>
+          <Link to="/games" className="nav-link">بازی‌ها</Link>
+          <a href="#gallery" onClick={handleGalleryClick} className="nav-link">گالری تصاویر</a>
+          <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
+        </>
+      );
+    } else if (location.pathname.startsWith('/games')) {
+      return (
+        <>
+          <Link to="/" className="nav-link">صفحه اصلی</Link>
+          <Link to="/games" className="nav-link">بازی‌ها</Link>
+          <a href="#gallery" onClick={handleGalleryClick} className="nav-link">گالری تصاویر</a>
+          <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
+        </>
+      );
+    }
+    return (
+      <>
+        <Link to="/" className="nav-link">صفحه اصلی</Link>
+        <Link to="/games" className="nav-link">بازی‌ها</Link>
+        <a href="#gallery" onClick={handleGalleryClick} className="nav-link">گالری تصاویر</a>
+        <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
+      </>
+    );
   };
 
   return (
@@ -100,10 +142,7 @@ export default function Navbar() {
             />
           </Link>
           <div className="flex items-center gap-8">
-            <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="nav-link">درباره ما</a>
-            <Link to="/games" className="nav-link">بازی‌ها</Link>
-            <a href="#gallery" onClick={handleGalleryClick} className="nav-link">گالری تصاویر</a>
-            <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
+            {renderNavLinks()}
             {user ? (
               <UserMenu />
             ) : (
