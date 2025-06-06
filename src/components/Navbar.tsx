@@ -19,7 +19,7 @@ export default function Navbar() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -133,8 +133,8 @@ export default function Navbar() {
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className={`fixed top-0 right-0 left-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'backdrop-blur-md bg-black/50 py-2' : 'py-4'
+        className={`sticky top-0 right-0 left-0 z-50 transition-all duration-300 ${
+          isScrolled ? 'backdrop-blur-md bg-black/90' : 'bg-black'
         }`}
         style={{
           willChange: 'transform',
@@ -143,7 +143,7 @@ export default function Navbar() {
           perspective: '1000px'
         }}
       >
-        <div className="container mx-auto px-4 flex items-center justify-between">
+        <div className="container mx-auto px-4 flex items-center justify-between h-16 md:h-20">
           <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
             <motion.img
               src={import.meta.env.BASE_URL + 'AE-logo.png'}
@@ -184,6 +184,7 @@ export default function Navbar() {
           <button
             className="md:hidden text-white p-2"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? (
               <HiX className="w-6 h-6" />
@@ -227,9 +228,6 @@ export default function Navbar() {
           )}
         </AnimatePresence>
       </motion.nav>
-
-      {/* Add padding to main content to prevent overlap */}
-      <div className="h-16 md:h-20" />
 
       <AuthModal
         isOpen={isAuthModalOpen}

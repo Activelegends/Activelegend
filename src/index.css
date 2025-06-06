@@ -11,17 +11,18 @@
 }
 
 html {
+  @apply overflow-x-hidden;
+  direction: rtl;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
-  @apply overflow-x-hidden;
 }
 
 body {
   font-family: 'Vazirmatn', sans-serif;
   margin: 0;
   padding: 0;
-  @apply bg-black text-white text-sm sm:text-base md:text-lg;
+  @apply bg-black text-white text-sm sm:text-base md:text-lg overflow-y-auto;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -83,9 +84,9 @@ body {
     }
   }
 
-  /* Prevent content overlap with fixed header */
+  /* Prevent content overlap with sticky header */
   main {
-    @apply pt-16 md:pt-20;
+    @apply min-h-screen;
   }
 
   h1 {
