@@ -33,14 +33,14 @@ jobs:
       - name: Build
         run: npm run build
       
-      - name: Debug project files
+      - name: List project files
         run: |
           echo "Project files:"
           ls -R ./
       
-      - name: Debug build directory
+      - name: List build directory
         run: |
-          echo "Build directory:"
+          echo "Build directory contents:"
           ls -R ./dist
       
       - name: Setup Pages

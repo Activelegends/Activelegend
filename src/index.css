@@ -5,90 +5,328 @@
 @tailwind utilities;
 
 :root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 17, 17, 17;
+  --background-end-rgb: 0, 0, 0;
   direction: rtl;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
 }
 
-html, body, #root {
-  @apply overflow-x-hidden overflow-y-auto;
-  direction: rtl;
-  scroll-behavior: smooth;
-  overscroll-behavior-y: contain;
+html,
+body,
+#root {
+  overflow-x: hidden;
+  overflow-y: auto;
   height: auto;
-}
-
-body {
+  min-height: 100vh;
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--background-start-rgb)),
+    rgb(var(--background-end-rgb))
+  );
+  color: rgb(var(--foreground-rgb));
   font-family: 'Vazirmatn', sans-serif;
   margin: 0;
   padding: 0;
-  @apply bg-black text-gray-100 min-h-screen;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   touch-action: pan-y pinch-zoom;
+  overscroll-behavior-y: contain;
+}
+
+/* Remove any fixed positioning that might cause scroll issues */
+.fixed {
+  position: fixed;
+}
+
+/* Ensure modals and dropdowns don't interfere with scroll */
+.modal-open {
+  overflow: hidden;
+}
+
+/* Ensure proper z-index stacking */
+.z-50 {
+  z-index: 50;
+}
+
+/* Ensure proper backdrop blur */
+.backdrop-blur-md {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Ensure proper transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Ensure proper mobile menu behavior */
+@media (max-width: 768px) {
+  .mobile-menu-open {
+    overflow: hidden;
+  }
+}
+
+/* Ensure proper profile image display */
+.profile-image {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  object-fit: cover;
+  border: 2px solid rgb(75, 85, 99);
+}
+
+/* Ensure proper button hover states */
+.hover\:bg-gray-700:hover {
+  background-color: rgb(55, 65, 81);
+}
+
+.hover\:text-amber-500:hover {
+  color: rgb(245, 158, 11);
+}
+
+/* Ensure proper focus states */
+.focus\:outline-none:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+/* Ensure proper container behavior */
+.container {
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
 }
 
 /* Optimize scrolling containers */
 .scroll-container {
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
   scroll-behavior: smooth;
-  will-change: transform;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  perspective: 1000px;
 }
 
-.glass {
-  @apply backdrop-blur-md bg-black/90 border border-white/20;
+/* Ensure proper text rendering */
+.text-optimize {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure proper touch handling */
+.touch-optimize {
+  touch-action: pan-y pinch-zoom;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Ensure proper RTL support */
+.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Ensure proper LTR support */
+.ltr {
+  direction: ltr;
+  text-align: left;
+}
+
+/* Ensure proper form element styling */
+.form-element {
+  background-color: rgb(31, 41, 55);
+  color: rgb(243, 244, 246);
+  border: 1px solid rgb(55, 65, 81);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+
+.form-element:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(245, 158, 11);
+}
+
+/* Ensure proper button styling */
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(17, 24, 39);
+}
+
+.btn-primary {
+  background-color: rgb(245, 158, 11);
+  color: rgb(0, 0, 0);
+}
+
+.btn-primary:hover {
+  background-color: rgb(234, 88, 12);
+}
+
+.btn-secondary {
+  background-color: rgb(55, 65, 81);
+  color: rgb(243, 244, 246);
+}
+
+.btn-secondary:hover {
+  background-color: rgb(75, 85, 99);
+}
+
+/* Ensure proper link styling */
+.link {
+  color: rgb(245, 158, 11);
+  transition: color 0.3s;
+}
+
+.link:hover {
+  color: rgb(234, 88, 12);
+}
+
+/* Ensure proper heading styling */
+.heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.subheading {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+/* Ensure proper paragraph styling */
+.paragraph {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Ensure proper section styling */
+.section {
+  padding: 2rem 0;
+}
+
+/* Ensure proper card styling */
+.card {
+  background-color: rgb(31, 41, 55);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+}
+
+/* Ensure proper list styling */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Ensure proper icon styling */
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Ensure proper badge styling */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge-primary {
+  background-color: rgb(245, 158, 11);
+  color: rgb(0, 0, 0);
+}
+
+.badge-secondary {
+  background-color: rgb(55, 65, 81);
+  color: rgb(243, 244, 246);
+}
+
+/* Ensure proper alert styling */
+.alert {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.alert-success {
+  background-color: rgba(34, 197, 94, 0.2);
+  color: rgb(74, 222, 128);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.alert-error {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: rgb(248, 113, 113);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.alert-warning {
+  background-color: rgba(234, 179, 8, 0.2);
+  color: rgb(250, 204, 21);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+.alert-info {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: rgb(96, 165, 250);
+  border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 @layer components {
-  .btn-primary {
-    @apply bg-amber-500 text-black px-4 py-2 rounded-lg font-bold hover:bg-amber-600 transition-colors duration-200;
-  }
-  
-  .btn-secondary {
-    @apply border-2 border-amber-500 text-amber-500 px-4 py-2 rounded-lg font-bold hover:bg-amber-500 hover:text-black transition-colors duration-200;
-  }
-
   .nav-link {
-    @apply text-gray-300 hover:text-amber-500 transition-colors duration-200 relative;
+    @apply text-gray-300 hover:text-yellow-400 transition-colors duration-200 relative;
   }
 
   .nav-link::after {
     content: '';
-    @apply absolute bottom-0 right-0 h-0.5 w-0 bg-amber-500 transition-all duration-300;
-  }
-
-  .nav-link:hover::after {
-    @apply w-full;
-  }
-
-  /* Mobile menu styles */
-  .mobile-menu-button {
-    @apply md:hidden text-gray-100 focus:outline-none;
-  }
-
-  .mobile-menu-dropdown {
-    @apply md:hidden absolute top-full right-0 w-full bg-black/95 backdrop-blur-md shadow-lg z-50;
-  }
-
-  .mobile-menu-item {
-    @apply block px-4 py-2 text-gray-100 hover:bg-gray-800 transition-colors duration-200;
-  }
-
-  /* Profile menu styles */
-  .profile-menu-button {
-    @apply flex items-center space-x-2 focus:outline-none;
-  }
-
-  .profile-menu-dropdown {
-    @apply absolute right-0 mt-2 w-48 bg-black/95 backdrop-blur-md rounded-lg shadow-lg py-2 z-50;
-  }
-
-  .profile-menu-item {
-    @apply block px-4 py-2 text-gray-100 hover:bg-gray-800 transition-colors duration-200;
+    @apply relative py-1.5 sm:py-2 text-white/80 hover:text-white transition-colors duration-300
+           after:absolute after:bottom-0 after:right-0 after:h-0.5 
+           after:w-0 after:bg-primary after:transition-all after:duration-300
+           hover:after:w-full text-sm sm:text-base;
   }
 
   h2 {
@@ -115,20 +353,8 @@ body {
     @apply text-sm sm:text-base mb-1.5 sm:mb-2;
   }
 
-  .container {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
-  }
-
-  .section {
-    @apply py-12 md:py-20;
-  }
-
   .section-title {
     @apply text-3xl md:text-4xl font-bold mb-8 text-center;
-  }
-
-  .card {
-    @apply bg-[#111111] rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-200;
   }
 
   .card-image {
@@ -215,6 +441,20 @@ body {
 
   [dir="rtl"] .modal-content {
     @apply -translate-x-1/2;
+  }
+
+  /* Mobile menu button */
+  .mobile-menu-button {
+    @apply md:hidden text-gray-100 text-xl z-50;
+  }
+
+  /* Mobile menu dropdown */
+  .mobile-menu-dropdown {
+    @apply absolute top-full right-4 bg-[#222222] shadow-lg rounded-lg py-2 w-40;
+  }
+
+  .mobile-menu-item {
+    @apply block px-4 py-2 text-gray-100 hover:bg-gray-700;
   }
 
   /* Header styles */

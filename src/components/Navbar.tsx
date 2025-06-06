@@ -4,13 +4,15 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import UserMenu from './UserMenu';
 import AuthModal from './AuthModal';
 import { HiMenu, HiX } from 'react-icons/hi';
+import { supabase } from '../lib/supabase';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
-  const { user } = useAuth();
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const { user, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -22,10 +24,39 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (isMobileMenuOpen || isProfileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen, isProfileMenuOpen]);
+
+  useEffect(() => {
+    async function fetchAvatar() {
+      if (user?.avatar_path) {
+        const { data } = await supabase
+          .storage
+          .from('avatars')
+          .getPublicUrl(user.avatar_path);
+        setAvatarUrl(data.publicUrl);
+      }
+    }
+    fetchAvatar();
+  }, [user?.avatar_path]);
+
   const handleAuthClick = (mode: 'login' | 'signup') => {
-    setAuthMode(mode);
     setIsAuthModalOpen(true);
     setIsMobileMenuOpen(false);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    setIsProfileMenuOpen(false);
+    navigate('/');
   };
 
   const handleGalleryClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -109,7 +140,9 @@ export default function Navbar() {
         <Link
           key={index}
           to={link.to}
-          className="nav-link text-sm md:text-base"
+          className={`block px-4 py-2 text-gray-100 hover:bg-gray-700 md:p-0 md:hover:bg-transparent ${
+            location.pathname === link.to ? 'text-amber-500' : ''
+          }`}
           onClick={() => setIsMobileMenuOpen(false)}
         >
           {link.text}
@@ -119,7 +152,9 @@ export default function Navbar() {
           key={index}
           href={link.href}
           onClick={link.onClick}
-          className="nav-link text-sm md:text-base"
+          className={`block px-4 py-2 text-gray-100 hover:bg-gray-700 md:p-0 md:hover:bg-transparent ${
+            location.pathname === link.href ? 'text-amber-500' : ''
+          }`}
         >
           {link.text}
         </a>
@@ -130,83 +165,134 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`w-full z-50 transition-all duration-300 ${
-          isScrolled ? 'backdrop-blur-md bg-black/90' : 'bg-black'
+        className={`w-full bg-[#111111] text-gray-100 z-50 transition-all duration-300 ${
+          isScrolled ? 'backdrop-blur-md bg-[#111111]/90' : ''
         }`}
       >
         <div className="container mx-auto px-4 flex items-center justify-between h-16 md:h-20">
           <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
             <img
-              src={import.meta.env.BASE_URL + 'AE-logo.png'}
-              alt="Active Legends"
-              className="h-8 w-auto"
+              src="/logo.png"
+              alt="Active Legend"
+              className="h-8 md:h-10"
             />
           </Link>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-8">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-8">
             {renderNavLinks()}
+          </div>
+
+          {/* Auth Buttons / Profile */}
+          <div className="flex items-center space-x-4">
             {user ? (
               <div className="relative">
-                <UserMenu />
+                <button
+                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                  className="flex items-center space-x-2 focus:outline-none"
+                >
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt="Profile"
+                      className="w-8 h-8 rounded-full object-cover border-2 border-gray-600"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+                      <span className="text-gray-300 text-sm">
+                        {user.email?.[0].toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                </button>
+
+                {/* Profile Dropdown */}
+                {isProfileMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-[#111111] backdrop-blur-md rounded-lg shadow-lg py-2 z-50">
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-gray-100 hover:bg-gray-700"
+                      onClick={() => setIsProfileMenuOpen(false)}
+                    >
+                      پروفایل
+                    </Link>
+                    <Link
+                      to="/settings"
+                      className="block px-4 py-2 text-gray-100 hover:bg-gray-700"
+                      onClick={() => setIsProfileMenuOpen(false)}
+                    >
+                      تنظیمات
+                    </Link>
+                    <button
+                      onClick={handleSignOut}
+                      className="block w-full text-right px-4 py-2 text-gray-100 hover:bg-gray-700"
+                    >
+                      خروج
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
-              <div className="flex items-center gap-4">
+              <>
                 <button
-                  className="btn-secondary text-sm md:text-base"
                   onClick={() => handleAuthClick('login')}
+                  className="hidden md:block text-gray-100 hover:text-amber-500"
                 >
                   ورود
                 </button>
                 <button
-                  className="btn-primary text-sm md:text-base"
                   onClick={() => handleAuthClick('signup')}
+                  className="hidden md:block bg-amber-500 text-black px-4 py-2 rounded-lg hover:bg-amber-600"
                 >
-                  ثبت‌نام
+                  ثبت نام
                 </button>
-              </div>
+              </>
             )}
-          </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-white p-2 relative z-50"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {isMobileMenuOpen ? (
-              <HiX className="w-6 h-6" />
-            ) : (
-              <HiMenu className="w-6 h-6" />
-            )}
-          </button>
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden text-gray-100 focus:outline-none"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                {isMobileMenuOpen ? (
+                  <path d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-black/95 backdrop-blur-md absolute top-full left-0 right-0 z-50">
+          <div className="md:hidden bg-[#111111] backdrop-blur-md absolute top-full left-0 right-0 z-50">
             <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
               {renderNavLinks()}
               {!user && (
-                <div className="flex flex-col space-y-2 pt-2">
+                <>
                   <button
-                    className="btn-secondary w-full text-center"
                     onClick={() => handleAuthClick('login')}
+                    className="text-gray-100 hover:text-amber-500 text-right"
                   >
                     ورود
                   </button>
                   <button
-                    className="btn-primary w-full text-center"
                     onClick={() => handleAuthClick('signup')}
+                    className="bg-amber-500 text-black px-4 py-2 rounded-lg hover:bg-amber-600 text-right"
                   >
-                    ثبت‌نام
+                    ثبت نام
                   </button>
-                </div>
-              )}
-              {user && (
-                <div className="pt-2">
-                  <UserMenu />
-                </div>
+                </>
               )}
             </div>
           </div>
@@ -216,7 +302,6 @@ export default function Navbar() {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        initialMode={authMode}
       />
     </>
   );
