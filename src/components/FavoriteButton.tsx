@@ -13,6 +13,27 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({ gameId, classNam
 
   useEffect(() => {
     checkFavoriteStatus();
+
+    // Subscribe to changes in the favorites table
+    const subscription = supabase
+      .channel('favorites_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'favorites',
+          filter: `game_id=eq.${gameId}`
+        },
+        () => {
+          checkFavoriteStatus();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [gameId]);
 
   const checkFavoriteStatus = async () => {
@@ -30,7 +51,9 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({ gameId, classNam
         .eq('user_id', session.user.id)
         .single();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned" error
+        throw error;
+      }
       setIsFavorite(!!data);
     } catch (error) {
       console.error('Error checking favorite status:', error);
@@ -41,6 +64,7 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({ gameId, classNam
 
   const toggleFavorite = async () => {
     try {
+      setIsLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) {
         // Redirect to login or show login modal
@@ -55,6 +79,7 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({ gameId, classNam
           .eq('user_id', session.user.id);
 
         if (error) throw error;
+        setIsFavorite(false);
       } else {
         const { error } = await supabase
           .from('favorites')
@@ -63,16 +88,22 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({ gameId, classNam
           ]);
 
         if (error) throw error;
+        setIsFavorite(true);
       }
-
-      setIsFavorite(!isFavorite);
     } catch (error) {
       console.error('Error toggling favorite:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   if (isLoading) {
-    return null;
+    return (
+      <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-800 text-gray-300">
+        <span className="animate-pulse">❤️</span>
+        <span className="text-sm font-medium">در حال بارگذاری...</span>
+      </div>
+    );
   }
 
   return (
@@ -80,6 +111,7 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({ gameId, classNam
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
       onClick={toggleFavorite}
+      disabled={isLoading}
       className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
         isFavorite
           ? 'bg-red-500 text-white hover:bg-red-600'
