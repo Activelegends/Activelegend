@@ -36,7 +36,7 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({ block, index }) => {
 
   const getMotionProps = () => {
     return {
-      initial: { opacity: 0, y: isScrollingDown ? 50 : -50 },
+      initial: { opacity: 0, y: isScrollingDown ? -50 : 50 },
       whileInView: { opacity: 1, y: 0 },
       viewport: { once: false, amount: 0.3, margin: "100px" },
       transition: { 
