@@ -20,7 +20,7 @@ export default function Navbar() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -164,12 +164,20 @@ export default function Navbar() {
 
   return (
     <>
+<<<<<<< HEAD
       <nav
         className={`w-full bg-[#111111] text-gray-100 z-50 transition-all duration-300 ${
           isScrolled ? 'backdrop-blur-md bg-[#111111]/90' : ''
+=======
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        className={`fixed top-0 right-0 left-0 z-50 transition-all duration-300 ${
+          isScrolled ? 'backdrop-blur-md bg-black/50 py-2' : 'py-4'
+>>>>>>> parent of b95f66a (تغییرات جدید برای هدر)
         }`}
       >
-        <div className="container mx-auto px-4 flex items-center justify-between h-16 md:h-20">
+        <div className="container mx-auto px-4 flex items-center justify-between">
           <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
             <img
               src="/logo.png"
@@ -183,6 +191,7 @@ export default function Navbar() {
             {renderNavLinks()}
           </div>
 
+<<<<<<< HEAD
           {/* Auth Buttons / Profile */}
           <div className="flex items-center space-x-4">
             {user ? (
@@ -205,6 +214,20 @@ export default function Navbar() {
                     </div>
                   )}
                 </button>
+=======
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden text-white p-2"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? (
+              <HiX className="w-6 h-6" />
+            ) : (
+              <HiMenu className="w-6 h-6" />
+            )}
+          </button>
+        </div>
+>>>>>>> parent of b95f66a (تغییرات جدید برای هدر)
 
                 {/* Profile Dropdown */}
                 {isProfileMenuOpen && (
@@ -298,6 +321,9 @@ export default function Navbar() {
           </div>
         )}
       </nav>
+
+      {/* Add padding to main content to prevent overlap */}
+      <div className="h-16 md:h-20" />
 
       <AuthModal
         isOpen={isAuthModalOpen}

@@ -13,6 +13,7 @@
   -webkit-overflow-scrolling: touch;
 }
 
+<<<<<<< HEAD
 html,
 body,
 #root {
@@ -29,6 +30,21 @@ body,
   font-family: 'Vazirmatn', sans-serif;
   margin: 0;
   padding: 0;
+=======
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  @apply overflow-x-hidden;
+}
+
+body {
+  font-family: 'Vazirmatn', sans-serif;
+  margin: 0;
+  padding: 0;
+  @apply bg-black text-white text-sm sm:text-base md:text-lg;
+  overflow-x: hidden;
+>>>>>>> parent of b95f66a (تغییرات جدید برای هدر)
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   touch-action: pan-y pinch-zoom;
@@ -323,10 +339,38 @@ body,
 
   .nav-link::after {
     content: '';
+<<<<<<< HEAD
     @apply relative py-1.5 sm:py-2 text-white/80 hover:text-white transition-colors duration-300
            after:absolute after:bottom-0 after:right-0 after:h-0.5 
            after:w-0 after:bg-primary after:transition-all after:duration-300
            hover:after:w-full text-sm sm:text-base;
+=======
+    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-200;
+  }
+
+  .nav-link:hover::after {
+    @apply w-full;
+  }
+
+  /* Mobile Menu Styles */
+  @media (max-width: 768px) {
+    .nav-link {
+      @apply text-base py-2 px-4 w-full text-center;
+    }
+
+    .nav-link::after {
+      @apply hidden;
+    }
+  }
+
+  /* Prevent content overlap with fixed header */
+  main {
+    @apply pt-16 md:pt-20;
+  }
+
+  h1 {
+    @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold;
+>>>>>>> parent of b95f66a (تغییرات جدید برای هدر)
   }
 
   h2 {
