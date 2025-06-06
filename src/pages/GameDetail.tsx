@@ -103,26 +103,26 @@ export const GameDetail: React.FC = () => {
     <div className="min-h-screen bg-black">
       <div className="max-w-4xl mx-auto p-4 md:p-8">
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-extrabold text-white">{game.title}</h1>
+          <h1 className="text-3xl font-extrabold text-white mb-4">{game.title}</h1>
+          <p className="text-base font-medium text-gray-300 mb-6">{game.description}</p>
+          <div className="flex items-center gap-4">
+            <a
+              href={game.download_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block bg-[#F4B744] text-black font-bold px-6 py-3 rounded-2xl hover:scale-105 transition-all duration-200"
+            >
+              دانلود بازی
+            </a>
             {isAdmin && (
               <button
                 onClick={() => setShowEditModal(true)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all"
+                className="bg-blue-600 text-white px-6 py-3 rounded-2xl hover:scale-105 transition-all duration-200"
               >
                 ویرایش بازی
               </button>
             )}
           </div>
-          <p className="text-base font-medium text-gray-300 mb-6">{game.description}</p>
-          <a
-            href={game.download_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-[#F4B744] text-black font-bold px-6 py-3 rounded-2xl hover:scale-105 transition-all duration-200"
-          >
-            دانلود بازی
-          </a>
         </div>
 
         <div className="space-y-8">
