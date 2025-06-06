@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 
 interface ContentBlockProps {
   block: {
@@ -13,34 +13,60 @@ interface ContentBlockProps {
 }
 
 export const ContentBlock: React.FC<ContentBlockProps> = ({ block, index }) => {
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [isScrollingDown, setIsScrollingDown] = useState(true);
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollY } = useScroll();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      setIsScrollingDown(currentScrollY > lastScrollY);
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
+
   const isEven = index % 2 === 0;
   const alignmentContainerClass = isEven
     ? 'w-full flex justify-end mb-8'
     : 'w-full flex justify-start mb-8';
 
-  const motionProps = {
-    initial: { opacity: 0, y: 50 },
-    whileInView: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -50 },
-    viewport: { once: false, amount: 0.3, margin: "100px" },
-    transition: { duration: 0.7, ease: "easeOut" },
+  const getMotionProps = () => {
+    if (hasAnimated) {
+      return {
+        initial: { opacity: 1, y: 0 },
+        whileInView: { opacity: 1, y: 0 },
+        viewport: { once: true, amount: 0.3, margin: "100px" },
+        transition: { duration: 0.3, ease: "easeOut" },
+      };
+    }
+
+    return {
+      initial: { opacity: 0, y: isScrollingDown ? 50 : 0 },
+      whileInView: { opacity: 1, y: 0 },
+      viewport: { once: true, amount: 0.3, margin: "100px" },
+      transition: { duration: 0.7, ease: "easeOut" },
+      onViewportEnter: () => setHasAnimated(true),
+    };
   };
 
-  if (block.type === 'image') {
-    return (
-      <motion.div {...motionProps} className={alignmentContainerClass}>
+  const renderContent = () => {
+    if (block.type === 'image') {
+      return (
         <img
           src={block.src}
           alt={block.alt}
           className="w-full md:w-3/4 rounded-2xl shadow-xl object-cover"
         />
-      </motion.div>
-    );
-  }
+      );
+    }
 
-  if (block.type === 'video') {
-    return (
-      <motion.div {...motionProps} className={alignmentContainerClass}>
+    if (block.type === 'video') {
+      return (
         <div className="w-full md:w-3/4 rounded-2xl overflow-hidden shadow-xl">
           <iframe
             src={block.src}
@@ -51,20 +77,27 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({ block, index }) => {
             allowFullScreen
           />
         </div>
-      </motion.div>
-    );
-  }
+      );
+    }
 
-  if (block.type === 'text') {
-    return (
-      <motion.div
-        {...motionProps}
-        className="w-full bg-gray-900 text-gray-100 p-6 rounded-2xl mb-8"
-      >
-        <p className="text-lg leading-relaxed font-medium">{block.content}</p>
-      </motion.div>
-    );
-  }
+    if (block.type === 'text') {
+      return (
+        <div className="w-full bg-gray-900 text-gray-100 p-6 rounded-2xl">
+          <p className="text-lg leading-relaxed font-medium">{block.content}</p>
+        </div>
+      );
+    }
 
-  return null;
+    return null;
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      {...getMotionProps()}
+      className={block.type === 'text' ? 'w-full mb-8' : alignmentContainerClass}
+    >
+      {renderContent()}
+    </motion.div>
+  );
 }; 
