@@ -25,7 +25,7 @@ export default function Hero() {
 
   return (
     <header className="relative min-h-screen flex items-center justify-center overflow-hidden scroll-container">
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/80 to-black/95"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/50 to-black/40"></div>
       
       <motion.div
         {...animationConfig}
