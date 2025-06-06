@@ -133,7 +133,7 @@ export default function Navbar() {
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className={`sticky top-0 right-0 left-0 z-50 transition-all duration-300 ${
+        className={`relative w-full z-50 transition-all duration-300 ${
           isScrolled ? 'backdrop-blur-md bg-black/90' : 'bg-black'
         }`}
         style={{
@@ -157,7 +157,9 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-8">
             {renderNavLinks()}
             {user ? (
-              <UserMenu />
+              <div className="relative">
+                <UserMenu />
+              </div>
             ) : (
               <div className="flex items-center gap-4">
                 <motion.button
@@ -182,7 +184,7 @@ export default function Navbar() {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden text-white p-2"
+            className="md:hidden text-white p-2 relative z-50"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -201,7 +203,7 @@ export default function Navbar() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-black/95 backdrop-blur-md"
+              className="md:hidden bg-black/95 backdrop-blur-md absolute top-full left-0 right-0 z-50"
             >
               <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
                 {renderNavLinks()}
@@ -221,6 +223,11 @@ export default function Navbar() {
                     >
                       ثبت‌نام
                     </motion.button>
+                  </div>
+                )}
+                {user && (
+                  <div className="pt-2">
+                    <UserMenu />
                   </div>
                 )}
               </div>
