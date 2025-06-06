@@ -32,11 +32,22 @@ jobs:
       
       - name: Build
         run: npm run build
+        env:
+          NODE_ENV: production
       
-      - name: List project files
+      - name: Verify build output
         run: |
-          echo "Project files:"
-          ls -R ./
+          if [ ! -d "dist" ]; then
+            echo "Build directory 'dist' not found!"
+            exit 1
+          fi
+          
+          if [ ! -f "dist/index.html" ]; then
+            echo "index.html not found in build output!"
+            exit 1
+          fi
+          
+          echo "Build verification passed"
       
       - name: List build directory
         run: |
@@ -63,3 +74,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      
+      - name: Verify deployment
+        run: |
+          echo "Deployment completed successfully"
+          echo "Site URL: ${{ steps.deployment.outputs.page_url }}"
