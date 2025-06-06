@@ -9,6 +9,7 @@ import { GameDetail } from './pages/GameDetail';
 import NotFound from './pages/NotFound';
 import { AuthProvider } from './contexts/AuthContext';
 import { useEffect } from 'react';
+import { MyGames } from './pages/MyGames';
 
 function App() {
   useEffect(() => {
@@ -42,6 +43,7 @@ function App() {
               } />
               <Route path="/games" element={<Games />} />
               <Route path="/games/:slug" element={<GameDetail />} />
+              <Route path="/my-games" element={<MyGames />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
