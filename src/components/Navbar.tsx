@@ -22,18 +22,6 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Handle body scroll when mobile menu is open
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isMobileMenuOpen]);
-
   const handleAuthClick = (mode: 'login' | 'signup') => {
     setAuthMode(mode);
     setIsAuthModalOpen(true);
@@ -121,7 +109,7 @@ export default function Navbar() {
         <Link
           key={index}
           to={link.to}
-          className="nav-link text-sm md:text-base hover:text-yellow-400 transition-colors"
+          className="nav-link text-sm md:text-base"
           onClick={() => setIsMobileMenuOpen(false)}
         >
           {link.text}
@@ -131,7 +119,7 @@ export default function Navbar() {
           key={index}
           href={link.href}
           onClick={link.onClick}
-          className="nav-link text-sm md:text-base hover:text-yellow-400 transition-colors"
+          className="nav-link text-sm md:text-base"
         >
           {link.text}
         </a>
@@ -195,37 +183,34 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Menu */}
-        <div 
-          className={`md:hidden fixed inset-0 bg-black/95 backdrop-blur-md z-40 transition-transform duration-300 ${
-            isMobileMenuOpen ? 'translate-y-0' : '-translate-y-full'
-          }`}
-          style={{ top: '4rem' }}
-        >
-          <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
-            {renderNavLinks()}
-            {!user && (
-              <div className="flex flex-col space-y-2 pt-2">
-                <button
-                  className="btn-secondary w-full text-center"
-                  onClick={() => handleAuthClick('login')}
-                >
-                  ورود
-                </button>
-                <button
-                  className="btn-primary w-full text-center"
-                  onClick={() => handleAuthClick('signup')}
-                >
-                  ثبت‌نام
-                </button>
-              </div>
-            )}
-            {user && (
-              <div className="pt-2">
-                <UserMenu />
-              </div>
-            )}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-black/95 backdrop-blur-md absolute top-full left-0 right-0 z-50">
+            <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
+              {renderNavLinks()}
+              {!user && (
+                <div className="flex flex-col space-y-2 pt-2">
+                  <button
+                    className="btn-secondary w-full text-center"
+                    onClick={() => handleAuthClick('login')}
+                  >
+                    ورود
+                  </button>
+                  <button
+                    className="btn-primary w-full text-center"
+                    onClick={() => handleAuthClick('signup')}
+                  >
+                    ثبت‌نام
+                  </button>
+                </div>
+              )}
+              {user && (
+                <div className="pt-2">
+                  <UserMenu />
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </nav>
 
       <AuthModal
