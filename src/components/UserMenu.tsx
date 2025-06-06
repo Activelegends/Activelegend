@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import { HiUser, HiCog, HiLogout } from 'react-icons/hi';
@@ -21,70 +20,50 @@ export default function UserMenu() {
   }, []);
 
   const handleLogout = async () => {
-    try {
-      await logout();
-      setIsOpen(false);
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
+    await logout();
+    setIsOpen(false);
   };
 
   return (
     <div className="relative" ref={menuRef}>
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+      <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors duration-200"
+        className="flex items-center gap-2 text-gray-100 hover:text-yellow-400 transition-colors"
+        aria-label="User menu"
       >
-        <img
-          src={user?.user_metadata?.avatar_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.email || '')}
-          alt="Profile"
-          className="w-8 h-8 rounded-full"
-        />
+        <div className="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center text-black font-bold">
+          {user?.email?.[0].toUpperCase() || 'U'}
+        </div>
         <span className="hidden md:inline text-sm">{user?.email}</span>
-      </motion.button>
+      </button>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="absolute top-full right-0 mt-2 w-48 bg-black/95 backdrop-blur-md rounded-lg shadow-lg py-2 z-50"
+      {isOpen && (
+        <div className="absolute top-full right-0 mt-2 w-48 bg-[#222222] rounded-lg shadow-lg py-2 z-50">
+          <Link
+            to="/profile"
+            className="flex items-center gap-2 px-4 py-2 text-gray-100 hover:bg-gray-700 transition-colors"
+            onClick={() => setIsOpen(false)}
           >
-            <div className="px-4 py-2 border-b border-gray-800">
-              <p className="text-sm text-gray-300">{user?.email}</p>
-            </div>
-            <div className="py-1">
-              <Link
-                to="/profile"
-                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors duration-200"
-                onClick={() => setIsOpen(false)}
-              >
-                <HiUser className="w-4 h-4" />
-                پروفایل
-              </Link>
-              <Link
-                to="/settings"
-                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors duration-200"
-                onClick={() => setIsOpen(false)}
-              >
-                <HiCog className="w-4 h-4" />
-                تنظیمات
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors duration-200"
-              >
-                <HiLogout className="w-4 h-4" />
-                خروج
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <HiUser className="w-5 h-5" />
+            <span>پروفایل</span>
+          </Link>
+          <Link
+            to="/settings"
+            className="flex items-center gap-2 px-4 py-2 text-gray-100 hover:bg-gray-700 transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            <HiCog className="w-5 h-5" />
+            <span>تنظیمات</span>
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-2 px-4 py-2 text-gray-100 hover:bg-gray-700 transition-colors text-right"
+          >
+            <HiLogout className="w-5 h-5" />
+            <span>خروج</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }
