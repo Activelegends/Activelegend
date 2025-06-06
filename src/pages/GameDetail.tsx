@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import { HiPencil } from 'react-icons/hi';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import type { Game, GameFormData, ContentBlock as ContentBlockType } from '../types/game';
+import type { Game, GameFormData } from '../types/game';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { FaEdit, FaTimes } from 'react-icons/fa';
-import ContentBlock from '../components/ContentBlock';
-import EditGameModal from '../components/EditGameModal';
 
 const GameForm = ({ game, onClose, onSave }: {
   game: Game;
@@ -151,21 +149,17 @@ const GameForm = ({ game, onClose, onSave }: {
   );
 };
 
-const GameDetail: React.FC = () => {
+export default function GameDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const isAdmin = user?.email === 'active.legendss@gmail.com';
+
   const [game, setGame] = useState<Game | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
-    const checkAdmin = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAdmin(session?.user?.email === 'active.legendss@gmail.com');
-    };
-
     const fetchGame = async () => {
       try {
         const { data, error } = await supabase
@@ -179,7 +173,6 @@ const GameDetail: React.FC = () => {
           navigate('/404');
           return;
         }
-
         setGame(data);
       } catch (error) {
         console.error('Error fetching game:', error);
@@ -189,82 +182,139 @@ const GameDetail: React.FC = () => {
       }
     };
 
-    checkAdmin();
     fetchGame();
   }, [slug, navigate]);
 
-  const handleGameUpdated = async () => {
-    const { data, error } = await supabase
-      .from('games')
-      .select('*')
-      .eq('slug', slug)
-      .single();
+  const handleSave = async (formData: GameFormData) => {
+    if (!game) return;
 
-    if (!error && data) {
-      setGame(data);
+    try {
+      const { error } = await supabase
+        .from('games')
+        .update(formData)
+        .eq('id', game.id);
+
+      if (error) throw error;
+      setGame({ ...game, ...formData });
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating game:', error);
     }
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#F4B744]"></div>
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
 
-  if (!game) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-500 mb-4">۴۰۴</h1>
-          <p className="text-lg text-gray-400">بازی یافت نشد یا در دسترس نیست.</p>
-        </div>
-      </div>
-    );
-  }
+  if (!game) return null;
 
   return (
-    <div className="min-h-screen bg-black">
-      <div className="max-w-4xl mx-auto p-4 md:p-8" dir="rtl">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-extrabold text-white">{game.title}</h1>
-          {isAdmin && (
+    <div className="min-h-screen bg-black py-20 px-4">
+      <div className="max-w-7xl mx-auto">
+        {isAdmin && (
+          <div className="flex justify-end mb-8">
             <button
-              onClick={() => setShowEditModal(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all"
+              onClick={() => setIsEditing(true)}
+              className="flex items-center space-x-2 bg-[#F4B744] text-black px-4 py-2 rounded-lg hover:bg-[#F4B744]/90"
             >
-              ویرایش بازی
+              <FaEdit />
+              <span className="font-vazirmatn">ویرایش</span>
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
-        <p className="text-base font-medium text-gray-300 mb-6">{game.description}</p>
-
-        <a
-          href={game.download_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block bg-[#F4B744] text-black font-bold px-6 py-3 rounded-2xl hover:scale-105 transition-all duration-200 mb-8"
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gray-900 rounded-lg overflow-hidden"
         >
-          دانلود بازی
-        </a>
+          <div className="aspect-video relative">
+            <img
+              src={game.image_icon}
+              alt={game.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
 
-        <div className="mt-8 space-y-8">
-          {game.content_blocks.map((block: ContentBlockType, index: number) => (
-            <ContentBlock key={index} block={block} index={index} />
-          ))}
-        </div>
+          <div className="p-8">
+            <h1 className="text-4xl font-bold mb-4 font-vazirmatn">{game.title}</h1>
+            <p className="text-gray-400 mb-8 font-vazirmatn">{game.description}</p>
+
+            {game.image_gallery.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold mb-4 font-vazirmatn">گالری تصاویر</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {game.image_gallery.map((image, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="aspect-video relative rounded-lg overflow-hidden"
+                    >
+                      <img
+                        src={image}
+                        alt={`Gallery image ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {game.video_urls.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold mb-4 font-vazirmatn">ویدیوها</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {game.video_urls.map((url, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="aspect-video relative rounded-lg overflow-hidden"
+                    >
+                      <iframe
+                        src={url}
+                        title={`Video ${index + 1}`}
+                        className="w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {game.download_url && (
+              <motion.a
+                href={game.download_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="inline-block bg-[#F4B744] text-black px-6 py-3 rounded-lg font-medium hover:bg-[#F4B744]/90 transition-colors font-vazirmatn"
+              >
+                دانلود بازی
+              </motion.a>
+            )}
+          </div>
+        </motion.div>
       </div>
 
-      <EditGameModal
-        isOpen={showEditModal}
-        onClose={() => setShowEditModal(false)}
-        onSave={handleGameUpdated}
-        game={game}
-      />
+      {isEditing && (
+        <GameForm
+          game={game}
+          onClose={() => setIsEditing(false)}
+          onSave={handleSave}
+        />
+      )}
     </div>
   );
-};
-
-export default GameDetail; 
+} 

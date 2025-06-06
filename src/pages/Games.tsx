@@ -1,26 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../lib/supabase';
 import type { Game } from '../types/game';
 import LoadingSpinner from '../components/LoadingSpinner';
-import GameCard from '../components/GameCard';
-import AddGameModal from '../components/AddGameModal';
 
-const Games: React.FC = () => {
+export default function Games() {
   const [games, setGames] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkAdmin = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAdmin(session?.user?.email === 'active.legendss@gmail.com');
-    };
-
-    const fetchGames = async () => {
+    async function fetchGames() {
       try {
         const { data, error } = await supabase
           .from('games')
@@ -35,34 +26,21 @@ const Games: React.FC = () => {
       } finally {
         setIsLoading(false);
       }
-    };
+    }
 
-    checkAdmin();
     fetchGames();
   }, []);
-
-  const handleGameAdded = async () => {
-    const { data, error } = await supabase
-      .from('games')
-      .select('*')
-      .eq('is_visible', true)
-      .order('created_at', { ascending: false });
-
-    if (!error && data) {
-      setGames(data);
-    }
-  };
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#F4B744]"></div>
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black p-4 md:p-8">
+    <div className="min-h-screen bg-black py-20 px-4">
       <div className="max-w-7xl mx-auto">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
@@ -72,9 +50,29 @@ const Games: React.FC = () => {
           بازی‌های ما
         </motion.h1>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
-          {games.map(game => (
-            <GameCard key={game.id} game={game} />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {games.map((game, index) => (
+            <motion.div
+              key={game.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              whileHover={{ scale: 1.05 }}
+              className="bg-gray-900 rounded-lg overflow-hidden cursor-pointer"
+              onClick={() => navigate(`/games/${game.slug}`)}
+            >
+              <div className="aspect-video relative">
+                <img
+                  src={game.image_icon}
+                  alt={game.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-6">
+                <h2 className="text-xl font-bold mb-2 font-vazirmatn">{game.title}</h2>
+                <p className="text-gray-400 line-clamp-2 font-vazirmatn">{game.description}</p>
+              </div>
+            </motion.div>
           ))}
         </div>
 
@@ -88,23 +86,6 @@ const Games: React.FC = () => {
           </motion.p>
         )}
       </div>
-
-      {isAdmin && (
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="fixed bottom-8 left-8 bg-green-600 text-white px-5 py-3 rounded-full shadow-lg hover:bg-green-700 transition-all"
-        >
-          افزودن بازی جدید
-        </button>
-      )}
-
-      <AddGameModal
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        onSave={handleGameAdded}
-      />
     </div>
   );
-};
-
-export default Games; 
+} 
