@@ -99,7 +99,7 @@ export default function UserMenu() {
                   } group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}
                 >
                   <HiHeart className="w-5 h-5" />
-                  بازی‌های من
+                  موارد دلخواه
                 </Link>
               )}
             </Menu.Item>

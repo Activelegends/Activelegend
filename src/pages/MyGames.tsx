@@ -77,7 +77,7 @@ export const MyGames: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className="text-3xl font-bold text-white mb-8 text-center"
       >
-        🎮 بازی‌های من
+        🎮 موارد دلخواه
       </motion.h1>
 
       {games.length > 0 ? (
