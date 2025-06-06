@@ -64,9 +64,7 @@ export default function Navbar() {
     setIsMobileMenuOpen(false);
     
     if (location.pathname !== '/') {
-      // اگر در صفحه اصلی نیستیم، اول به صفحه اصلی برویم
       navigate('/');
-      // یک تایمر کوتاه برای اطمینان از لود شدن صفحه اصلی
       setTimeout(() => {
         const galleryElement = document.getElementById('gallery');
         if (galleryElement) {
@@ -80,7 +78,6 @@ export default function Navbar() {
         }
       }, 100);
     } else {
-      // اگر در صفحه اصلی هستیم، مستقیماً به گالری اسکرول کنیم
       const galleryElement = document.getElementById('gallery');
       if (galleryElement) {
         const headerOffset = 80;
@@ -96,7 +93,6 @@ export default function Navbar() {
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
-<<<<<<< HEAD
     setIsMobileMenuOpen(false);
     
     if (location.pathname !== '/') {
@@ -164,34 +160,13 @@ export default function Navbar() {
         </a>
       )
     ));
-=======
-    const targetElement = document.getElementById(targetId);
-    if (targetElement) {
-      const headerOffset = 80;
-      const elementPosition = targetElement.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-    }
->>>>>>> parent of 2ce310d (بهینه سازی هدر)
   };
 
   return (
     <>
-<<<<<<< HEAD
       <nav
         className={`w-full bg-[#111111] text-gray-100 z-50 transition-all duration-300 ${
           isScrolled ? 'backdrop-blur-md bg-[#111111]/90' : ''
-=======
-      <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className={`fixed top-0 right-0 left-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'backdrop-blur-md bg-black/50 py-2' : 'py-4'
->>>>>>> parent of b95f66a (تغییرات جدید برای هدر)
         }`}
       >
         <div className="container mx-auto px-4 flex items-center justify-between">
@@ -202,23 +177,14 @@ export default function Navbar() {
               className="h-8 md:h-10"
             />
           </Link>
-<<<<<<< HEAD
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {renderNavLinks()}
           </div>
 
-<<<<<<< HEAD
           {/* Auth Buttons / Profile */}
           <div className="flex items-center space-x-4">
-=======
-          <div className="flex items-center gap-8">
-            <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="nav-link">درباره ما</a>
-            <Link to="/games" className="nav-link">بازی‌ها</Link>
-            <a href="#gallery" onClick={handleGalleryClick} className="nav-link">گالری تصاویر</a>
-            <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
->>>>>>> parent of 2ce310d (بهینه سازی هدر)
             {user ? (
               <div className="relative">
                 <button
@@ -239,21 +205,6 @@ export default function Navbar() {
                     </div>
                   )}
                 </button>
-=======
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-white p-2"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? (
-              <HiX className="w-6 h-6" />
-            ) : (
-              <HiMenu className="w-6 h-6" />
-            )}
-          </button>
-        </div>
->>>>>>> parent of b95f66a (تغییرات جدید برای هدر)
-
                 {/* Profile Dropdown */}
                 {isProfileMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-[#111111] backdrop-blur-md rounded-lg shadow-lg py-2 z-50">
@@ -302,21 +253,11 @@ export default function Navbar() {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden text-gray-100 focus:outline-none"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                {isMobileMenuOpen ? (
-                  <path d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
+              {isMobileMenuOpen ? (
+                <HiX className="w-6 h-6" />
+              ) : (
+                <HiMenu className="w-6 h-6" />
+              )}
             </button>
           </div>
         </div>
