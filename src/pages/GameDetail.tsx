@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabaseClient';
 import { ContentBlock } from '../components/ContentBlock';
 import { EditGameModal } from '../components/EditGameModal';
+import { FavoriteButton } from '../components/FavoriteButton';
+import { useAuth } from '../contexts/AuthContext';
 
 interface Game {
   id: string;
@@ -26,6 +28,7 @@ interface Game {
 export const GameDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [game, setGame] = useState<Game | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -114,6 +117,9 @@ export const GameDetail: React.FC = () => {
             >
               دانلود بازی
             </a>
+            {user && game && (
+              <FavoriteButton gameId={game.id} />
+            )}
             {isAdmin && (
               <button
                 onClick={() => setShowEditModal(true)}
