@@ -1,15 +1,17 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { type User } from '@supabase/supabase-js';
+import type { ReactNode } from 'react';
+import type { User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 
 interface AuthContextType {
-  user: User | null;
+  user: (User & { avatar_path?: string }) | null;
   isAdmin: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,6 +22,7 @@ const CALLBACK_URL = `${BASE_URL}/auth/callback`;
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // بررسی توکن در URL
@@ -63,6 +66,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (error) {
         console.error('خطا در مدیریت ریدایرکت:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -153,7 +158,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAdmin, signIn, signUp, signOut, signInWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, isAdmin, signIn, signUp, signOut, signInWithGoogle, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
