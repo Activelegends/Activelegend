@@ -34,6 +34,7 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
+          VITE_BASE_URL: '/Activelegend/'
       
       - name: Verify build output
         run: |
@@ -48,11 +49,6 @@ jobs:
           fi
           
           echo "Build verification passed"
-      
-      - name: List build directory
-        run: |
-          echo "Build directory contents:"
-          ls -R ./dist
       
       - name: Setup Pages
         uses: actions/configure-pages@v4

@@ -64,7 +64,9 @@ export default function Navbar() {
     setIsMobileMenuOpen(false);
     
     if (location.pathname !== '/') {
+      // اگر در صفحه اصلی نیستیم، اول به صفحه اصلی برویم
       navigate('/');
+      // یک تایمر کوتاه برای اطمینان از لود شدن صفحه اصلی
       setTimeout(() => {
         const galleryElement = document.getElementById('gallery');
         if (galleryElement) {
@@ -78,6 +80,7 @@ export default function Navbar() {
         }
       }, 100);
     } else {
+      // اگر در صفحه اصلی هستیم، مستقیماً به گالری اسکرول کنیم
       const galleryElement = document.getElementById('gallery');
       if (galleryElement) {
         const headerOffset = 80;
@@ -93,6 +96,7 @@ export default function Navbar() {
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
+<<<<<<< HEAD
     setIsMobileMenuOpen(false);
     
     if (location.pathname !== '/') {
@@ -160,6 +164,19 @@ export default function Navbar() {
         </a>
       )
     ));
+=======
+    const targetElement = document.getElementById(targetId);
+    if (targetElement) {
+      const headerOffset = 80;
+      const elementPosition = targetElement.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+>>>>>>> parent of 2ce310d (بهینه سازی هدر)
   };
 
   return (
@@ -185,6 +202,7 @@ export default function Navbar() {
               className="h-8 md:h-10"
             />
           </Link>
+<<<<<<< HEAD
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
@@ -194,6 +212,13 @@ export default function Navbar() {
 <<<<<<< HEAD
           {/* Auth Buttons / Profile */}
           <div className="flex items-center space-x-4">
+=======
+          <div className="flex items-center gap-8">
+            <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="nav-link">درباره ما</a>
+            <Link to="/games" className="nav-link">بازی‌ها</Link>
+            <a href="#gallery" onClick={handleGalleryClick} className="nav-link">گالری تصاویر</a>
+            <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
+>>>>>>> parent of 2ce310d (بهینه سازی هدر)
             {user ? (
               <div className="relative">
                 <button
