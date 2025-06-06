@@ -13,7 +13,6 @@ interface ContentBlockProps {
 }
 
 export const ContentBlock: React.FC<ContentBlockProps> = ({ block, index }) => {
-  const [hasAnimated, setHasAnimated] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isScrollingDown, setIsScrollingDown] = useState(true);
   const ref = useRef<HTMLDivElement>(null);
@@ -36,21 +35,14 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({ block, index }) => {
     : 'w-full flex justify-start mb-8';
 
   const getMotionProps = () => {
-    if (hasAnimated) {
-      return {
-        initial: { opacity: 1, y: 0 },
-        whileInView: { opacity: 1, y: 0 },
-        viewport: { once: true, amount: 0.3, margin: "100px" },
-        transition: { duration: 0.3, ease: "easeOut" },
-      };
-    }
-
     return {
-      initial: { opacity: 0, y: isScrollingDown ? 50 : 0 },
+      initial: { opacity: 0, y: isScrollingDown ? 50 : -50 },
       whileInView: { opacity: 1, y: 0 },
-      viewport: { once: true, amount: 0.3, margin: "100px" },
-      transition: { duration: 0.7, ease: "easeOut" },
-      onViewportEnter: () => setHasAnimated(true),
+      viewport: { once: false, amount: 0.3, margin: "100px" },
+      transition: { 
+        duration: 0.7,
+        ease: "easeOut"
+      }
     };
   };
 
