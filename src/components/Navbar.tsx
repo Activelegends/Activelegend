@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import UserMenu from './UserMenu';
-import AuthModal from './AuthModal';
 import { HiMenu, HiX } from 'react-icons/hi';
 import { supabase } from '../lib/supabase';
+import AuthModal from './AuthModal';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
   const { user, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -48,7 +47,7 @@ export default function Navbar() {
     fetchAvatar();
   }, [user?.avatar_path]);
 
-  const handleAuthClick = (mode: 'login' | 'signup') => {
+  const handleAuthClick = () => {
     setIsAuthModalOpen(true);
     setIsMobileMenuOpen(false);
   };
@@ -64,9 +63,7 @@ export default function Navbar() {
     setIsMobileMenuOpen(false);
     
     if (location.pathname !== '/') {
-      // اگر در صفحه اصلی نیستیم، اول به صفحه اصلی برویم
       navigate('/');
-      // یک تایمر کوتاه برای اطمینان از لود شدن صفحه اصلی
       setTimeout(() => {
         const galleryElement = document.getElementById('gallery');
         if (galleryElement) {
@@ -80,7 +77,6 @@ export default function Navbar() {
         }
       }, 100);
     } else {
-      // اگر در صفحه اصلی هستیم، مستقیماً به گالری اسکرول کنیم
       const galleryElement = document.getElementById('gallery');
       if (galleryElement) {
         const headerOffset = 80;
@@ -96,7 +92,6 @@ export default function Navbar() {
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
-<<<<<<< HEAD
     setIsMobileMenuOpen(false);
     
     if (location.pathname !== '/') {
@@ -164,34 +159,13 @@ export default function Navbar() {
         </a>
       )
     ));
-=======
-    const targetElement = document.getElementById(targetId);
-    if (targetElement) {
-      const headerOffset = 80;
-      const elementPosition = targetElement.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-    }
->>>>>>> parent of 2ce310d (بهینه سازی هدر)
   };
 
   return (
     <>
-<<<<<<< HEAD
       <nav
-        className={`w-full bg-[#111111] text-gray-100 z-50 transition-all duration-300 ${
-          isScrolled ? 'backdrop-blur-md bg-[#111111]/90' : ''
-=======
-      <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className={`fixed top-0 right-0 left-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'backdrop-blur-md bg-black/50 py-2' : 'py-4'
->>>>>>> parent of b95f66a (تغییرات جدید برای هدر)
+        className={`fixed top-0 right-0 left-0 w-full bg-[#111111] text-gray-100 z-50 transition-all duration-300 ${
+          isScrolled ? 'backdrop-blur-md bg-[#111111]/90 py-2' : 'py-4'
         }`}
       >
         <div className="container mx-auto px-4 flex items-center justify-between">
@@ -202,23 +176,14 @@ export default function Navbar() {
               className="h-8 md:h-10"
             />
           </Link>
-<<<<<<< HEAD
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {renderNavLinks()}
           </div>
 
-<<<<<<< HEAD
           {/* Auth Buttons / Profile */}
           <div className="flex items-center space-x-4">
-=======
-          <div className="flex items-center gap-8">
-            <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="nav-link">درباره ما</a>
-            <Link to="/games" className="nav-link">بازی‌ها</Link>
-            <a href="#gallery" onClick={handleGalleryClick} className="nav-link">گالری تصاویر</a>
-            <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
->>>>>>> parent of 2ce310d (بهینه سازی هدر)
             {user ? (
               <div className="relative">
                 <button
@@ -234,46 +199,24 @@ export default function Navbar() {
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
                       <span className="text-gray-300 text-sm">
-                        {user.email?.[0].toUpperCase()}
+                        {user.email?.[0]?.toUpperCase()}
                       </span>
                     </div>
                   )}
                 </button>
-=======
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-white p-2"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? (
-              <HiX className="w-6 h-6" />
-            ) : (
-              <HiMenu className="w-6 h-6" />
-            )}
-          </button>
-        </div>
->>>>>>> parent of b95f66a (تغییرات جدید برای هدر)
 
-                {/* Profile Dropdown */}
                 {isProfileMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-[#111111] backdrop-blur-md rounded-lg shadow-lg py-2 z-50">
+                  <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1">
                     <Link
                       to="/profile"
-                      className="block px-4 py-2 text-gray-100 hover:bg-gray-700"
+                      className="block px-4 py-2 text-sm text-gray-100 hover:bg-gray-700"
                       onClick={() => setIsProfileMenuOpen(false)}
                     >
                       پروفایل
                     </Link>
-                    <Link
-                      to="/settings"
-                      className="block px-4 py-2 text-gray-100 hover:bg-gray-700"
-                      onClick={() => setIsProfileMenuOpen(false)}
-                    >
-                      تنظیمات
-                    </Link>
                     <button
                       onClick={handleSignOut}
-                      className="block w-full text-right px-4 py-2 text-gray-100 hover:bg-gray-700"
+                      className="block w-full text-right px-4 py-2 text-sm text-gray-100 hover:bg-gray-700"
                     >
                       خروج
                     </button>
@@ -281,79 +224,53 @@ export default function Navbar() {
                 )}
               </div>
             ) : (
-              <>
+              <div className="flex items-center space-x-4">
                 <button
-                  onClick={() => handleAuthClick('login')}
-                  className="hidden md:block text-gray-100 hover:text-amber-500"
+                  onClick={handleAuthClick}
+                  className="text-gray-100 hover:text-amber-500 transition-colors"
                 >
                   ورود
                 </button>
                 <button
-                  onClick={() => handleAuthClick('signup')}
-                  className="hidden md:block bg-amber-500 text-black px-4 py-2 rounded-lg hover:bg-amber-600"
+                  onClick={handleAuthClick}
+                  className="bg-amber-500 text-gray-900 px-4 py-2 rounded-md hover:bg-amber-600 transition-colors"
                 >
                   ثبت نام
                 </button>
-              </>
+              </div>
             )}
 
             {/* Mobile Menu Button */}
             <button
+              className="md:hidden text-white p-2"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden text-gray-100 focus:outline-none"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                {isMobileMenuOpen ? (
-                  <path d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
+              {isMobileMenuOpen ? (
+                <HiX className="w-6 h-6" />
+              ) : (
+                <HiMenu className="w-6 h-6" />
+              )}
             </button>
           </div>
         </div>
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-[#111111] backdrop-blur-md absolute top-full left-0 right-0 z-50">
-            <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
+          <div className="md:hidden bg-gray-800">
+            <div className="px-2 pt-2 pb-3 space-y-1">
               {renderNavLinks()}
-              {!user && (
-                <>
-                  <button
-                    onClick={() => handleAuthClick('login')}
-                    className="text-gray-100 hover:text-amber-500 text-right"
-                  >
-                    ورود
-                  </button>
-                  <button
-                    onClick={() => handleAuthClick('signup')}
-                    className="bg-amber-500 text-black px-4 py-2 rounded-lg hover:bg-amber-600 text-right"
-                  >
-                    ثبت نام
-                  </button>
-                </>
-              )}
             </div>
           </div>
         )}
       </nav>
 
-      {/* Add padding to main content to prevent overlap */}
-      <div className="h-16 md:h-20" />
-
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-      />
+      {/* Auth Modal */}
+      {isAuthModalOpen && (
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+        />
+      )}
     </>
   );
 }
