@@ -93,6 +93,7 @@ export default function Navbar() {
         <>
           <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="nav-link">درباره ما</a>
           <Link to="/games" className="nav-link">بازی‌ها</Link>
+          {user && <Link to="/my-games" className="nav-link">بازی‌های من</Link>}
           <a href="#gallery" onClick={handleGalleryClick} className="nav-link">گالری تصاویر</a>
           <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
         </>
@@ -102,6 +103,7 @@ export default function Navbar() {
         <>
           <Link to="/" className="nav-link">صفحه اصلی</Link>
           <Link to="/games" className="nav-link">بازی‌ها</Link>
+          {user && <Link to="/my-games" className="nav-link">بازی‌های من</Link>}
           <a href="#gallery" onClick={handleGalleryClick} className="nav-link">گالری تصاویر</a>
           <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
         </>
@@ -111,6 +113,7 @@ export default function Navbar() {
       <>
         <Link to="/" className="nav-link">صفحه اصلی</Link>
         <Link to="/games" className="nav-link">بازی‌ها</Link>
+        {user && <Link to="/my-games" className="nav-link">بازی‌های من</Link>}
         <a href="#gallery" onClick={handleGalleryClick} className="nav-link">گالری تصاویر</a>
         <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
       </>

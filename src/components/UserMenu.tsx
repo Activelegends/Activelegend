@@ -1,7 +1,8 @@
 import { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
-import { HiUser, HiLogout, HiShieldCheck, HiUserGroup, HiTrash } from 'react-icons/hi';
+import { HiUser, HiLogout, HiShieldCheck, HiUserGroup, HiTrash, HiHeart } from 'react-icons/hi';
 import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 
 export default function UserMenu() {
   const { user, isAdmin, signOut } = useAuth();
@@ -88,6 +89,20 @@ export default function UserMenu() {
                 <div className="my-1 border-t border-white/10"></div>
               </>
             )}
+
+            <Menu.Item>
+              {({ active }) => (
+                <Link
+                  to="/my-games"
+                  className={`${
+                    active ? 'bg-white/10' : ''
+                  } group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}
+                >
+                  <HiHeart className="w-5 h-5" />
+                  بازی‌های من
+                </Link>
+              )}
+            </Menu.Item>
 
             <Menu.Item>
               {({ active }) => (
