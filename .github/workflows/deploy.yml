@@ -34,7 +34,7 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
-          VITE_BASE_URL: '/Activelegend/'
+          VITE_BASE_URL: '/'
       
       - name: Debug project files
         run: |
