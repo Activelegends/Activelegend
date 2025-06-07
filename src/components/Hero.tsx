@@ -54,7 +54,7 @@ export default function Hero() {
           {...animationConfig}
           transition={{ ...animationConfig.transition, delay: isMobile ? 0.1 : 0.3 }}
         >
-          به دنیای اکتیو لجندز خوش آمدید (تست دیپلوی)
+          TEST DEPLOYMENT - اکتیو لجندز
         </motion.h1>
         
         <motion.p
@@ -62,7 +62,7 @@ export default function Hero() {
           {...animationConfig}
           transition={{ ...animationConfig.transition, delay: isMobile ? 0.2 : 0.5 }}
         >
-          توسعه‌دهنده بازی‌های موبایل و کامپیوتر
+          TEST - توسعه‌دهنده بازی‌های موبایل و کامپیوتر
         </motion.p>
         
         <motion.div
