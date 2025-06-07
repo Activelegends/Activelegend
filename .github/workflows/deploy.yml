@@ -36,6 +36,16 @@ jobs:
           NODE_ENV: production
           VITE_BASE_URL: '/Activelegend/'
       
+      - name: Debug project files
+        run: |
+          echo "Listing project files:"
+          ls -R ./
+      
+      - name: Debug build directory
+        run: |
+          echo "Listing build directory:"
+          ls -R ./dist
+      
       - name: Verify build output
         run: |
           if [ ! -d "dist" ]; then

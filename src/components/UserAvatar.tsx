@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../supabaseClient';
 // نیازی به ایمپورت supabase در اینجا نیست زیرا اطلاعات کاربر از AuthContext می‌آید
 // import { supabase } from '../lib/supabase';
 
@@ -10,43 +12,39 @@ interface UserAvatarProps {
 
 export function UserAvatar({ size = 'medium', showName = true, className = '' }: UserAvatarProps) {
   const { user } = useAuth();
-  // نیازی به state جداگانه برای userData نیست
-  // const [userData, setUserData] = useState<{
-  //   avatar_url: string | null;
-  //   full_name: string | null;
-  // } | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // این useEffect دیگر نیازی به فراخوانی getUser() ندارد
-  // useEffect(() => {
-  //   const fetchUserData = async () => {
-  //     if (user) {
-  //       try {
-  //         console.log('دریافت اطلاعات کاربر از useAuth:', user);
-  //         // const { data: { user: userData }, error } = await supabase.auth.getUser();
-          
-  //         // if (error) {
-  //         //   console.error('خطا در دریافت اطلاعات کاربر:', error);
-  //         //   throw error;
-  //         // }
-          
-  //         // console.log('اطلاعات کاربر دریافت شد:', userData);
-  //         // console.log('آواتار:', userData?.user_metadata?.avatar_url);
-  //         // console.log('نام:', userData?.user_metadata?.full_name);
-          
-  //         // setUserData({
-  //         //   avatar_url: userData?.user_metadata?.avatar_url || null,
-  //         //   full_name: userData?.user_metadata?.full_name || null
-  //         // });
-  //       } catch (error) {
-  //         console.error('خطا در پردازش اطلاعات کاربر:', error);
-  //       }
-  //     } else {
-  //       console.log('کاربر لاگین نکرده است');
-  //     }
-  //   };
+  useEffect(() => {
+    async function fetchAvatar() {
+      if (!user?.id) {
+        setAvatarUrl('/images/default-avatar.svg');
+        setIsLoading(false);
+        return;
+      }
 
-  //   fetchUserData();
-  // }, [user]);
+      try {
+        const { data: { publicUrl }, error } = await supabase
+          .storage
+          .from('avatars')
+          .getPublicUrl(`${user.id}/avatar`);
+
+        if (error) {
+          console.error('Error fetching avatar:', error);
+          setAvatarUrl('/images/default-avatar.svg');
+        } else {
+          setAvatarUrl(publicUrl);
+        }
+      } catch (error) {
+        console.error('Error in avatar fetch:', error);
+        setAvatarUrl('/images/default-avatar.svg');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchAvatar();
+  }, [user?.id]);
 
   const sizeClasses = {
     small: 'w-8 h-8',
@@ -55,7 +53,6 @@ export function UserAvatar({ size = 'medium', showName = true, className = '' }:
   };
 
   // دسترسی مستقیم به اطلاعات کاربر از شیء user
-  const avatarUrl = user?.user_metadata?.avatar_url || '/images/default-avatar.svg';
   const displayName = user?.user_metadata?.full_name || 'مهمان';
 
   // لاگ‌های دیباگ قبلی حذف شدند
@@ -65,17 +62,21 @@ export function UserAvatar({ size = 'medium', showName = true, className = '' }:
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <img
-        src={avatarUrl}
-        alt={displayName}
-        className={`${sizeClasses[size]} rounded-full object-cover border-2 border-gray-200`}
-        onError={(e) => {
-          console.error('خطا در بارگذاری تصویر:', e);
-          e.currentTarget.src = '/images/default-avatar.svg';
-        }}
-      />
+      {isLoading ? (
+        <div className={`${sizeClasses[size]} rounded-full bg-gray-700 animate-pulse`} />
+      ) : (
+        <img
+          src={avatarUrl || '/images/default-avatar.svg'}
+          alt={displayName}
+          className={`${sizeClasses[size]} rounded-full object-cover border-2 border-gray-600 z-50 relative`}
+          onError={(e) => {
+            console.error('Error loading avatar image');
+            e.currentTarget.src = '/images/default-avatar.svg';
+          }}
+        />
+      )}
       {showName && (
-        <span className="text-sm font-medium text-gray-700">
+        <span className="text-sm font-medium text-gray-300">
           {displayName}
         </span>
       )}
