@@ -5,6 +5,13 @@ import { FaBars, FaTimes } from 'react-icons/fa';
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const navItems = [
+    { href: '/', label: 'خانه' },
+    { href: '/games', label: 'بازی‌ها' },
+    { href: '/media', label: 'ویترین' },
+    { href: '/about', label: 'درباره ما' }
+  ];
+
   return (
     <header className="w-full bg-[#111111] text-gray-100 z-50 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
