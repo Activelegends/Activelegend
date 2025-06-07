@@ -6,7 +6,7 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   base: '/',
-  root: './',
+  root: '.',
   publicDir: 'public',
   resolve: {
     alias: {
@@ -15,6 +15,7 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
+    emptyOutDir: true,
     assetsDir: 'assets',
     sourcemap: true,
     rollupOptions: {
