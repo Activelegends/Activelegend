@@ -543,8 +543,6 @@ export default function MediaShowcase() {
                   onHoverStart={() => setHoveredItem(item.id)}
                   onHoverEnd={() => setHoveredItem(null)}
                   className="bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden shadow-lg transform transition-all duration-300 border border-gray-700/50 hover:border-blue-500/50"
-                  viewport={{ once: false, amount: 0.2 }}
-                  transition={{ duration: 0.5 }}
                 >
                   <div className="relative aspect-video group">
                     {item.type === 'image' ? (
