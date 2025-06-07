@@ -25,12 +25,12 @@ export default function Navbar() {
 
   useEffect(() => {
     if (isMobileMenuOpen || isProfileMenuOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.classList.add('overflow-hidden');
     } else {
-      document.body.style.overflow = '';
+      document.body.classList.remove('overflow-hidden');
     }
     return () => {
-      document.body.style.overflow = '';
+      document.body.classList.remove('overflow-hidden');
     };
   }, [isMobileMenuOpen, isProfileMenuOpen]);
 
@@ -164,7 +164,7 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-0 right-0 left-0 w-full bg-[#111111] text-gray-100 z-50 transition-all duration-300 ${
+        className={`sticky top-0 right-0 left-0 w-full bg-[#111111] text-gray-100 z-50 transition-all duration-300 ${
           isScrolled ? 'backdrop-blur-md bg-[#111111]/90 py-2' : 'py-4'
         }`}
       >
@@ -199,7 +199,7 @@ export default function Navbar() {
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
                       <span className="text-gray-300 text-sm">
-                        {user.email?.[0]?.toUpperCase()}
+                        {user?.email?.[0]?.toUpperCase() || 'U'}
                       </span>
                     </div>
                   )}
@@ -256,7 +256,7 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-gray-800">
+          <div className="md:hidden bg-gray-800 absolute top-full left-0 right-0 z-50 block">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {renderNavLinks()}
             </div>
