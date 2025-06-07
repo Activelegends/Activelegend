@@ -5,7 +5,7 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/',
+  base: '/Activelegend/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -22,6 +22,7 @@ export default defineConfig({
           ui: ['framer-motion', '@headlessui/react'],
         },
         assetFileNames: (assetInfo) => {
+          if (!assetInfo.name) return 'assets/[name]-[hash][extname]';
           const info = assetInfo.name.split('.')
           const ext = info[info.length - 1]
           if (/\.(png|jpe?g|gif|svg|webp|ico)$/.test(assetInfo.name)) {
