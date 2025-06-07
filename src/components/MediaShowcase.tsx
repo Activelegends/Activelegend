@@ -508,9 +508,10 @@ export default function MediaShowcase() {
               whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(59, 130, 246, 0.5)" }}
               whileTap={{ scale: 0.95 }}
               onClick={handleAdd}
-              className="flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-all duration-200 text-base sm:text-lg"
+              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors duration-200"
             >
-              <FaPlus className="text-lg sm:text-xl" /> افزودن به ویترین
+              <FaPlus />
+              افزودن به ویترین
             </motion.button>
           </motion.div>
         )}
