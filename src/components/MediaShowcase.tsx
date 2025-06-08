@@ -5,6 +5,7 @@ import type { MediaItem, MediaFormData } from '../types/media';
 import { FaPlus, FaEdit, FaTrash, FaEye, FaEyeSlash } from 'react-icons/fa';
 import React from 'react';
 import { supabase } from '../supabaseClient';
+import { fetchAparatVideoInfo } from '../lib/aparatApi';
 
 interface AparatVideoInfo {
   uid: string;
@@ -127,33 +128,6 @@ export default function MediaShowcase() {
 
   const isAdmin = user?.email === 'active.legendss@gmail.com';
 
-  const fetchAparatVideoInfo = async (url: string) => {
-    try {
-      const videoId = url.split('/').pop()?.split('?')[0];
-      if (!videoId) return null;
-
-      const response = await fetch(`https://www.aparat.com/etc/api/video/videohash/${videoId}`);
-      const data = await response.json();
-      
-      if (data.video) {
-        return {
-          uid: data.video.uid,
-          title: data.video.title,
-          small_poster: data.video.small_poster,
-          big_poster: data.video.big_poster
-        };
-      }
-      return null;
-    } catch (error) {
-      console.error('Error fetching Aparat video info:', error);
-      return null;
-    }
-  };
-
-  useEffect(() => {
-    fetchMediaItems();
-  }, []);
-
   const fetchMediaItems = async () => {
     try {
       const { data, error } = await supabase
@@ -167,18 +141,27 @@ export default function MediaShowcase() {
         console.log('Fetched media items:', data);
         setMediaItems(data);
         
-        // دریافت اطلاعات ویدیوهای آپارات
-        data.forEach(async (item: MediaItem) => {
-          if (item.type === 'video' && item.url.includes('aparat.com')) {
-            const videoInfo = await fetchAparatVideoInfo(item.url);
-            if (videoInfo) {
-              setVideoPreviews(prev => ({
-                ...prev,
-                [item.id]: videoInfo
-              }));
+        // Fetch Aparat video info for each video item
+        const videoPromises = data
+          .filter((item: MediaItem) => item.type === 'video' && item.url.includes('aparat.com'))
+          .map(async (item: MediaItem) => {
+            try {
+              const videoId = item.url.split('/').pop()?.split('?')[0];
+              if (!videoId) return null;
+              
+              const videoInfo = await fetchAparatVideoInfo(videoId);
+              if (videoInfo) {
+                setVideoPreviews(prev => ({
+                  ...prev,
+                  [item.id]: videoInfo
+                }));
+              }
+            } catch (error) {
+              console.error(`Error fetching video info for ${item.url}:`, error);
             }
-          }
-        });
+          });
+        
+        await Promise.all(videoPromises);
       }
     } catch (error) {
       console.error('Error fetching media items:', error);

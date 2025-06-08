@@ -171,9 +171,9 @@ export default function Navbar() {
         <div className="container mx-auto px-4 flex items-center justify-between">
           <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
             <img
-              src="/logo.png"
-              alt="Active Legend"
-              className="h-8 md:h-10"
+              src="/AE-logo.png"
+              alt="Active Legends"
+              className="h-8 w-auto"
             />
           </Link>
 
