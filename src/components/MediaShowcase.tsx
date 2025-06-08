@@ -491,7 +491,7 @@ export default function MediaShowcase() {
           variants={itemVariants}
           className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-10 sm:mb-14 text-center"
         >
-          گالری رسانه‌ها
+          ویترین
         </motion.h2>
         
         {isAdmin && (
