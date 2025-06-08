@@ -13,7 +13,6 @@
   -webkit-overflow-scrolling: touch;
 }
 
-<<<<<<< HEAD
 html,
 body,
 #root {
@@ -30,21 +29,6 @@ body,
   font-family: 'Vazirmatn', sans-serif;
   margin: 0;
   padding: 0;
-=======
-html {
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
-  @apply overflow-x-hidden;
-}
-
-body {
-  font-family: 'Vazirmatn', sans-serif;
-  margin: 0;
-  padding: 0;
-  @apply bg-black text-white text-sm sm:text-base md:text-lg;
-  overflow-x: hidden;
->>>>>>> parent of b95f66a (تغییرات جدید برای هدر)
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   touch-action: pan-y pinch-zoom;
@@ -258,27 +242,27 @@ body {
 .card {
   background-color: rgb(31, 41, 55);
   border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
+  overflow: hidden;
+  transition: transform 0.3s;
 }
 
 /* Ensure proper list styling */
 .list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .list-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgb(55, 65, 81);
 }
 
 /* Ensure proper icon styling */
 .icon {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  fill: currentColor;
 }
 
 /* Ensure proper badge styling */
@@ -309,271 +293,356 @@ body {
 }
 
 .alert-success {
-  background-color: rgba(34, 197, 94, 0.2);
-  color: rgb(74, 222, 128);
-  border: 1px solid rgba(34, 197, 94, 0.3);
+  background-color: rgb(34, 197, 94);
+  color: rgb(0, 0, 0);
 }
 
 .alert-error {
-  background-color: rgba(239, 68, 68, 0.2);
-  color: rgb(248, 113, 113);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background-color: rgb(239, 68, 68);
+  color: rgb(255, 255, 255);
 }
 
 .alert-warning {
-  background-color: rgba(234, 179, 8, 0.2);
-  color: rgb(250, 204, 21);
-  border: 1px solid rgba(234, 179, 8, 0.3);
+  background-color: rgb(245, 158, 11);
+  color: rgb(0, 0, 0);
 }
 
 .alert-info {
-  background-color: rgba(59, 130, 246, 0.2);
-  color: rgb(96, 165, 250);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background-color: rgb(59, 130, 246);
+  color: rgb(255, 255, 255);
 }
 
-@layer components {
+/* Ensure proper navigation styling */
+.nav-link {
+  position: relative;
+  padding: 0.5rem 1rem;
+  color: rgb(156, 163, 175);
+  transition: color 0.3s;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: rgb(245, 158, 11);
+  transition: width 0.3s;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
   .nav-link {
-    @apply text-gray-300 hover:text-yellow-400 transition-colors duration-200 relative;
+    display: block;
+    padding: 1rem;
   }
 
   .nav-link::after {
-    content: '';
-<<<<<<< HEAD
-    @apply relative py-1.5 sm:py-2 text-white/80 hover:text-white transition-colors duration-300
-           after:absolute after:bottom-0 after:right-0 after:h-0.5 
-           after:w-0 after:bg-primary after:transition-all after:duration-300
-           hover:after:w-full text-sm sm:text-base;
-=======
-    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-200;
+    display: none;
   }
+}
 
-  .nav-link:hover::after {
-    @apply w-full;
+/* Ensure proper main content styling */
+main {
+  min-height: calc(100vh - 4rem);
+  padding-top: 4rem;
+}
+
+/* Ensure proper heading hierarchy */
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+h4 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+
+/* Ensure proper text styling */
+p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+/* Ensure proper form element styling */
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid rgb(55, 65, 81);
+  border-radius: 0.25rem;
+  background-color: rgb(31, 41, 55);
+  color: rgb(243, 244, 246);
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+/* Ensure proper error message styling */
+.form-error {
+  color: rgb(239, 68, 68);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Ensure proper modal styling */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  position: relative;
+  background-color: rgb(31, 41, 55);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  max-width: 32rem;
+  width: 90%;
+  margin: 2rem auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.modal-close {
+  padding: 0.5rem;
+  color: rgb(156, 163, 175);
+  transition: color 0.3s;
+}
+
+/* Ensure proper loading spinner */
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid rgb(156, 163, 175);
+  border-top-color: rgb(245, 158, 11);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
+}
 
-  /* Mobile Menu Styles */
-  @media (max-width: 768px) {
-    .nav-link {
-      @apply text-base py-2 px-4 w-full text-center;
-    }
+/* Ensure proper toast notification */
+.toast {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: rgb(31, 41, 55);
+  color: rgb(243, 244, 246);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+}
 
-    .nav-link::after {
-      @apply hidden;
-    }
+/* Ensure proper grid layout */
+.grid-auto-fit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+/* Ensure proper text gradient */
+.text-gradient {
+  background: linear-gradient(to right, rgb(245, 158, 11), rgb(234, 88, 12));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Ensure proper fade-in animation */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
-
-  /* Prevent content overlap with fixed header */
-  main {
-    @apply pt-16 md:pt-20;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
+}
 
-  h1 {
-    @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold;
->>>>>>> parent of b95f66a (تغییرات جدید برای هدر)
-  }
+/* Ensure proper RTL support for navigation */
+[dir="rtl"] .nav-link::after {
+  left: auto;
+  right: 0;
+}
 
-  h2 {
-    @apply text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold;
-  }
+[dir="rtl"] .modal-content {
+  text-align: right;
+}
 
-  h3 {
-    @apply text-lg sm:text-xl md:text-2xl font-bold;
-  }
+/* Ensure proper mobile menu button */
+.mobile-menu-button {
+  display: none;
+  padding: 0.5rem;
+  color: rgb(156, 163, 175);
+  transition: color 0.3s;
+}
 
-  h4 {
-    @apply text-base sm:text-lg md:text-xl font-bold;
-  }
+/* Ensure proper mobile menu dropdown */
+.mobile-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 100%;
+  background-color: rgb(31, 41, 55);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+}
 
-  p {
-    @apply text-sm sm:text-base md:text-lg leading-relaxed;
-  }
+/* Ensure proper mobile menu item */
+.mobile-menu-item {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: rgb(156, 163, 175);
+  transition: color 0.3s;
+}
 
-  input, textarea, select {
-    @apply text-sm sm:text-base p-2.5 sm:p-3 rounded-lg;
-  }
+/* Ensure proper header styling */
+header {
+  background-color: rgb(17, 17, 17);
+  border-bottom: 1px solid rgb(31, 41, 55);
+}
 
-  label {
-    @apply text-sm sm:text-base mb-1.5 sm:mb-2;
-  }
+/* Ensure proper navigation container */
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+}
 
-  .section-title {
-    @apply text-3xl md:text-4xl font-bold mb-8 text-center;
-  }
+/* Ensure proper logo styling */
+.logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: rgb(243, 244, 246);
+}
 
-  .card-image {
-    @apply w-full h-48 object-cover;
-  }
+/* Ensure proper navigation links */
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+}
 
-  .card-content {
-    @apply p-4;
-  }
+/* Ensure proper auth buttons */
+.auth-buttons {
+  display: flex;
+  gap: 1rem;
+}
 
-  .card-title {
-    @apply text-lg font-bold mb-2;
-  }
+/* Ensure proper user menu */
+.user-menu {
+  position: relative;
+}
 
-  .card-description {
-    @apply text-gray-400 text-sm;
-  }
+/* Ensure proper user menu button */
+.user-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  color: rgb(156, 163, 175);
+  transition: color 0.3s;
+}
 
-  .form-input {
-    @apply w-full bg-[#111111] border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:outline-none focus:border-yellow-400 transition-colors duration-200;
-  }
+/* Ensure proper user menu dropdown */
+.user-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 12rem;
+  background-color: rgb(31, 41, 55);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+}
 
-  .form-label {
-    @apply block text-gray-300 mb-2;
-  }
+/* Ensure proper user menu item */
+.user-menu-item {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: rgb(156, 163, 175);
+  transition: color 0.3s;
+}
 
-  .form-error {
-    @apply text-red-500 text-sm mt-1;
-  }
+/* Ensure proper mobile menu */
+.mobile-menu {
+  display: none;
+}
 
-  .modal-overlay {
-    @apply fixed inset-0 bg-black/50 backdrop-blur-sm z-50;
-  }
+/* Ensure proper mobile menu container */
+.mobile-menu-container {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+}
 
-  .modal-content {
-    @apply fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#111111] rounded-lg p-6 w-full max-w-md;
-  }
-
-  .modal-header {
-    @apply flex justify-between items-center mb-4;
-  }
-
-  .modal-title {
-    @apply text-xl font-bold;
-  }
-
-  .modal-close {
-    @apply text-gray-400 hover:text-white transition-colors duration-200;
-  }
-
-  .spinner {
-    @apply w-6 h-6 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin;
-  }
-
-  .toast {
-    @apply fixed bottom-4 right-4 bg-[#111111] text-white px-4 py-2 rounded-lg shadow-lg z-50;
-  }
-
-  .grid-auto-fit {
-    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
-  }
-
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-yellow-600;
-  }
-
-  .fade-in {
-    @apply opacity-0 animate-[fadeIn_0.5s_ease-in_forwards];
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  /* RTL specific styles */
-  [dir="rtl"] .nav-link::after {
-    @apply left-auto right-0;
-  }
-
-  [dir="rtl"] .modal-content {
-    @apply -translate-x-1/2;
-  }
-
-  /* Mobile menu button */
-  .mobile-menu-button {
-    @apply md:hidden text-gray-100 text-xl z-50;
-  }
-
-  /* Mobile menu dropdown */
-  .mobile-menu-dropdown {
-    @apply absolute top-full right-4 bg-[#222222] shadow-lg rounded-lg py-2 w-40;
-  }
-
-  .mobile-menu-item {
-    @apply block px-4 py-2 text-gray-100 hover:bg-gray-700;
-  }
-
-  /* Header styles */
-  header {
-    @apply w-full bg-black text-gray-100 z-50;
-  }
-
-  /* Navigation container */
-  .nav-container {
-    @apply container mx-auto flex justify-between items-center p-4 relative;
-  }
-
-  /* Logo styles */
-  .logo {
-    @apply text-xl font-bold;
-  }
-
-  /* Navigation links */
+@media (max-width: 768px) {
   .nav-links {
-    @apply hidden md:flex space-x-6;
+    display: none;
   }
 
-  /* Auth buttons */
   .auth-buttons {
-    @apply flex items-center gap-4;
+    display: none;
   }
 
-  /* User menu */
-  .user-menu {
-    @apply relative;
+  .mobile-menu-button {
+    display: block;
   }
+}
 
-  .user-menu-button {
-    @apply flex items-center gap-2 text-gray-100 hover:text-yellow-400 transition-colors;
-  }
-
-  .user-menu-dropdown {
-    @apply absolute top-full right-0 mt-2 w-48 bg-[#222222] rounded-lg shadow-lg py-2 z-50;
-  }
-
-  .user-menu-item {
-    @apply flex items-center gap-2 px-4 py-2 text-gray-100 hover:bg-gray-700 transition-colors;
-  }
-
-  /* Mobile menu */
+@media (min-width: 769px) {
   .mobile-menu {
-    @apply md:hidden bg-black/95 backdrop-blur-md absolute top-full left-0 right-0 z-50;
+    display: none;
   }
 
-  .mobile-menu-container {
-    @apply container mx-auto px-4 py-4 flex flex-col space-y-4;
-  }
-
-  /* Responsive utilities */
-  @media (max-width: 768px) {
-    .nav-links {
-      @apply hidden;
-    }
-    
-    .auth-buttons {
-      @apply hidden;
-    }
-    
-    .mobile-menu-button {
-      @apply block;
-    }
-  }
-
-  @media (min-width: 769px) {
-    .mobile-menu {
-      @apply hidden;
-    }
-    
-    .mobile-menu-button {
-      @apply hidden;
-    }
+  .mobile-menu-button {
+    display: none;
   }
 }
