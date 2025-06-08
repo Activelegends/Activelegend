@@ -45,4 +45,8 @@ export default defineConfig({
     },
     chunkSizeWarningLimit: 1000,
   },
+  define: {
+    'process.env.VITE_GIT_COMMIT_SHA': JSON.stringify(process.env.VITE_GIT_COMMIT_SHA || ''),
+    'process.env.DEPLOY_TIMESTAMP': JSON.stringify(new Date().toISOString()),
+  },
 })

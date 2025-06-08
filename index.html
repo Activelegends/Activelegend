@@ -7,7 +7,8 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <meta name="version" content="${{ github.sha }}" />
+    <meta name="version" content="%VITE_GIT_COMMIT_SHA%" />
+    <meta name="deploy-timestamp" content="%DEPLOY_TIMESTAMP%" />
     <title>اکتیو لجندز</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,5 +19,10 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Log version info for debugging
+      console.log('Site Version:', document.querySelector('meta[name="version"]')?.content);
+      console.log('Deploy Timestamp:', document.querySelector('meta[name="deploy-timestamp"]')?.content);
+    </script>
   </body>
 </html>
