@@ -470,303 +470,106 @@ export default function MediaShowcase() {
   };
 
   return (
-    <motion.section
-      ref={sectionRef}
-      variants={containerVariants}
-      initial="hidden"
-      animate={controls}
-      id="gallery"
-      className="py-12 sm:py-16 md:py-20 px-4 md:px-8 lg:px-12 bg-gray-950 relative overflow-hidden min-h-screen"
-    >
-      {/* Animated Background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/80 to-black/95"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-transparent animate-pulse"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-500/10 via-transparent to-transparent animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-pink-500/10 via-transparent to-transparent animate-pulse" style={{ animationDelay: '2s' }}></div>
-      </div>
-
-      <div className="container mx-auto px-4 relative z-10">
+    <section id="gallery" ref={sectionRef} className="py-16 bg-gray-900">
+      <div className="container mx-auto px-4">
         <motion.h2
-          initial={{ opacity: 0, y: 20 }}
+          initial="hidden"
           animate={controls}
           variants={{
+            hidden: { opacity: 0, y: 20 },
             visible: { opacity: 1, y: 0 }
           }}
-          transition={{ duration: 0.5 }}
-          className="text-4xl font-bold text-center mb-12 text-white"
+          className="text-3xl md:text-4xl font-bold text-center mb-12 text-white"
         >
           ویترین
         </motion.h2>
-        
+
         {isAdmin && (
-          <motion.div
-            variants={itemVariants}
-            className="flex justify-end mb-8 sm:mb-10"
-          >
-            <motion.button
-              whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(59, 130, 246, 0.5)" }}
-              whileTap={{ scale: 0.95 }}
+          <div className="flex justify-end mb-8">
+            <button
               onClick={handleAdd}
-              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors duration-200"
+              className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
             >
               <FaPlus />
-              افزودن به ویترین
-            </motion.button>
-          </motion.div>
+              <span>افزودن به ویترین</span>
+            </button>
+          </div>
         )}
 
-        {visibleItems.length === 0 ? (
-          <motion.div
-            variants={itemVariants}
-            className="text-center text-gray-400 py-12 text-xl sm:text-2xl"
-          >
-            {isAdmin ? 'هیچ آیتمی در ویترین وجود ندارد' : 'در حال حاضر هیچ آیتمی در ویترین برای نمایش وجود ندارد'}
-          </motion.div>
-        ) : (
-          <motion.div
-            variants={containerVariants}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 scroll-container"
-            style={{
-              willChange: 'transform',
-              transform: 'translateZ(0)',
-              backfaceVisibility: 'hidden',
-              perspective: '1000px'
-            }}
-            viewport={{ once: false, amount: 0.2 }}
-          >
-            <AnimatePresence mode="sync">
-              {visibleItems.map((item) => (
-                <motion.div
-                  key={item.id}
-                  variants={itemVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
-                  whileHover={{ 
-                    scale: 1.02,
-                    boxShadow: "0 0 30px rgba(59, 130, 246, 0.2)"
-                  }}
-                  onHoverStart={() => setHoveredItem(item.id)}
-                  onHoverEnd={() => setHoveredItem(null)}
-                  className="bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden shadow-lg transform transition-all duration-300 border border-gray-700/50 hover:border-blue-500/50"
-                  viewport={{ once: false, amount: 0.2 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <div className="relative aspect-video group">
-                    {item.type === 'image' ? (
-                      <motion.img
-                        src={getImageUrl(item.url)}
-                        alt={item.title}
-                        className="w-full h-full object-cover"
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ duration: 0.3 }}
-                        onError={handleImageError}
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="relative w-full h-full">
-                        {item.url.includes('youtube.com') || 
-                         item.url.includes('youtu.be') || 
-                         item.url.includes('vimeo.com') || 
-                         item.url.includes('aparat.com') ? (
-                          <>
-                            {item.url.includes('aparat.com') && videoPreviews[item.id] ? (
-                              <div className="relative w-full h-full">
-                                <img
-                                  src={videoPreviews[item.id].big_poster}
-                                  alt={videoPreviews[item.id].title}
-                                  className="w-full h-full object-cover"
-                                />
-                                <motion.button
-                                  initial={{ opacity: 0 }}
-                                  animate={{ opacity: hoveredItem === item.id ? 1 : 0 }}
-                                  onClick={() => window.open(item.url, '_blank')}
-                                  className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-5xl hover:bg-black/60 transition-colors duration-200 backdrop-blur-sm"
-                                >
-                                  <FaPlay className="transform hover:scale-110 transition-transform duration-200" />
-                                </motion.button>
-                              </div>
-                            ) : (
-                              <iframe
-                                src={getEmbedUrl(item.url)}
-                                className="w-full h-full"
-                                allowFullScreen
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                frameBorder="0"
-                                loading="lazy"
-                              />
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            <video
-                              ref={el => videoRefs.current[item.id] = el}
-                              src={item.url}
-                              className="w-full h-full object-cover"
-                              loop
-                              muted
-                              playsInline
-                              onLoadedData={() => {
-                                const video = videoRefs.current[item.id];
-                                if (video) {
-                                  video.currentTime = 0;
-                                }
-                              }}
-                            />
-                            <motion.button
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: hoveredItem === item.id ? 1 : 0 }}
-                              onClick={() => handleVideoPlay(item.id)}
-                              className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-5xl hover:bg-black/60 transition-colors duration-200 backdrop-blur-sm"
-                            >
-                              {playingVideos.has(item.id) ? 
-                                <FaPause className="transform hover:scale-110 transition-transform duration-200" /> : 
-                                <FaPlay className="transform hover:scale-110 transition-transform duration-200" />
-                              }
-                            </motion.button>
-                          </>
-                        )}
-                      </div>
-                    )}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {visibleItems.map((item) => (
+            <motion.div
+              key={item.id}
+              initial="hidden"
+              animate={controls}
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 }
+              }}
+              className="relative group"
+              onMouseEnter={() => setHoveredItem(item.id)}
+              onMouseLeave={() => setHoveredItem(null)}
+            >
+              <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden bg-gray-800">
+                {item.type === 'image' ? (
+                  <img
+                    src={getImageUrl(item.url)}
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                    onError={handleImageError}
+                  />
+                ) : (
+                  <div className="relative w-full h-full">
+                    <iframe
+                      src={getEmbedUrl(item.url)}
+                      className="absolute inset-0 w-full h-full"
+                      allowFullScreen
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    />
                   </div>
-                  <div className="p-6 sm:p-8">
-                    <motion.h3
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4"
-                    >
-                      {item.title}
-                    </motion.h3>
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.2 }}
-                      className="text-gray-300 leading-relaxed text-base sm:text-lg"
-                    >
-                      {item.description}
-                    </motion.p>
-                  </div>
-                  {isAdmin && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="p-4 sm:p-6 border-t border-gray-700/50 flex justify-end gap-3 sm:gap-4 bg-gray-900/50 backdrop-blur-sm"
-                    >
-                      <motion.button
-                        whileHover={{ scale: 1.1, color: "#60A5FA" }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => handleEdit(item)}
-                        className="p-2 sm:p-3 text-blue-400 hover:text-blue-300 transition-colors duration-200"
-                      >
-                        <FaEdit className="text-xl sm:text-2xl" />
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.1, color: "#FCD34D" }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => handleToggleVisibility(item.id, item.is_visible)}
-                        className="p-2 sm:p-3 text-yellow-400 hover:text-yellow-300 transition-colors duration-200"
-                      >
-                        {item.is_visible ? 
-                          <FaEyeSlash className="text-xl sm:text-2xl" /> : 
-                          <FaEye className="text-xl sm:text-2xl" />
-                        }
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.1, color: "#F87171" }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => handleDelete(item.id)}
-                        className="p-2 sm:p-3 text-red-400 hover:text-red-300 transition-colors duration-200"
-                      >
-                        <FaTrash className="text-xl sm:text-2xl" />
-                      </motion.button>
-                    </motion.div>
-                  )}
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
-        )}
+                )}
+              </div>
+
+              <div className="mt-4">
+                <h3 className="text-xl font-semibold text-white mb-2">{item.title}</h3>
+                <p className="text-gray-300">{item.description}</p>
+              </div>
+
+              {isAdmin && (
+                <div className="absolute top-2 right-2 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => handleEdit(item)}
+                    className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700"
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="p-2 bg-red-600 text-white rounded-full hover:bg-red-700"
+                  >
+                    <FaTrash />
+                  </button>
+                  <button
+                    onClick={() => handleToggleVisibility(item.id, item.is_visible)}
+                    className="p-2 bg-gray-600 text-white rounded-full hover:bg-gray-700"
+                  >
+                    {item.is_visible ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-gray-900 rounded-xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-gray-700"
-          >
-            <h3 className="text-2xl sm:text-3xl font-bold mb-8 text-white text-center">
-              {editingItem ? 'ویرایش آیتم' : 'افزودن به ویترین'}
-            </h3>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="block text-gray-300 mb-3 text-right text-base sm:text-lg">نوع رسانه</label>
-                <select
-                  value={formData.type}
-                  onChange={(e) => handleInputChange('type', e.target.value)}
-                  className="w-full bg-gray-800 text-white rounded-lg p-3 sm:p-4 border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-base sm:text-lg"
-                >
-                  <option value="image">تصویر</option>
-                  <option value="video">ویدیو</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-gray-300 mb-3 text-right text-base sm:text-lg">آدرس</label>
-                <input
-                  type="text"
-                  value={formData.url}
-                  onChange={(e) => handleInputChange('url', e.target.value)}
-                  className="w-full bg-gray-800 text-white rounded-lg p-3 sm:p-4 border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-base sm:text-lg"
-                  placeholder={formData.type === 'image' ? 'آدرس تصویر' : 'آدرس ویدیو (YouTube یا Vimeo)'}
-                  dir="ltr"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-300 mb-3 text-right text-base sm:text-lg">عنوان</label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => handleInputChange('title', e.target.value)}
-                  className="w-full bg-gray-800 text-white rounded-lg p-3 sm:p-4 border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 text-base sm:text-lg"
-                  placeholder="عنوان به فارسی"
-                  dir="rtl"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-300 mb-3 text-right text-base sm:text-lg">توضیحات</label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
-                  className="w-full bg-gray-800 text-white rounded-lg p-3 sm:p-4 border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 resize-none text-base sm:text-lg"
-                  rows={4}
-                  placeholder="توضیحات به فارسی"
-                  dir="rtl"
-                  required
-                />
-              </div>
-              <div className="flex justify-end gap-4 mt-8">
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  className="px-6 sm:px-8 py-3 sm:py-4 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200 text-base sm:text-lg"
-                >
-                  انصراف
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors duration-200 text-base sm:text-lg"
-                >
-                  {editingItem ? 'ویرایش' : 'افزودن'}
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
+        <MediaForm
+          onSubmit={handleSubmit}
+          onClose={handleCloseModal}
+          initialData={editingItem || undefined}
+          isEditing={!!editingItem}
+        />
       )}
-    </motion.section>
+    </section>
   );
 } 

@@ -20,7 +20,7 @@ export default function Navbar() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -36,6 +36,17 @@ export default function Navbar() {
     }
     fetchAvatar();
   }, [user?.avatar_path]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleAuthClick = () => {
     setIsAuthModalOpen(true);
@@ -122,7 +133,7 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`sticky top-0 w-full bg-[#111111] text-gray-100 z-50 transition-all duration-300 ${
+        className={`fixed top-0 w-full bg-[#111111] text-gray-100 z-50 transition-all duration-300 ${
           isScrolled ? 'backdrop-blur-md bg-[#111111]/90 py-2' : 'py-4'
         }`}
       >
@@ -143,16 +154,20 @@ export default function Navbar() {
           {/* Auth Buttons / Profile */}
           <div className="flex items-center space-x-4">
             {user ? (
-              <div className="relative">
+              <div className="relative" ref={menuRef}>
                 <button
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                   className="flex items-center space-x-2 focus:outline-none"
                 >
                   {avatarUrl ? (
                     <img
-                      src={avatarUrl || "/default-avatar.png"}
+                      src={avatarUrl}
                       alt="کاربر"
-                      className="w-10 h-10 rounded-full object-cover border-2 border-gray-600 z-50 relative"
+                      className="w-10 h-10 rounded-full object-cover border-2 border-gray-600"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "/default-avatar.png";
+                      }}
                     />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
@@ -164,7 +179,7 @@ export default function Navbar() {
                 </button>
 
                 {isProfileMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1">
+                  <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 z-50">
                     <Link
                       to="/profile"
                       className="block px-4 py-2 text-sm text-gray-100 hover:bg-gray-700"
@@ -202,6 +217,7 @@ export default function Navbar() {
             <button
               className="md:hidden text-white p-2"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? (
                 <HiX className="w-6 h-6" />
@@ -215,8 +231,8 @@ export default function Navbar() {
         {/* Mobile Menu */}
         <div 
           className={`md:hidden bg-gray-800 transition-all duration-300 ease-in-out ${
-            isMobileMenuOpen ? 'block' : 'hidden'
-          }`}
+            isMobileMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
+          } overflow-hidden`}
         >
           <div className="px-2 pt-2 pb-3 space-y-1">
             {renderNavLinks()}
