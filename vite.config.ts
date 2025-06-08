@@ -5,7 +5,9 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/Activelegend/',
+  base: '/',
+  root: '.',
+  publicDir: 'public',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -13,15 +15,20 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
+    emptyOutDir: true,
     assetsDir: 'assets',
     sourcemap: true,
     rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+      },
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
           ui: ['framer-motion', '@headlessui/react'],
         },
         assetFileNames: (assetInfo) => {
+          if (!assetInfo.name) return 'assets/[name]-[hash][extname]';
           const info = assetInfo.name.split('.')
           const ext = info[info.length - 1]
           if (/\.(png|jpe?g|gif|svg|webp|ico)$/.test(assetInfo.name)) {
@@ -37,5 +44,21 @@ export default defineConfig({
       },
     },
     chunkSizeWarningLimit: 1000,
+  },
+  define: {
+    'process.env.VITE_GIT_COMMIT_SHA': JSON.stringify(process.env.VITE_GIT_COMMIT_SHA || ''),
+    'process.env.DEPLOY_TIMESTAMP': JSON.stringify(new Date().toISOString()),
+  },
+  server: {
+    port: 3000,
+    host: true,
+    watch: {
+      usePolling: true,
+      interval: 100,
+    },
+    hmr: {
+      overlay: true,
+      protocol: 'ws',
+    },
   },
 })

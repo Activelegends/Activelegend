@@ -37,7 +37,7 @@ const MediaForm = React.memo(({ onSubmit, onClose, initialData, isEditing }: Med
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
       <div className="bg-gray-900 rounded-lg p-6 max-w-md w-full shadow-2xl border border-gray-700">
         <h3 className="text-2xl font-bold mb-6 text-white text-center">
-          {isEditing ? 'ویرایش رسانه' : 'افزودن رسانه جدید'}
+          {isEditing ? 'ویرایش آیتم' : 'افزودن به ویترین'}
         </h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -476,7 +476,7 @@ export default function MediaShowcase() {
       initial="hidden"
       animate={controls}
       id="gallery"
-      className="py-12 sm:py-16 md:py-20 px-4 md:px-8 lg:px-12 bg-gray-950 relative overflow-hidden min-h-screen scroll-container"
+      className="py-12 sm:py-16 md:py-20 px-4 md:px-8 lg:px-12 bg-gray-950 relative overflow-hidden min-h-screen"
     >
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
@@ -488,10 +488,15 @@ export default function MediaShowcase() {
 
       <div className="container mx-auto px-4 relative z-10">
         <motion.h2
-          variants={itemVariants}
-          className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-10 sm:mb-14 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={controls}
+          variants={{
+            visible: { opacity: 1, y: 0 }
+          }}
+          transition={{ duration: 0.5 }}
+          className="text-4xl font-bold text-center mb-12 text-white"
         >
-          گالری رسانه‌ها
+          ویترین
         </motion.h2>
         
         {isAdmin && (
@@ -503,9 +508,10 @@ export default function MediaShowcase() {
               whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(59, 130, 246, 0.5)" }}
               whileTap={{ scale: 0.95 }}
               onClick={handleAdd}
-              className="flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-all duration-200 text-base sm:text-lg"
+              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors duration-200"
             >
-              <FaPlus className="text-lg sm:text-xl" /> افزودن رسانه جدید
+              <FaPlus />
+              افزودن به ویترین
             </motion.button>
           </motion.div>
         )}
@@ -515,7 +521,7 @@ export default function MediaShowcase() {
             variants={itemVariants}
             className="text-center text-gray-400 py-12 text-xl sm:text-2xl"
           >
-            {isAdmin ? 'هیچ رسانه‌ای وجود ندارد' : 'در حال حاضر هیچ رسانه‌ای برای نمایش وجود ندارد'}
+            {isAdmin ? 'هیچ آیتمی در ویترین وجود ندارد' : 'در حال حاضر هیچ آیتمی در ویترین برای نمایش وجود ندارد'}
           </motion.div>
         ) : (
           <motion.div
@@ -527,6 +533,7 @@ export default function MediaShowcase() {
               backfaceVisibility: 'hidden',
               perspective: '1000px'
             }}
+            viewport={{ once: false, amount: 0.2 }}
           >
             <AnimatePresence mode="sync">
               {visibleItems.map((item) => (
@@ -543,6 +550,8 @@ export default function MediaShowcase() {
                   onHoverStart={() => setHoveredItem(item.id)}
                   onHoverEnd={() => setHoveredItem(null)}
                   className="bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden shadow-lg transform transition-all duration-300 border border-gray-700/50 hover:border-blue-500/50"
+                  viewport={{ once: false, amount: 0.2 }}
+                  transition={{ duration: 0.5 }}
                 >
                   <div className="relative aspect-video group">
                     {item.type === 'image' ? (
@@ -689,7 +698,7 @@ export default function MediaShowcase() {
             className="bg-gray-900 rounded-xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-gray-700"
           >
             <h3 className="text-2xl sm:text-3xl font-bold mb-8 text-white text-center">
-              {editingItem ? 'ویرایش رسانه' : 'افزودن رسانه جدید'}
+              {editingItem ? 'ویرایش آیتم' : 'افزودن به ویترین'}
             </h3>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
