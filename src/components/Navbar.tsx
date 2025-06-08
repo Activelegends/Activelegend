@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { HiMenu, HiX } from 'react-icons/hi';
@@ -14,15 +14,25 @@ export default function Navbar() {
   const { user, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (isMobileMenuOpen || isProfileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen, isProfileMenuOpen]);
 
   useEffect(() => {
     async function fetchAvatar() {
@@ -37,17 +47,6 @@ export default function Navbar() {
     fetchAvatar();
   }, [user?.avatar_path]);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsProfileMenuOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
   const handleAuthClick = () => {
     setIsAuthModalOpen(true);
     setIsMobileMenuOpen(false);
@@ -57,6 +56,38 @@ export default function Navbar() {
     await signOut();
     setIsProfileMenuOpen(false);
     navigate('/');
+  };
+
+  const handleGalleryClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    setIsMobileMenuOpen(false);
+    
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        const galleryElement = document.getElementById('gallery');
+        if (galleryElement) {
+          const headerOffset = 80;
+          const elementPosition = galleryElement.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+    } else {
+      const galleryElement = document.getElementById('gallery');
+      if (galleryElement) {
+        const headerOffset = 80;
+        const elementPosition = galleryElement.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    }
   };
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
@@ -95,7 +126,7 @@ export default function Navbar() {
     const links = [
       { href: '#about', onClick: (e: React.MouseEvent<HTMLAnchorElement>) => handleNavClick(e, 'about'), text: 'درباره ما' },
       { to: '/games', text: 'بازی‌ها' },
-      { href: '#gallery', onClick: (e: React.MouseEvent<HTMLAnchorElement>) => handleNavClick(e, 'gallery'), text: 'ویترین' },
+      { href: '#gallery', onClick: handleGalleryClick, text: 'ویترین' },
       { href: '#contact', onClick: (e: React.MouseEvent<HTMLAnchorElement>) => handleNavClick(e, 'contact'), text: 'تماس' },
     ];
 
@@ -133,7 +164,7 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-0 w-full bg-[#111111] text-gray-100 z-50 transition-all duration-300 ${
+        className={`fixed top-0 right-0 left-0 w-full bg-[#111111] text-gray-100 z-50 transition-all duration-300 ${
           isScrolled ? 'backdrop-blur-md bg-[#111111]/90 py-2' : 'py-4'
         }`}
       >
@@ -154,7 +185,7 @@ export default function Navbar() {
           {/* Auth Buttons / Profile */}
           <div className="flex items-center space-x-4">
             {user ? (
-              <div className="relative" ref={menuRef}>
+              <div className="relative">
                 <button
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                   className="flex items-center space-x-2 focus:outline-none"
@@ -162,12 +193,8 @@ export default function Navbar() {
                   {avatarUrl ? (
                     <img
                       src={avatarUrl}
-                      alt="کاربر"
-                      className="w-10 h-10 rounded-full object-cover border-2 border-gray-600"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "/default-avatar.png";
-                      }}
+                      alt="Profile"
+                      className="w-8 h-8 rounded-full object-cover border-2 border-gray-600"
                     />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
@@ -179,7 +206,7 @@ export default function Navbar() {
                 </button>
 
                 {isProfileMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 z-50">
+                  <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1">
                     <Link
                       to="/profile"
                       className="block px-4 py-2 text-sm text-gray-100 hover:bg-gray-700"
@@ -217,7 +244,6 @@ export default function Navbar() {
             <button
               className="md:hidden text-white p-2"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? (
                 <HiX className="w-6 h-6" />
@@ -229,15 +255,13 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Menu */}
-        <div 
-          className={`md:hidden bg-gray-800 transition-all duration-300 ease-in-out ${
-            isMobileMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
-          } overflow-hidden`}
-        >
-          <div className="px-2 pt-2 pb-3 space-y-1">
-            {renderNavLinks()}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-gray-800">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              {renderNavLinks()}
+            </div>
           </div>
-        </div>
+        )}
       </nav>
 
       {/* Auth Modal */}

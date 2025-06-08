@@ -13,6 +13,9 @@ import { MyGames } from './pages/MyGames';
 
 function App() {
   useEffect(() => {
+    // Disable scroll chaining on mobile
+    document.body.style.overscrollBehavior = 'none';
+    
     // Add passive scroll listener for better performance
     const handleScroll = () => {
       // This empty function is needed for passive scroll listener
@@ -27,7 +30,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <div className="min-h-screen relative">
+        <div className="min-h-screen relative scroll-container">
           <AnimatedBackground />
           <div className="relative z-20">
             <Navbar />

@@ -20,31 +20,51 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
+      
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-
+      
       - name: Install dependencies
         run: npm ci
-
+      
       - name: Build
         run: npm run build
         env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-
-      - name: List project files
-        run: ls -R ./
-
-      - name: List build directory
-        run: ls -R ./dist
-
+          NODE_ENV: production
+          VITE_BASE_URL: '/'
+      
+      - name: Debug project files
+        run: |
+          echo "Listing project files:"
+          ls -R ./
+      
+      - name: Debug build directory
+        run: |
+          echo "Listing build directory:"
+          ls -R ./dist
+      
+      - name: Verify build output
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "Build directory 'dist' not found!"
+            exit 1
+          fi
+          
+          if [ ! -f "dist/index.html" ]; then
+            echo "index.html not found in build output!"
+            exit 1
+          fi
+          
+          echo "Build verification passed"
+      
       - name: Setup Pages
         uses: actions/configure-pages@v4
-
+        with:
+          static_site_generator: vite
+      
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -60,3 +80,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      
+      - name: Verify deployment
+        run: |
+          echo "Deployment completed successfully"
+          echo "Site URL: ${{ steps.deployment.outputs.page_url }}"
