@@ -37,16 +37,6 @@ export default function Navbar() {
     fetchAvatar();
   }, [user?.avatar_path]);
 
-  useEffect(() => {
-    if (menuRef.current) {
-      if (isMobileMenuOpen) {
-        menuRef.current.classList.remove('hidden');
-      } else {
-        menuRef.current.classList.add('hidden');
-      }
-    }
-  }, [isMobileMenuOpen]);
-
   const handleAuthClick = () => {
     setIsAuthModalOpen(true);
     setIsMobileMenuOpen(false);
@@ -211,7 +201,7 @@ export default function Navbar() {
             {/* Mobile Menu Button */}
             <button
               className="md:hidden text-white p-2"
-              onClick={() => setIsMobileMenuOpen((v) => !v)}
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? (
                 <HiX className="w-6 h-6" />
@@ -223,7 +213,11 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Menu */}
-        <div ref={menuRef} className="md:hidden hidden bg-gray-800">
+        <div 
+          className={`md:hidden bg-gray-800 transition-all duration-300 ease-in-out ${
+            isMobileMenuOpen ? 'block' : 'hidden'
+          }`}
+        >
           <div className="px-2 pt-2 pb-3 space-y-1">
             {renderNavLinks()}
           </div>
