@@ -53,12 +53,14 @@ export default defineConfig({
     port: 3000,
     host: true,
     watch: {
-      usePolling: true,
+      usePolling: false,
       interval: 100,
     },
     hmr: {
       overlay: true,
       protocol: 'ws',
+      clientPort: 3000,
+      timeout: 5000,
     },
   },
 })
