@@ -42,9 +42,15 @@ body {
   align-items: center;
 }
 
+.logo-link {
+  display: block;
+  text-decoration: none;
+}
+
 .logo {
   height: 40px;
   width: auto;
+  display: block;
 }
 
 .nav-links {

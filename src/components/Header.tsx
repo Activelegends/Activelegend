@@ -1,4 +1,27 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { UserAvatar } from './UserAvatar';
+
+export const Header: React.FC = () => {
+  return (
+    <header className="header">
+      <div className="container">
+        <nav className="nav">
+          <Link to="/" className="logo-link">
+            <img src="/AE-logo.png" alt="Active Legends Logo" className="logo" />
+          </Link>
+          <ul className="nav-links">
+            <li><Link to="/">خانه</Link></li>
+            <li><Link to="/videos">ویدیوها</Link></li>
+            <li><Link to="/gallery">ویترین</Link></li>
+            <li><Link to="/about">درباره ما</Link></li>
+            <li><Link to="/contact">تماس با ما</Link></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+  );
+};
 
 export function Header() {
   return (
