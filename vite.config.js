@@ -32,10 +32,13 @@ export default defineConfig({
           const info = assetInfo.name.split('.')
           const ext = info[info.length - 1]
           if (/\.(png|jpe?g|gif|svg|webp|ico)$/.test(assetInfo.name)) {
-            return `assets/images/[name]-[hash][extname]`
+            return `images/[name]-[hash][extname]`
           }
           if (/\.(woff2?|eot|ttf|otf)$/.test(assetInfo.name)) {
             return `assets/fonts/[name]-[hash][extname]`
+          }
+          if (/\.css$/.test(assetInfo.name)) {
+            return `assets/[name]-[hash][extname]`
           }
           return `assets/[name]-[hash][extname]`
         },
