@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useAnimation, useInView } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import type { MediaItem, MediaFormData } from '../types/media';
-import { FaPlus, FaEdit, FaTrash, FaEye, FaEyeSlash, FaPlay, FaPause } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaEye, FaEyeSlash } from 'react-icons/fa';
 import React from 'react';
 import { supabase } from '../supabaseClient';
 
@@ -114,10 +114,8 @@ export default function MediaShowcase() {
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState<MediaItem | null>(null);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
-  const [playingVideos, setPlayingVideos] = useState<Set<string>>(new Set());
   const [videoPreviews, setVideoPreviews] = useState<{ [key: string]: AparatVideoInfo }>({});
   const controls = useAnimation();
-  const videoRefs = useRef<{ [key: string]: HTMLVideoElement | null }>({});
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
   const [formData, setFormData] = useState<MediaFormData>({
@@ -193,34 +191,6 @@ export default function MediaShowcase() {
       controls.start("visible");
     }
   }, [isInView, controls]);
-
-  const handleVideoPlay = (id: string) => {
-    const video = videoRefs.current[id];
-    if (video) {
-      if (playingVideos.has(id)) {
-        video.pause();
-        setPlayingVideos(prev => {
-          const next = new Set(prev);
-          next.delete(id);
-          return next;
-        });
-      } else {
-        // توقف تمام ویدیوهای دیگر
-        playingVideos.forEach(playingId => {
-          const playingVideo = videoRefs.current[playingId];
-          if (playingVideo) {
-            playingVideo.pause();
-          }
-        });
-        setPlayingVideos(new Set([id]));
-        
-        // پخش ویدیو جدید
-        video.play().catch(error => {
-          console.error('Error playing video:', error);
-        });
-      }
-    }
-  };
 
   const handleAdd = () => {
     setFormData({ type: 'image', url: '', title: '', description: '' });
