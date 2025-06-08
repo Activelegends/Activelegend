@@ -116,8 +116,8 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
   }
 
   return (
-    <div className="comments-section mt-8">
-      <h3 className="text-xl font-bold mb-4">نظرات</h3>
+    <div className="comments-section mt-8 bg-gray-50 p-6 rounded-lg">
+      <h3 className="text-xl font-bold mb-4 text-gray-800">نظرات</h3>
       
       {user ? (
         <form onSubmit={handleSubmit} className="mb-6">
@@ -125,7 +125,7 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="نظر خود را بنویسید..."
-            className="w-full p-3 border rounded-lg mb-2 font-vazirmatn"
+            className="w-full p-3 border rounded-lg mb-2 font-vazirmatn bg-white text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-[#F4B744] focus:border-transparent"
             rows={3}
             minLength={5}
             maxLength={500}
@@ -137,14 +137,14 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
             <button
               type="submit"
               disabled={state.submitting || newComment.length < 5}
-              className="bg-[#F4B744] text-white px-4 py-2 rounded-lg hover:bg-[#e5a93d] transition-colors disabled:opacity-50"
+              className="bg-[#F4B744] text-white px-4 py-2 rounded-lg hover:bg-[#e5a93d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               ارسال نظر
             </button>
           </div>
         </form>
       ) : (
-        <div className="text-center p-4 bg-gray-50 rounded-lg mb-6">
+        <div className="text-center p-4 bg-white rounded-lg mb-6 text-gray-700">
           برای ارسال نظر لطفاً وارد شوید.
         </div>
       )}
@@ -156,7 +156,7 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="bg-white p-4 rounded-lg shadow-sm mb-4"
+            className="bg-white p-4 rounded-lg shadow-sm mb-4 border border-gray-100"
           >
             <div className="flex justify-between items-start mb-2">
               <div className="flex items-center">
@@ -166,7 +166,7 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
                   className="w-8 h-8 rounded-full mr-2"
                 />
                 <div>
-                  <div className="font-bold">{comment.user?.display_name}</div>
+                  <div className="font-bold text-gray-800">{comment.user?.display_name}</div>
                   <div className="text-sm text-gray-500">
                     {formatDate(comment.created_at)}
                   </div>
@@ -197,11 +197,11 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
                 </div>
               )}
             </div>
-            <p className="text-gray-700 mb-2">{comment.content}</p>
+            <p className="text-gray-700 mb-2 whitespace-pre-wrap">{comment.content}</p>
             <button
               onClick={() => handleLike(comment.id)}
               disabled={!user}
-              className="flex items-center text-gray-500 hover:text-[#F4B744] transition-colors disabled:opacity-50"
+              className="flex items-center text-gray-500 hover:text-[#F4B744] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg
                 className="w-5 h-5 ml-1"
@@ -223,7 +223,11 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
       </AnimatePresence>
 
       {state.error && (
-        <div className="text-red-500 text-center p-4">{state.error}</div>
+        <div className="text-red-500 text-center p-4 bg-red-50 rounded-lg">{state.error}</div>
+      )}
+
+      {state.loading && (
+        <div className="text-center p-4 text-gray-600">در حال بارگذاری نظرات...</div>
       )}
     </div>
   );

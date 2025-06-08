@@ -7,24 +7,48 @@ export const commentService = {
       .from('comments')
       .select(`
         *,
-        user:users(display_name, avatar_url)
+        user:users!inner(
+          id,
+          display_name,
+          avatar_url
+        )
       `)
       .eq('game_id', gameId)
       .eq('is_hidden', false)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
-    return data;
+    if (error) {
+      console.error('Error fetching comments:', error);
+      throw error;
+    }
+    return data || [];
   },
 
   async addComment(comment: CommentFormData): Promise<Comment> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
     const { data, error } = await supabase
       .from('comments')
-      .insert([comment])
-      .select()
+      .insert([{
+        ...comment,
+        user_id: user.id,
+        is_approved: true // Auto-approve comments for now
+      }])
+      .select(`
+        *,
+        user:users!inner(
+          id,
+          display_name,
+          avatar_url
+        )
+      `)
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error adding comment:', error);
+      throw error;
+    }
     return data;
   },
 
