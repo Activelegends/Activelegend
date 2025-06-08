@@ -533,6 +533,7 @@ export default function MediaShowcase() {
               backfaceVisibility: 'hidden',
               perspective: '1000px'
             }}
+            viewport={{ once: false, amount: 0.2 }}
           >
             <AnimatePresence mode="sync">
               {visibleItems.map((item) => (

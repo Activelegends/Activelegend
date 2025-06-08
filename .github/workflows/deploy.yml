@@ -84,6 +84,11 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          publish_branch: main
+          publish_dir: ./
+      - run: ls -R ./
+      - run: cat index.html | head -n 10
       
       - name: Verify deployment
         run: |

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { HiMenu, HiX } from 'react-icons/hi';
@@ -14,6 +14,7 @@ export default function Navbar() {
   const { user, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,17 +23,6 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  useEffect(() => {
-    if (isMobileMenuOpen || isProfileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isMobileMenuOpen, isProfileMenuOpen]);
 
   useEffect(() => {
     async function fetchAvatar() {
@@ -46,6 +36,16 @@ export default function Navbar() {
     }
     fetchAvatar();
   }, [user?.avatar_path]);
+
+  useEffect(() => {
+    if (menuRef.current) {
+      if (isMobileMenuOpen) {
+        menuRef.current.classList.remove('hidden');
+      } else {
+        menuRef.current.classList.add('hidden');
+      }
+    }
+  }, [isMobileMenuOpen]);
 
   const handleAuthClick = () => {
     setIsAuthModalOpen(true);
@@ -194,7 +194,8 @@ export default function Navbar() {
                     <img
                       src={avatarUrl}
                       alt="Profile"
-                      className="w-8 h-8 rounded-full object-cover border-2 border-gray-600"
+                      className="w-8 h-8 rounded-full object-cover border-2 border-gray-600 z-50"
+                      style={{ opacity: 1, display: 'block' }}
                     />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
@@ -243,7 +244,7 @@ export default function Navbar() {
             {/* Mobile Menu Button */}
             <button
               className="md:hidden text-white p-2"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={() => setIsMobileMenuOpen((v) => !v)}
             >
               {isMobileMenuOpen ? (
                 <HiX className="w-6 h-6" />
@@ -255,13 +256,11 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden bg-gray-800">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              {renderNavLinks()}
-            </div>
+        <div ref={menuRef} className="md:hidden hidden bg-gray-800">
+          <div className="px-2 pt-2 pb-3 space-y-1">
+            {renderNavLinks()}
           </div>
-        )}
+        </div>
       </nav>
 
       {/* Auth Modal */}
