@@ -58,38 +58,6 @@ export default function Navbar() {
     navigate('/');
   };
 
-  const handleGalleryClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    setIsMobileMenuOpen(false);
-    
-    if (location.pathname !== '/') {
-      navigate('/');
-      setTimeout(() => {
-        const galleryElement = document.getElementById('gallery');
-        if (galleryElement) {
-          const headerOffset = 80;
-          const elementPosition = galleryElement.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-          });
-        }
-      }, 100);
-    } else {
-      const galleryElement = document.getElementById('gallery');
-      if (galleryElement) {
-        const headerOffset = 80;
-        const elementPosition = galleryElement.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
-      }
-    }
-  };
-
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
     setIsMobileMenuOpen(false);
@@ -126,7 +94,7 @@ export default function Navbar() {
     const links = [
       { href: '#about', onClick: (e: React.MouseEvent<HTMLAnchorElement>) => handleNavClick(e, 'about'), text: 'درباره ما' },
       { to: '/games', text: 'بازی‌ها' },
-      { href: '#gallery', onClick: handleGalleryClick, text: 'ویترین' },
+      { href: '#gallery', onClick: (e: React.MouseEvent<HTMLAnchorElement>) => handleNavClick(e, 'gallery'), text: 'ویترین' },
       { href: '#contact', onClick: (e: React.MouseEvent<HTMLAnchorElement>) => handleNavClick(e, 'contact'), text: 'تماس' },
     ];
 
@@ -164,7 +132,7 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-0 right-0 left-0 w-full bg-[#111111] text-gray-100 z-50 transition-all duration-300 ${
+        className={`sticky top-0 w-full bg-[#111111] text-gray-100 z-50 transition-all duration-300 ${
           isScrolled ? 'backdrop-blur-md bg-[#111111]/90 py-2' : 'py-4'
         }`}
       >
@@ -192,10 +160,9 @@ export default function Navbar() {
                 >
                   {avatarUrl ? (
                     <img
-                      src={avatarUrl}
-                      alt="Profile"
-                      className="w-8 h-8 rounded-full object-cover border-2 border-gray-600 z-50"
-                      style={{ opacity: 1, display: 'block' }}
+                      src={avatarUrl || "/default-avatar.png"}
+                      alt="کاربر"
+                      className="w-10 h-10 rounded-full object-cover border-2 border-gray-600 z-50 relative"
                     />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">

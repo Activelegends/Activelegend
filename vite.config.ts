@@ -49,4 +49,8 @@ export default defineConfig({
     'process.env.VITE_GIT_COMMIT_SHA': JSON.stringify(process.env.VITE_GIT_COMMIT_SHA || ''),
     'process.env.DEPLOY_TIMESTAMP': JSON.stringify(new Date().toISOString()),
   },
+  server: {
+    port: 3000,
+    host: true,
+  },
 })
