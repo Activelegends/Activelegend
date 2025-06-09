@@ -98,7 +98,7 @@ export default function TermsAndConditionsPage() {
         <div
           ref={contentRef}
           onScroll={handleScroll}
-          className="prose max-w-none prose-headings:text-gray-800 prose-p:text-gray-600 prose-strong:text-gray-800 prose-ul:text-gray-600 prose-li:text-gray-600 bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8 max-h-[60vh] overflow-y-auto"
+          className="prose max-w-none prose-headings:text-gray-900 prose-p:text-gray-800 prose-strong:text-gray-900 prose-ul:text-gray-800 prose-li:text-gray-800 bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8 max-h-[60vh] overflow-y-auto"
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(terms.content_html) }}
         />
 
