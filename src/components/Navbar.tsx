@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import UserMenu from './UserMenu';
-import AuthModal from './AuthModal';
+import { AuthModal } from './AuthModal';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
