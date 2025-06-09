@@ -16,6 +16,7 @@ export const commentService = {
       `)
       .eq('game_id', gameId)
       .is('parent_comment_id', null)
+      .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false });
 
     if (error) throw error;

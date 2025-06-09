@@ -156,7 +156,18 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
     }
   };
 
-  const handleToggleReplies = (commentId: string) => {
+  const handleToggleReplies = async (commentId: string) => {
+    if (!showReplies[commentId]) {
+      try {
+        const replies = await commentService.getReplies(commentId);
+        const updatedComments = comments.map(comment =>
+          comment.id === commentId ? { ...comment, replies } : comment
+        );
+        setComments(updatedComments);
+      } catch (err) {
+        console.error('Error loading replies:', err);
+      }
+    }
     setShowReplies(prev => ({
       ...prev,
       [commentId]: !prev[commentId],
@@ -255,6 +266,14 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
                 پاسخ
               </button>
             )}
+            {!isReply && comment.replies && comment.replies.length > 0 && (
+              <button
+                onClick={() => handleToggleReplies(comment.id)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                {showReplies[comment.id] ? 'پنهان کردن پاسخ‌ها' : `نمایش پاسخ‌ها (${comment.replies.length})`}
+              </button>
+            )}
             {isAdmin && (
               <div className="flex items-center gap-2">
                 <button
@@ -278,6 +297,11 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
               </div>
             )}
           </div>
+          {!isReply && showReplies[comment.id] && comment.replies && (
+            <div className="mt-4">
+              {comment.replies.map(reply => renderComment(reply, true))}
+            </div>
+          )}
         </div>
       </div>
     </motion.div>
@@ -293,76 +317,57 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
   }
 
   return (
-    <div className="mt-8">
-      <h3 className="text-2xl font-bold mb-6">نظرات</h3>
-      
+    <div className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="flex items-start gap-4">
+          <img
+            src={getAvatarUrl(user)}
+            alt={user?.display_name || 'کاربر'}
+            className="w-10 h-10 rounded-full object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = '/images/default-avatar.png';
+            }}
+          />
+          <div className="flex-1">
+            <textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder={replyingTo ? "پاسخ خود را بنویسید..." : "نظر خود را بنویسید..."}
+              className="w-full bg-gray-700 text-white rounded-lg p-3 min-h-[100px] resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={submitting}
+            />
+            {replyingTo && (
+              <button
+                type="button"
+                onClick={() => setReplyingTo(null)}
+                className="text-gray-400 hover:text-white transition-colors mt-2"
+              >
+                لغو پاسخ
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            disabled={submitting || !newComment.trim() || newComment.length < 5}
+            className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {submitting ? 'در حال ارسال...' : 'ارسال نظر'}
+          </button>
+        </div>
+      </form>
+
       {error && (
-        <div className="bg-red-500/10 border border-red-500 text-red-500 rounded-lg p-4 mb-6">
+        <div className="bg-red-500/10 border border-red-500 text-red-500 rounded-lg p-4">
           {error}
         </div>
       )}
-      
-      {session?.user?.id ? (
-        <form onSubmit={handleSubmit} className="mb-8">
-          <textarea
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder={replyingTo ? 'پاسخ خود را بنویسید...' : 'نظر خود را بنویسید...'}
-            className="w-full bg-gray-800 text-white rounded-lg p-4 mb-2 resize-none focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            rows={3}
-            minLength={5}
-            maxLength={500}
-            disabled={submitting}
-          />
-          <div className="flex justify-between items-center">
-            <span className="text-gray-400 text-sm">
-              {newComment.length}/500 کاراکتر
-            </span>
-            <div className="flex gap-2">
-              {replyingTo && (
-                <button
-                  type="button"
-                  onClick={() => setReplyingTo(null)}
-                  className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
-                  disabled={submitting}
-                >
-                  انصراف
-                </button>
-              )}
-              <button
-                type="submit"
-                disabled={!newComment.trim() || newComment.length < 5 || submitting}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {submitting ? 'در حال ارسال...' : 'ارسال نظر'}
-              </button>
-            </div>
-          </div>
-        </form>
-      ) : (
-        <div className="text-center py-4 text-gray-400 bg-gray-800/50 rounded-lg mb-8">
-          برای ارسال نظر لطفاً وارد شوید.
-        </div>
-      )}
 
-      <AnimatePresence>
-        {comments.length === 0 ? (
-          <div className="text-center py-8 text-gray-400">
-            هنوز نظری ثبت نشده است. اولین نظر را شما ثبت کنید!
-          </div>
-        ) : (
-          comments.map((comment) => (
-            <div key={comment.id}>
-              {renderComment(comment)}
-              {comment.replies && comment.replies.length > 0 && (
-                <div className="mr-8">
-                  {comment.replies.map((reply) => renderComment(reply, true))}
-                </div>
-              )}
-            </div>
-          ))
-        )}
-      </AnimatePresence>
+      <div className="space-y-4">
+        {comments.map(comment => renderComment(comment))}
+      </div>
     </div>
   );
 }; 

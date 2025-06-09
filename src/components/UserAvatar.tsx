@@ -1,15 +1,15 @@
-import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 // نیازی به ایمپورت supabase در اینجا نیست زیرا اطلاعات کاربر از AuthContext می‌آید
 // import { supabase } from '../lib/supabase';
 
 interface UserAvatarProps {
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'small' | 'medium' | 'large';
+  showName?: boolean;
   className?: string;
 }
 
-export const UserAvatar: React.FC<UserAvatarProps> = ({ size = 'md', className = '' }) => {
-  const { user, session } = useAuth();
+export function UserAvatar({ size = 'medium', showName = true, className = '' }: UserAvatarProps) {
+  const { user } = useAuth();
   // نیازی به state جداگانه برای userData نیست
   // const [userData, setUserData] = useState<{
   //   avatar_url: string | null;
@@ -48,33 +48,15 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({ size = 'md', className =
   //   fetchUserData();
   // }, [user]);
 
-  const getSizeClasses = () => {
-    switch (size) {
-      case 'sm':
-        return 'w-8 h-8';
-      case 'lg':
-        return 'w-12 h-12';
-      default:
-        return 'w-10 h-10';
-    }
-  };
-
-  const getAvatarUrl = () => {
-    if (user?.profile_image_url) {
-      return user.profile_image_url;
-    }
-    if (session?.user?.user_metadata?.avatar_url) {
-      return session.user.user_metadata.avatar_url;
-    }
-    if (session?.user?.user_metadata?.picture) {
-      return session.user.user_metadata.picture;
-    }
-    return '/images/default-avatar.png';
+  const sizeClasses = {
+    small: 'w-8 h-8',
+    medium: 'w-10 h-10',
+    large: 'w-12 h-12'
   };
 
   // دسترسی مستقیم به اطلاعات کاربر از شیء user
-  const avatarUrl = getAvatarUrl();
-  const displayName = user?.display_name || 'کاربر';
+  const avatarUrl = user?.user_metadata?.avatar_url || '/images/default-avatar.svg';
+  const displayName = user?.user_metadata?.full_name || 'مهمان';
 
   // لاگ‌های دیباگ قبلی حذف شدند
   // console.log('آواتار نهایی:', avatarUrl);
@@ -82,14 +64,21 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({ size = 'md', className =
   // console.log('Rendering UserAvatar. User status:', !!user);
 
   return (
-    <img
-      src={avatarUrl}
-      alt={displayName}
-      className={`${getSizeClasses()} rounded-full object-cover ${className}`}
-      onError={(e) => {
-        const target = e.target as HTMLImageElement;
-        target.src = '/images/default-avatar.png';
-      }}
-    />
+    <div className={`flex items-center gap-2 ${className}`}>
+      <img
+        src={avatarUrl}
+        alt={displayName}
+        className={`${sizeClasses[size]} rounded-full object-cover border-2 border-gray-200`}
+        onError={(e) => {
+          console.error('خطا در بارگذاری تصویر:', e);
+          e.currentTarget.src = '/images/default-avatar.svg';
+        }}
+      />
+      {showName && (
+        <span className="text-sm font-medium text-gray-700">
+          {displayName}
+        </span>
+      )}
+    </div>
   );
-}; 
+} 
