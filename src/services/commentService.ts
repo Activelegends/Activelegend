@@ -27,7 +27,14 @@ class CommentService {
         .is('parent_id', null)
         .order('created_at', { ascending: false });
 
-      if (commentsError) throw commentsError;
+      if (commentsError) {
+        console.error('Error fetching comments:', commentsError);
+        throw commentsError;
+      }
+
+      if (!comments) {
+        return [];
+      }
 
       // Then get likes count for each comment
       const commentsWithLikes = await Promise.all(
@@ -75,6 +82,10 @@ class CommentService {
             return { ...comment, replies: [] };
           }
 
+          if (!replies) {
+            return { ...comment, replies: [] };
+          }
+
           // Get likes count for each reply
           const repliesWithLikes = await Promise.all(
             (replies as unknown as Comment[]).map(async (reply) => {
@@ -110,8 +121,10 @@ class CommentService {
         .insert([{
           content: commentData.content,
           game_id: commentData.game_id,
-          parent_id: commentData.parent_id,
-          user_id: commentData.user_id
+          parent_id: commentData.parent_id || null,
+          user_id: commentData.user_id,
+          is_pinned: false,
+          is_approved: true
         }])
         .select(`
           id,
@@ -131,7 +144,11 @@ class CommentService {
         `)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error adding comment:', error);
+        throw error;
+      }
+
       return { ...data, likes_count: 0, replies: [] } as unknown as Comment;
     } catch (error) {
       console.error('Error adding comment:', error);
