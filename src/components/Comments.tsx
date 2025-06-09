@@ -10,7 +10,7 @@ interface CommentsProps {
 }
 
 export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,12 +22,14 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
   const isAdmin = user?.email === 'active.legendss@gmail.com';
 
   useEffect(() => {
-    loadComments();
-    const subscription = commentService.subscribeToComments(gameId, handleCommentChange);
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [gameId]);
+    if (session?.user?.id) {
+      loadComments();
+      const subscription = commentService.subscribeToComments(gameId, handleCommentChange);
+      return () => {
+        subscription.unsubscribe();
+      };
+    }
+  }, [gameId, session?.user?.id]);
 
   const loadComments = async () => {
     try {
@@ -63,7 +65,10 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !newComment.trim() || newComment.length < 5 || submitting) return;
+    if (!session?.user?.id || !newComment.trim() || newComment.length < 5 || submitting) {
+      setError('لطفاً ابتدا وارد حساب کاربری خود شوید.');
+      return;
+    }
 
     try {
       setSubmitting(true);
@@ -71,6 +76,7 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
       const commentData: CommentFormData = {
         content: newComment.trim(),
         game_id: gameId,
+        user_id: session.user.id,
         parent_comment_id: replyingTo || undefined,
       };
 
@@ -87,9 +93,12 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
   };
 
   const handleLike = async (commentId: string) => {
-    if (!user) return;
+    if (!session?.user?.id) {
+      setError('لطفاً ابتدا وارد حساب کاربری خود شوید.');
+      return;
+    }
     try {
-      await commentService.toggleLike(commentId, user.id);
+      await commentService.toggleLike(commentId, session.user.id);
     } catch (err) {
       console.error('Error toggling like:', err);
     }
@@ -225,7 +234,7 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
         </div>
       )}
       
-      {user ? (
+      {session?.user?.id ? (
         <form onSubmit={handleSubmit} className="mb-8">
           <textarea
             value={newComment}

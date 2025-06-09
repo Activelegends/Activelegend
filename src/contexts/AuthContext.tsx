@@ -1,14 +1,14 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { type User } from '@supabase/supabase-js';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import type { User, Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
-  isAdmin: boolean;
+  session: Session | null;
+  loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -16,9 +16,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const BASE_URL = 'https://activelegends.github.io/Activelegend';
 const CALLBACK_URL = `${BASE_URL}/auth/callback`;
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // بررسی توکن در URL
@@ -54,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           
           console.log('سشن با موفقیت تنظیم شد:', session);
           setUser(session?.user ?? null);
-          setIsAdmin(session?.user?.email === 'active.legendss@gmail.com');
+          setSession(session);
           
           // پاک کردن پارامترها از URL
           const cleanUrl = window.location.pathname;
@@ -72,14 +73,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('بررسی سشن اولیه:', session);
       setUser(session?.user ?? null);
-      setIsAdmin(session?.user?.email === 'active.legendss@gmail.com');
+      setSession(session);
+      setLoading(false);
     });
 
     // گوش دادن به تغییرات احراز هویت
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       console.log('تغییر وضعیت احراز هویت:', _event, session);
       setUser(session?.user ?? null);
-      setIsAdmin(session?.user?.email === 'active.legendss@gmail.com');
+      setSession(session);
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -106,54 +109,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error;
   };
 
-  const signInWithGoogle = async () => {
-    try {
-      console.log('شروع فرآیند ورود با گوگل');
-      console.log('Redirect URL:', CALLBACK_URL);
-      
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: CALLBACK_URL,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
-        },
-      });
-      
-      if (error) {
-        console.error('خطا در فراخوانی OAuth:', error);
-        throw error;
-      }
-      
-      console.log('درخواست OAuth با موفقیت ارسال شد');
-    } catch (error) {
-      console.error('خطا در ورود با گوگل:', error);
-      if (error instanceof Error) {
-        if (error.message.includes('popup_closed_by_user')) {
-          throw new Error('ورود با گوگل لغو شد');
-        } else if (error.message.includes('popup_blocked')) {
-          throw new Error('پاپ‌آپ مسدود شده است. لطفاً مسدودکننده پاپ‌آپ را غیرفعال کنید');
-        } else {
-          throw new Error('خطا در ورود با گوگل. لطفاً دوباره تلاش کنید');
-        }
-      }
-      throw error;
-    }
-  };
-
   return (
-    <AuthContext.Provider value={{ user, isAdmin, signIn, signUp, signOut, signInWithGoogle }}>
+    <AuthContext.Provider value={{ user, session, loading, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}
+};
