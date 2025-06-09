@@ -4,24 +4,18 @@ import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '../contexts/AuthContext';
 import { commentService } from '../services/commentService';
 import type { Comment, CommentFormData, LikeState } from '../types/comments';
-import { Button } from './ui/button';
-import { Textarea } from './ui/textarea';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { ThumbsUp, Pin, MessageSquare, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
 
 interface CommentsProps {
   gameId: string;
 }
 
-export default function Comments({ gameId }: CommentsProps) {
+export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
   const { user, session } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const [replyContent, setReplyContent] = useState('');
   const [showReplies, setShowReplies] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
   const [likeStates, setLikeStates] = useState<Record<string, LikeState>>({});
@@ -92,109 +86,86 @@ export default function Comments({ gameId }: CommentsProps) {
     }
   };
 
-  const handleSubmitComment = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !newComment.trim()) return;
+    if (!user) {
+      setError('برای ارسال نظر لطفاً وارد شوید.');
+      return;
+    }
+
+    if (!newComment.trim()) {
+      setError('لطفاً متن نظر را وارد کنید.');
+      return;
+    }
+
+    setSubmitting(true);
+    setError(null);
 
     try {
       const commentData: CommentFormData = {
         content: newComment.trim(),
         game_id: gameId,
+        parent_id: replyingTo,
         user_id: user.id
       };
 
       await commentService.addComment(commentData);
       setNewComment('');
-      toast.success('نظر شما با موفقیت ثبت شد');
-    } catch (error) {
-      console.error('Error submitting comment:', error);
-      toast.error('خطا در ثبت نظر');
-    }
-  };
-
-  const handleSubmitReply = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user || !replyingTo || !replyContent.trim()) return;
-
-    try {
-      const replyData: CommentFormData = {
-        content: replyContent.trim(),
-        game_id: gameId,
-        parent_id: replyingTo,
-        user_id: user.id
-      };
-
-      await commentService.addComment(replyData);
-      setReplyContent('');
       setReplyingTo(null);
-      toast.success('پاسخ شما با موفقیت ثبت شد');
-    } catch (error) {
-      console.error('Error submitting reply:', error);
-      toast.error('خطا در ثبت پاسخ');
+      await loadComments();
+    } catch (err: any) {
+      console.error('Error submitting comment:', err);
+      setError(err.message || 'خطا در ارسال نظر. لطفاً دوباره تلاش کنید.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleDeleteComment = async (commentId: string) => {
-    if (!user) return;
-
-    try {
-      await commentService.deleteComment(commentId);
-      toast.success('نظر با موفقیت حذف شد');
-    } catch (error) {
-      console.error('Error deleting comment:', error);
-      toast.error('خطا در حذف نظر');
-    }
-  };
-
-  const handleToggleLike = async (commentId: string) => {
+  const handleDelete = async (commentId: string) => {
     if (!user) {
-      toast.error('لطفاً ابتدا وارد حساب کاربری خود شوید');
+      setError('برای حذف نظر لطفاً وارد شوید.');
       return;
     }
 
-    const currentState = likeStates[commentId];
-    if (currentState.loading) return;
+    try {
+      await commentService.deleteComment(commentId);
+      await loadComments();
+    } catch (err: any) {
+      console.error('Error deleting comment:', err);
+      setError(err.message || 'خطا در حذف نظر. لطفاً دوباره تلاش کنید.');
+    }
+  };
+
+  const handleLike = async (commentId: string) => {
+    if (!user) {
+      setError('برای لایک کردن نظر لطفاً وارد شوید.');
+      return;
+    }
 
     try {
       setLikeStates(prev => ({
         ...prev,
-        [commentId]: { ...currentState, loading: true }
+        [commentId]: { ...prev[commentId], loading: true }
       }));
 
       await commentService.toggleLike(commentId, user.id);
       const hasLiked = await commentService.hasLiked(commentId, user.id);
-      const { count } = await supabase
-        .from('likes')
-        .select('*', { count: 'exact', head: true })
-        .eq('comment_id', commentId);
-
+      
       setLikeStates(prev => ({
         ...prev,
         [commentId]: {
           liked: hasLiked,
-          count: count || 0,
+          count: hasLiked ? (prev[commentId]?.count || 0) + 1 : (prev[commentId]?.count || 0) - 1,
           loading: false
         }
       }));
-    } catch (error) {
-      console.error('Error toggling like:', error);
-      toast.error('خطا در ثبت لایک');
+    } catch (err: any) {
+      console.error('Error toggling like:', err);
+      setError(err.message || 'خطا در لایک کردن نظر. لطفاً دوباره تلاش کنید.');
       setLikeStates(prev => ({
         ...prev,
-        [commentId]: { ...currentState, loading: false }
+        [commentId]: { ...prev[commentId], loading: false }
       }));
-    }
-  };
-
-  const handleTogglePin = async (commentId: string) => {
-    if (!user) return;
-
-    try {
-      await commentService.togglePin(commentId);
-      toast.success('وضعیت پین با موفقیت تغییر کرد');
-    } catch (error) {
-      console.error('Error toggling pin:', error);
-      toast.error('خطا در تغییر وضعیت پین');
     }
   };
 
@@ -239,132 +210,175 @@ export default function Comments({ gameId }: CommentsProps) {
     return '/AE-logo.png';
   };
 
-  const renderComment = (comment: Comment, isReply = false) => {
-    const likeState = likeStates[comment.id] || { liked: false, count: 0, loading: false };
-    const displayName = comment.user.display_name || comment.user.email?.split('@')[0] || 'ناشناس';
-
-    return (
-      <div key={comment.id} className={`space-y-4 ${isReply ? 'ml-8 mt-2' : ''}`}>
-        <div className="flex items-start space-x-4 rtl:space-x-reverse">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={getAvatarUrl(comment.user)} />
-            <AvatarFallback>{displayName[0]}</AvatarFallback>
-          </Avatar>
-          <div className="flex-1 space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                <span className="font-medium">{displayName}</span>
-                {comment.is_pinned && (
-                  <Pin className="h-4 w-4 text-yellow-500" />
-                )}
-              </div>
-              <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                {user && user.id === comment.user_id && (
-                  <>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleTogglePin(comment.id)}
-                    >
-                      <Pin className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteComment(comment.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-            <p className="text-sm text-gray-700 dark:text-gray-300">{comment.content}</p>
-            <div className="flex items-center space-x-4 rtl:space-x-reverse">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleToggleLike(comment.id)}
-                disabled={likeState.loading}
+  const renderComment = (comment: Comment, isReply = false) => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className={`bg-gray-800 rounded-lg p-4 mb-4 ${isReply ? 'mr-8' : ''}`}
+    >
+      <div className="flex items-start gap-4">
+        <div className="relative w-10 h-10">
+          <img
+            src={getAvatarUrl(comment.user)}
+            alt={comment.user?.display_name || 'کاربر'}
+            className="w-10 h-10 rounded-full object-cover bg-gray-700"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = '/AE-logo.png';
+              target.onerror = null;
+            }}
+          />
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="font-bold">{comment.user?.display_name || 'کاربر ناشناس'}</span>
+            {comment.user?.is_special && (
+              <span className="text-green-500">✔️</span>
+            )}
+            {comment.is_pinned && (
+              <span className="text-yellow-500 text-sm">📌</span>
+            )}
+            <span className="text-gray-400 text-sm">
+              {new Date(comment.created_at).toLocaleDateString('fa-IR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </span>
+          </div>
+          <p className="text-gray-200 mb-2">{comment.content}</p>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => handleLike(comment.id)}
+              disabled={likeStates[comment.id]?.loading}
+              className={`flex items-center gap-1 transition-colors ${
+                likeStates[comment.id]?.liked
+                  ? 'text-red-500 hover:text-red-400'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <span>❤️</span>
+              <span>{likeStates[comment.id]?.count || 0}</span>
+            </button>
+            {!isReply && (
+              <button
+                onClick={() => setReplyingTo(comment.id)}
+                className="text-gray-400 hover:text-white transition-colors"
               >
-                <ThumbsUp className={`h-4 w-4 ${likeState.liked ? 'text-blue-500' : ''}`} />
-                <span className="mr-1">{likeState.count}</span>
-              </Button>
-              {!isReply && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setReplyingTo(comment.id)}
+                پاسخ
+              </button>
+            )}
+            {isAdmin && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleAdminAction('pin', comment.id)}
+                  className="text-gray-400 hover:text-yellow-500 transition-colors"
                 >
-                  <MessageSquare className="h-4 w-4" />
-                  <span className="mr-1">پاسخ</span>
-                </Button>
-              )}
-            </div>
-            {replyingTo === comment.id && (
-              <form onSubmit={handleSubmitReply} className="mt-2">
-                <Textarea
-                  value={replyContent}
-                  onChange={(e) => setReplyContent(e.target.value)}
-                  placeholder="پاسخ خود را بنویسید..."
-                  className="mb-2"
-                />
-                <div className="flex justify-end space-x-2 rtl:space-x-reverse">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setReplyingTo(null);
-                      setReplyContent('');
-                    }}
-                  >
-                    انصراف
-                  </Button>
-                  <Button type="submit" disabled={!replyContent.trim()}>
-                    ارسال پاسخ
-                  </Button>
-                </div>
-              </form>
+                  {comment.is_pinned ? 'برداشتن پین' : 'پین کردن'}
+                </button>
+                <button
+                  onClick={() => handleAdminAction('approve', comment.id)}
+                  className="text-gray-400 hover:text-green-500 transition-colors"
+                >
+                  {comment.is_approved ? 'عدم تایید' : 'تایید'}
+                </button>
+                <button
+                  onClick={() => handleAdminAction('delete', comment.id)}
+                  className="text-gray-400 hover:text-red-500 transition-colors"
+                >
+                  حذف
+                </button>
+              </div>
             )}
           </div>
         </div>
-        {comment.replies?.map(reply => renderComment(reply, true))}
       </div>
-    );
-  };
+    </motion.div>
+  );
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white"></div>
+      <div className="text-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto"></div>
+        <p className="mt-2 text-gray-400">در حال بارگذاری نظرات...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {user ? (
-        <form onSubmit={handleSubmitComment} className="space-y-4">
-          <Textarea
+    <div className="mt-8">
+      <h3 className="text-2xl font-bold mb-6">نظرات</h3>
+      
+      {error && (
+        <div className="bg-red-500/10 border border-red-500 text-red-500 rounded-lg p-4 mb-6">
+          {error}
+        </div>
+      )}
+      
+      {session?.user?.id ? (
+        <form onSubmit={handleSubmit} className="mb-8">
+          <textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            placeholder="نظر خود را بنویسید..."
-            className="min-h-[100px]"
+            placeholder={replyingTo ? 'پاسخ خود را بنویسید...' : 'نظر خود را بنویسید...'}
+            className="w-full bg-gray-800 text-white rounded-lg p-4 mb-2 resize-none focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            rows={3}
+            minLength={5}
+            maxLength={500}
+            disabled={submitting}
           />
-          <div className="flex justify-end">
-            <Button type="submit" disabled={!newComment.trim()}>
-              ارسال نظر
-            </Button>
+          <div className="flex justify-between items-center">
+            <span className="text-gray-400 text-sm">
+              {newComment.length}/500 کاراکتر
+            </span>
+            <div className="flex gap-2">
+              {replyingTo && (
+                <button
+                  type="button"
+                  onClick={() => setReplyingTo(null)}
+                  className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                  disabled={submitting}
+                >
+                  انصراف
+                </button>
+              )}
+              <button
+                type="submit"
+                disabled={!newComment.trim() || newComment.length < 5 || submitting}
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {submitting ? 'در حال ارسال...' : 'ارسال نظر'}
+              </button>
+            </div>
           </div>
         </form>
       ) : (
-        <p className="text-center text-gray-500 dark:text-gray-400">
-          برای ثبت نظر، لطفاً وارد حساب کاربری خود شوید
-        </p>
+        <div className="text-center py-4 text-gray-400 bg-gray-800/50 rounded-lg mb-8">
+          برای ارسال نظر لطفاً وارد شوید.
+        </div>
       )}
-      <div className="space-y-6">
-        {comments.map(comment => renderComment(comment))}
-      </div>
+
+      <AnimatePresence>
+        {comments.length === 0 ? (
+          <div className="text-center py-8 text-gray-400">
+            هنوز نظری ثبت نشده است. اولین نظر را شما ثبت کنید!
+          </div>
+        ) : (
+          comments.map((comment) => (
+            <div key={comment.id}>
+              {renderComment(comment)}
+              {comment.replies && comment.replies.length > 0 && (
+                <div className="mr-8">
+                  {comment.replies.map((reply) => renderComment(reply, true))}
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </AnimatePresence>
     </div>
   );
-} 
+}; 

@@ -45,29 +45,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateUserProfile = async (user: User) => {
     try {
-      const { data: existingUser } = await supabase
+      const { data: existingUser, error: fetchError } = await supabase
         .from('users')
         .select('*')
         .eq('id', user.id)
         .single();
 
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        throw fetchError;
+      }
+
       if (!existingUser) {
         // Create new user profile
-        await supabase.from('users').insert({
-          id: user.id,
-          email: user.email,
-          display_name: user.user_metadata.full_name || user.email?.split('@')[0],
-          profile_image_url: user.user_metadata.picture || null
-        });
+        const { error: insertError } = await supabase
+          .from('users')
+          .insert([{
+            id: user.id,
+            email: user.email,
+            display_name: user.user_metadata.full_name || user.email?.split('@')[0],
+            profile_image_url: user.user_metadata.picture || null
+          }]);
+
+        if (insertError) throw insertError;
       } else {
         // Update existing user profile
-        await supabase
+        const { error: updateError } = await supabase
           .from('users')
           .update({
             display_name: user.user_metadata.full_name || existingUser.display_name,
             profile_image_url: user.user_metadata.picture || existingUser.profile_image_url
           })
           .eq('id', user.id);
+
+        if (updateError) throw updateError;
       }
     } catch (error) {
       console.error('Error updating user profile:', error);
