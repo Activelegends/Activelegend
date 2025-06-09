@@ -4,8 +4,8 @@ import type { Comment, CommentFormData } from '../types/comment';
 class CommentService {
   async getComments(gameId: string): Promise<Comment[]> {
     try {
-      // First get comments with user info
-      const { data: comments, error: commentsError } = await supabase
+      // Get pinned comments first
+      const { data: pinnedComments, error: pinnedError } = await supabase
         .from('comments')
         .select(`
           id,
@@ -17,28 +17,59 @@ class CommentService {
           updated_at,
           is_pinned,
           is_approved,
-          user:user_id (
+          user:users (
             id,
             email,
+            display_name,
             profile_image_url
           )
         `)
         .eq('game_id', gameId)
+        .eq('is_pinned', true)
         .is('parent_id', null)
         .order('created_at', { ascending: false });
 
-      if (commentsError) {
-        console.error('Error fetching comments:', commentsError);
-        throw commentsError;
+      if (pinnedError) {
+        console.error('Error fetching pinned comments:', pinnedError);
+        throw pinnedError;
       }
 
-      if (!comments) {
-        return [];
+      // Get normal comments
+      const { data: normalComments, error: normalError } = await supabase
+        .from('comments')
+        .select(`
+          id,
+          content,
+          user_id,
+          game_id,
+          parent_id,
+          created_at,
+          updated_at,
+          is_pinned,
+          is_approved,
+          user:users (
+            id,
+            email,
+            display_name,
+            profile_image_url
+          )
+        `)
+        .eq('game_id', gameId)
+        .eq('is_pinned', false)
+        .is('parent_id', null)
+        .order('created_at', { ascending: false });
+
+      if (normalError) {
+        console.error('Error fetching normal comments:', normalError);
+        throw normalError;
       }
 
-      // Then get likes count for each comment
+      // Combine pinned and normal comments
+      const allComments = [...(pinnedComments || []), ...(normalComments || [])];
+
+      // Get likes count for all comments
       const commentsWithLikes = await Promise.all(
-        (comments as unknown as Comment[]).map(async (comment) => {
+        allComments.map(async (comment) => {
           const { count, error: likesError } = await supabase
             .from('likes')
             .select('*', { count: 'exact', head: true })
@@ -53,59 +84,57 @@ class CommentService {
         })
       );
 
-      // Get replies for each comment
-      const commentsWithReplies = await Promise.all(
-        commentsWithLikes.map(async (comment) => {
-          const { data: replies, error: repliesError } = await supabase
-            .from('comments')
-            .select(`
-              id,
-              content,
-              user_id,
-              game_id,
-              parent_id,
-              created_at,
-              updated_at,
-              is_pinned,
-              is_approved,
-              user:user_id (
-                id,
-                email,
-                profile_image_url
-              )
-            `)
-            .eq('parent_id', comment.id)
-            .order('created_at', { ascending: true });
+      // Get all replies for all comments
+      const { data: allReplies, error: repliesError } = await supabase
+        .from('comments')
+        .select(`
+          id,
+          content,
+          user_id,
+          game_id,
+          parent_id,
+          created_at,
+          updated_at,
+          is_pinned,
+          is_approved,
+          user:users (
+            id,
+            email,
+            display_name,
+            profile_image_url
+          )
+        `)
+        .eq('game_id', gameId)
+        .not('parent_id', 'is', null)
+        .order('created_at', { ascending: true });
 
-          if (repliesError) {
-            console.error(`Error getting replies for comment ${comment.id}:`, repliesError);
-            return { ...comment, replies: [] };
+      if (repliesError) {
+        console.error('Error fetching replies:', repliesError);
+        return commentsWithLikes;
+      }
+
+      // Get likes count for all replies
+      const repliesWithLikes = await Promise.all(
+        (allReplies || []).map(async (reply) => {
+          const { count, error: replyLikesError } = await supabase
+            .from('likes')
+            .select('*', { count: 'exact', head: true })
+            .eq('comment_id', reply.id);
+
+          if (replyLikesError) {
+            console.error(`Error getting likes count for reply ${reply.id}:`, replyLikesError);
+            return { ...reply, likes_count: 0 };
           }
 
-          if (!replies) {
-            return { ...comment, replies: [] };
-          }
-
-          // Get likes count for each reply
-          const repliesWithLikes = await Promise.all(
-            (replies as unknown as Comment[]).map(async (reply) => {
-              const { count, error: replyLikesError } = await supabase
-                .from('likes')
-                .select('*', { count: 'exact', head: true })
-                .eq('comment_id', reply.id);
-
-              if (replyLikesError) {
-                console.error(`Error getting likes count for reply ${reply.id}:`, replyLikesError);
-                return { ...reply, likes_count: 0 };
-              }
-
-              return { ...reply, likes_count: count || 0 };
-            })
-          );
-
-          return { ...comment, replies: repliesWithLikes };
+          return { ...reply, likes_count: count || 0 };
         })
       );
+
+      // Organize comments with their replies
+      const commentsWithReplies = commentsWithLikes.map(comment => ({
+        ...comment,
+        replies: repliesWithLikes.filter(reply => reply.parent_id === comment.id)
+      }));
 
       return commentsWithReplies;
     } catch (error) {
@@ -136,9 +165,10 @@ class CommentService {
           updated_at,
           is_pinned,
           is_approved,
-          user:user_id (
+          user:users (
             id,
             email,
+            display_name,
             profile_image_url
           )
         `)

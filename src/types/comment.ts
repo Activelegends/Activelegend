@@ -1,3 +1,10 @@
+export interface User {
+  id: string;
+  email: string;
+  display_name: string | null;
+  profile_image_url: string | null;
+}
+
 export interface Comment {
   id: string;
   content: string;
@@ -8,11 +15,7 @@ export interface Comment {
   updated_at: string;
   is_pinned: boolean;
   is_approved: boolean;
-  user: {
-    id: string;
-    email: string;
-    profile_image_url: string | null;
-  };
+  user: User;
   likes_count: number;
   replies?: Comment[];
 }
