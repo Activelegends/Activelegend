@@ -1,3 +1,31 @@
+-- Create user_roles table
+CREATE TABLE IF NOT EXISTS public.user_roles (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    role TEXT NOT NULL CHECK (role IN ('admin', 'moderator', 'user')),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id, role)
+);
+
+-- Enable Row Level Security for user_roles
+ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
+
+-- Create policies for user_roles
+DROP POLICY IF EXISTS "User roles are viewable by everyone" ON public.user_roles;
+CREATE POLICY "User roles are viewable by everyone"
+    ON public.user_roles FOR SELECT
+    USING (true);
+
+DROP POLICY IF EXISTS "Only admins can manage roles" ON public.user_roles;
+CREATE POLICY "Only admins can manage roles"
+    ON public.user_roles
+    USING (
+        auth.uid() IN (
+            SELECT user_id FROM public.user_roles
+            WHERE role = 'admin'
+        )
+    );
+
 -- Create comments table
 CREATE TABLE IF NOT EXISTS public.comments (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
