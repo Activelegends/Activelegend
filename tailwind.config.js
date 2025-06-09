@@ -10,9 +10,7 @@ export default {
     extend: {
       colors: {
         primary: '#F4B744',
-        'primary-dark': '#E5A93A',
-        secondary: '#2C3E50',
-        'secondary-dark': '#1A252F',
+        secondary: '#000000',
       },
       fontFamily: {
         'iransans': ['IRANSans', ...defaultTheme.fontFamily.sans],

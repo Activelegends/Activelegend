@@ -6,7 +6,6 @@ import { ContentBlock } from '../components/ContentBlock';
 import { EditGameModal } from '../components/EditGameModal';
 import { FavoriteButton } from '../components/FavoriteButton';
 import { useAuth } from '../contexts/AuthContext';
-import { Comments } from '../components/Comments';
 
 interface Game {
   id: string;
@@ -137,8 +136,6 @@ export const GameDetail: React.FC = () => {
             <ContentBlock key={index} block={block} index={index} />
           ))}
         </div>
-
-        <Comments gameId={game.id} />
 
         {isAdmin && (
           <EditGameModal
