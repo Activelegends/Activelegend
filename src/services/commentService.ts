@@ -45,18 +45,26 @@ export const commentService = {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      const newComment = {
-        game_id: comment.game_id,
-        user_id: user.id,
-        content: comment.content,
-        is_approved: true,
-        is_hidden: false,
-        likes_count: 0
-      };
-
-      const { data, error } = await supabase
+      const { data: insertedComment, error: insertError } = await supabase
         .from('comments')
-        .insert(newComment)
+        .insert({
+          game_id: comment.game_id,
+          user_id: user.id,
+          content: comment.content,
+          is_approved: true,
+          is_hidden: false,
+          likes_count: 0
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error('Error inserting comment:', insertError);
+        throw insertError;
+      }
+
+      const { data: completeComment, error: fetchError } = await supabase
+        .from('comments')
         .select(`
           id,
           game_id,
@@ -72,16 +80,17 @@ export const commentService = {
             avatar_url
           )
         `)
+        .eq('id', insertedComment.id)
         .single();
 
-      if (error) {
-        console.error('Error adding comment:', error);
-        throw error;
+      if (fetchError) {
+        console.error('Error fetching inserted comment:', fetchError);
+        throw fetchError;
       }
 
       return {
-        ...data,
-        user: data.user?.[0] || null
+        ...completeComment,
+        user: completeComment.user?.[0] || null
       } as Comment;
     } catch (error) {
       console.error('Error in addComment:', error);
