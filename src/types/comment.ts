@@ -12,6 +12,8 @@ export interface Comment {
     id: string;
     email: string;
     profile_image_url: string | null;
+    display_name?: string;
+    is_special?: boolean;
   };
   likes_count: number;
   replies?: Comment[];

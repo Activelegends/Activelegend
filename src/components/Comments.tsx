@@ -4,6 +4,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '../contexts/AuthContext';
 import { commentService } from '../services/commentService';
 import type { Comment, CommentFormData, LikeState } from '../types/comments';
+import { FaThumbsUp, FaThumbsDown, FaReply, FaPin, FaCheck, FaTimes } from 'react-icons/fa';
 
 interface CommentsProps {
   gameId: string;
@@ -210,94 +211,133 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
     return '/AE-logo.png';
   };
 
-  const renderComment = (comment: Comment, isReply = false) => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className={`bg-gray-800 rounded-lg p-4 mb-4 ${isReply ? 'mr-8' : ''}`}
-    >
-      <div className="flex items-start gap-4">
-        <div className="relative w-10 h-10">
-          <img
-            src={getAvatarUrl(comment.user)}
-            alt={comment.user?.display_name || 'کاربر'}
-            className="w-10 h-10 rounded-full object-cover bg-gray-700"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = '/AE-logo.png';
-              target.onerror = null;
-            }}
-          />
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="font-bold">{comment.user?.display_name || 'کاربر ناشناس'}</span>
-            {comment.user?.is_special && (
-              <span className="text-green-500">✔️</span>
-            )}
-            {comment.is_pinned && (
-              <span className="text-yellow-500 text-sm">📌</span>
-            )}
-            <span className="text-gray-400 text-sm">
-              {new Date(comment.created_at).toLocaleDateString('fa-IR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
-            </span>
+  const renderComment = (comment: Comment, isReply = false) => {
+    const likeState = likeStates[comment.id] || { liked: false, count: 0, loading: false };
+    const isAdmin = user?.email === 'active.legendss@gmail.com';
+
+    return (
+      <motion.div
+        key={comment.id}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        className={`bg-white rounded-lg shadow-md p-4 mb-4 ${isReply ? 'ml-8' : ''} ${comment.is_pinned ? 'border-2 border-blue-500' : ''}`}
+      >
+        <div className="flex items-start justify-between">
+          <div className="flex items-center space-x-3">
+            <img
+              src={getAvatarUrl(comment.user)}
+              alt={comment.user?.display_name || 'کاربر'}
+              className="w-10 h-10 rounded-full"
+            />
+            <div>
+              <p className="font-semibold text-gray-800">{comment.user?.display_name || 'کاربر ناشناس'}</p>
+              <p className="text-sm text-gray-500">
+                {new Date(comment.created_at).toLocaleDateString('fa-IR', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </p>
+            </div>
           </div>
-          <p className="text-gray-200 mb-2">{comment.content}</p>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => handleLike(comment.id)}
-              disabled={likeStates[comment.id]?.loading}
-              className={`flex items-center gap-1 transition-colors ${
-                likeStates[comment.id]?.liked
-                  ? 'text-red-500 hover:text-red-400'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              <span>❤️</span>
-              <span>{likeStates[comment.id]?.count || 0}</span>
-            </button>
-            {!isReply && (
-              <button
-                onClick={() => setReplyingTo(comment.id)}
-                className="text-gray-400 hover:text-white transition-colors"
-              >
-                پاسخ
-              </button>
-            )}
+          <div className="flex items-center space-x-2">
             {isAdmin && (
-              <div className="flex items-center gap-2">
+              <>
                 <button
                   onClick={() => handleAdminAction('pin', comment.id)}
-                  className="text-gray-400 hover:text-yellow-500 transition-colors"
+                  className={`p-2 rounded-full ${
+                    comment.is_pinned ? 'text-blue-500' : 'text-gray-400'
+                  } hover:bg-gray-100`}
+                  title={comment.is_pinned ? 'حذف پین' : 'پین کردن'}
                 >
-                  {comment.is_pinned ? 'برداشتن پین' : 'پین کردن'}
+                  <FaPin />
                 </button>
                 <button
                   onClick={() => handleAdminAction('approve', comment.id)}
-                  className="text-gray-400 hover:text-green-500 transition-colors"
+                  className={`p-2 rounded-full ${
+                    comment.is_approved ? 'text-green-500' : 'text-gray-400'
+                  } hover:bg-gray-100`}
+                  title={comment.is_approved ? 'لغو تایید' : 'تایید نظر'}
                 >
-                  {comment.is_approved ? 'عدم تایید' : 'تایید'}
+                  {comment.is_approved ? <FaCheck /> : <FaTimes />}
                 </button>
-                <button
-                  onClick={() => handleAdminAction('delete', comment.id)}
-                  className="text-gray-400 hover:text-red-500 transition-colors"
-                >
-                  حذف
-                </button>
-              </div>
+              </>
+            )}
+            {user && (
+              <button
+                onClick={() => handleDelete(comment.id)}
+                className="text-red-500 hover:text-red-700"
+              >
+                حذف
+              </button>
             )}
           </div>
         </div>
-      </div>
-    </motion.div>
-  );
+        <p className="mt-2 text-gray-700">{comment.content}</p>
+        <div className="mt-3 flex items-center space-x-4">
+          <button
+            onClick={() => handleLike(comment.id)}
+            disabled={!user || likeState.loading}
+            className={`flex items-center space-x-1 ${
+              likeState.liked ? 'text-blue-500' : 'text-gray-400'
+            } hover:text-blue-500`}
+          >
+            <FaThumbsUp />
+            <span>{likeState.count}</span>
+          </button>
+          {!isReply && (
+            <button
+              onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+              className="text-gray-400 hover:text-blue-500"
+            >
+              <FaReply />
+            </button>
+          )}
+        </div>
+        {replyingTo === comment.id && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mt-4"
+          >
+            <form onSubmit={handleSubmit} className="flex flex-col space-y-2">
+              <textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="پاسخ خود را بنویسید..."
+                className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                rows={3}
+              />
+              <div className="flex justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setReplyingTo(null)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  انصراف
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                >
+                  ارسال پاسخ
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        )}
+        {comment.replies && comment.replies.length > 0 && (
+          <div className="mt-4 space-y-4">
+            {comment.replies.map((reply) => renderComment(reply, true))}
+          </div>
+        )}
+      </motion.div>
+    );
+  };
 
   if (loading) {
     return (
@@ -370,11 +410,6 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
           comments.map((comment) => (
             <div key={comment.id}>
               {renderComment(comment)}
-              {comment.replies && comment.replies.length > 0 && (
-                <div className="mr-8">
-                  {comment.replies.map((reply) => renderComment(reply, true))}
-                </div>
-              )}
             </div>
           ))
         )}
