@@ -1,384 +1,292 @@
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { formatDistanceToNow } from 'date-fns';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { commentService } from '../services/commentService';
-import type { Comment, CommentFormData, LikeState } from '../types/comments';
+import type { Comment, LikeState } from '../types/comment';
+import CommentForm from './CommentForm';
 
 interface CommentsProps {
   gameId: string;
 }
 
-export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
-  const { user, session } = useAuth();
+export default function Comments({ gameId }: CommentsProps) {
+  const { user } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const [showReplies, setShowReplies] = useState<Record<string, boolean>>({});
-  const [submitting, setSubmitting] = useState(false);
   const [likeStates, setLikeStates] = useState<Record<string, LikeState>>({});
-
-  const isAdmin = user?.email === 'active.legendss@gmail.com';
-
-  useEffect(() => {
-    loadComments();
-    const subscription = commentService.subscribeToComments(gameId, handleCommentChange);
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [gameId]);
 
   const loadComments = async () => {
     try {
-      setLoading(true);
-      setError(null);
-      const data = await commentService.getComments(gameId);
-      console.log('Loaded comments:', data);
-      setComments(data);
-      
-      // Load like states for each comment
-      if (session?.user?.id) {
-        const likeStates: Record<string, LikeState> = {};
-        for (const comment of data) {
-          try {
-            const hasLiked = await commentService.hasLiked(comment.id, session.user.id);
-            likeStates[comment.id] = {
-              liked: hasLiked,
-              count: comment.likes_count || 0,
-              loading: false
-            };
-          } catch (err) {
-            console.error(`Error checking like status for comment ${comment.id}:`, err);
-            likeStates[comment.id] = {
-              liked: false,
-              count: comment.likes_count || 0,
-              loading: false
-            };
-          }
-        }
-        setLikeStates(likeStates);
-      }
+      const { data, error: fetchError } = await supabase
+        .from('comments')
+        .select(`
+          *,
+          user:user_id (
+            id,
+            email,
+            user_metadata
+          ),
+          likes:likes (
+            user_id
+          )
+        `)
+        .eq('game_id', gameId)
+        .is('parent_comment_id', null)
+        .order('is_pinned', { ascending: false })
+        .order('created_at', { ascending: false });
+
+      if (fetchError) throw fetchError;
+
+      // Load replies for each comment
+      const commentsWithReplies = await Promise.all(
+        data.map(async (comment) => {
+          const { data: replies } = await supabase
+            .from('comments')
+            .select(`
+              *,
+              user:user_id (
+                id,
+                email,
+                user_metadata
+              ),
+              likes:likes (
+                user_id
+              )
+            `)
+            .eq('parent_comment_id', comment.id)
+            .order('created_at', { ascending: true });
+
+          return {
+            ...comment,
+            replies: replies || []
+          };
+        })
+      );
+
+      setComments(commentsWithReplies);
+
+      // Initialize like states
+      const newLikeStates: Record<string, LikeState> = {};
+      [...commentsWithReplies, ...commentsWithReplies.flatMap(c => c.replies || [])].forEach(comment => {
+        newLikeStates[comment.id] = {
+          liked: comment.likes?.some(like => like.user_id === user?.id) || false,
+          loading: false,
+          count: comment.likes_count || 0
+        };
+      });
+      setLikeStates(newLikeStates);
     } catch (err) {
-      console.error('Error loading comments:', err);
-      setError('خطا در بارگذاری نظرات. لطفاً صفحه را رفرش کنید.');
+      setError(err instanceof Error ? err.message : 'خطا در بارگذاری نظرات');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCommentChange = async (payload: any) => {
-    console.log('Comment change payload:', payload);
-    try {
-      if (payload.eventType === 'INSERT') {
-        await loadComments();
-      } else if (payload.eventType === 'UPDATE') {
-        const updatedComments = comments.map(comment =>
-          comment.id === payload.new.id ? { ...comment, ...payload.new } : comment
-        );
-        setComments(updatedComments);
-      } else if (payload.eventType === 'DELETE') {
-        setComments(comments.filter(comment => comment.id !== payload.old.id));
+  useEffect(() => {
+    loadComments();
+  }, [gameId, user?.id]);
+
+  const handleLike = async (commentId: string) => {
+    if (!user) {
+      setError('لطفا ابتدا وارد حساب کاربری خود شوید');
+      return;
+    }
+
+    setLikeStates(prev => ({
+      ...prev,
+      [commentId]: {
+        ...prev[commentId],
+        loading: true
       }
+    }));
+
+    try {
+      const isLiked = likeStates[commentId]?.liked;
+      if (isLiked) {
+        const { error: deleteError } = await supabase
+          .from('likes')
+          .delete()
+          .match({ comment_id: commentId, user_id: user.id });
+
+        if (deleteError) throw deleteError;
+      } else {
+        const { error: insertError } = await supabase
+          .from('likes')
+          .insert([{ comment_id: commentId, user_id: user.id }]);
+
+        if (insertError) throw insertError;
+      }
+
+      setLikeStates(prev => ({
+        ...prev,
+        [commentId]: {
+          liked: !isLiked,
+          loading: false,
+          count: prev[commentId].count + (isLiked ? -1 : 1)
+        }
+      }));
     } catch (err) {
-      console.error('Error handling comment change:', err);
+      setError(err instanceof Error ? err.message : 'خطا در ثبت لایک');
+      setLikeStates(prev => ({
+        ...prev,
+        [commentId]: {
+          ...prev[commentId],
+          loading: false
+        }
+      }));
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) {
-      setError('برای ارسال نظر لطفاً وارد شوید.');
-      return;
-    }
-
-    if (!newComment.trim()) {
-      setError('لطفاً متن نظر را وارد کنید.');
-      return;
-    }
-
-    setSubmitting(true);
-    setError(null);
-
+  const handlePin = async (commentId: string) => {
     try {
-      const commentData: CommentFormData = {
-        content: newComment.trim(),
-        game_id: gameId,
-        parent_id: replyingTo,
-        user_id: user.id
-      };
+      const comment = comments.find(c => c.id === commentId);
+      if (!comment) return;
 
-      await commentService.addComment(commentData);
-      setNewComment('');
-      setReplyingTo(null);
-      await loadComments();
-    } catch (err: any) {
-      console.error('Error submitting comment:', err);
-      setError(err.message || 'خطا در ارسال نظر. لطفاً دوباره تلاش کنید.');
-    } finally {
-      setSubmitting(false);
+      const { error: updateError } = await supabase
+        .from('comments')
+        .update({ is_pinned: !comment.is_pinned })
+        .eq('id', commentId);
+
+      if (updateError) throw updateError;
+
+      setComments(prev =>
+        prev.map(c =>
+          c.id === commentId
+            ? { ...c, is_pinned: !c.is_pinned }
+            : c
+        )
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'خطا در پین کردن نظر');
     }
   };
 
   const handleDelete = async (commentId: string) => {
-    if (!user) {
-      setError('برای حذف نظر لطفاً وارد شوید.');
-      return;
-    }
+    if (!confirm('آیا از حذف این نظر اطمینان دارید؟')) return;
 
     try {
-      await commentService.deleteComment(commentId);
-      await loadComments();
-    } catch (err: any) {
-      console.error('Error deleting comment:', err);
-      setError(err.message || 'خطا در حذف نظر. لطفاً دوباره تلاش کنید.');
-    }
-  };
+      const { error: deleteError } = await supabase
+        .from('comments')
+        .delete()
+        .eq('id', commentId);
 
-  const handleLike = async (commentId: string) => {
-    if (!user) {
-      setError('برای لایک کردن نظر لطفاً وارد شوید.');
-      return;
-    }
+      if (deleteError) throw deleteError;
 
-    try {
-      setLikeStates(prev => ({
-        ...prev,
-        [commentId]: { ...prev[commentId], loading: true }
-      }));
-
-      await commentService.toggleLike(commentId, user.id);
-      const hasLiked = await commentService.hasLiked(commentId, user.id);
-      
-      setLikeStates(prev => ({
-        ...prev,
-        [commentId]: {
-          liked: hasLiked,
-          count: hasLiked ? (prev[commentId]?.count || 0) + 1 : (prev[commentId]?.count || 0) - 1,
-          loading: false
-        }
-      }));
-    } catch (err: any) {
-      console.error('Error toggling like:', err);
-      setError(err.message || 'خطا در لایک کردن نظر. لطفاً دوباره تلاش کنید.');
-      setLikeStates(prev => ({
-        ...prev,
-        [commentId]: { ...prev[commentId], loading: false }
-      }));
-    }
-  };
-
-  const handleToggleReplies = (commentId: string) => {
-    setShowReplies(prev => ({
-      ...prev,
-      [commentId]: !prev[commentId],
-    }));
-  };
-
-  const handleAdminAction = async (
-    action: 'pin' | 'approve' | 'delete',
-    commentId: string
-  ) => {
-    if (!isAdmin) return;
-
-    try {
-      switch (action) {
-        case 'pin':
-          await commentService.togglePin(commentId);
-          break;
-        case 'approve':
-          await commentService.toggleApproval(commentId);
-          break;
-        case 'delete':
-          if (window.confirm('آیا از حذف این نظر اطمینان دارید؟')) {
-            await commentService.deleteComment(commentId);
-          }
-          break;
-      }
-      await loadComments();
+      setComments(prev =>
+        prev.filter(c => c.id !== commentId)
+      );
     } catch (err) {
-      console.error('Error performing admin action:', err);
-      setError('خطا در انجام عملیات. لطفاً دوباره تلاش کنید.');
+      setError(err instanceof Error ? err.message : 'خطا در حذف نظر');
     }
   };
 
-  const getAvatarUrl = (user: any) => {
-    if (user?.profile_image_url) {
-      return user.profile_image_url;
-    }
-    return '/AE-logo.png';
-  };
+  const renderComment = (comment: Comment) => {
+    const name = comment.user.user_metadata?.full_name || comment.user.email?.split('@')[0] || 'ناشناس';
+    const profileImage = comment.user.user_metadata?.picture || '/default-avatar.png';
 
-  const renderComment = (comment: Comment, isReply = false) => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className={`bg-gray-800 rounded-lg p-4 mb-4 ${isReply ? 'mr-8' : ''}`}
-    >
-      <div className="flex items-start gap-4">
-        <div className="relative w-10 h-10">
+    return (
+      <div key={comment.id} className={`mb-4 ${comment.is_pinned ? 'bg-yellow-50 border-yellow-200' : ''}`}>
+        <div className="flex items-start space-x-3 rtl:space-x-reverse">
           <img
-            src={getAvatarUrl(comment.user)}
-            alt={comment.user?.display_name || 'کاربر'}
-            className="w-10 h-10 rounded-full object-cover bg-gray-700"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = '/AE-logo.png';
-              target.onerror = null;
-            }}
+            src={profileImage}
+            alt={name}
+            className="w-10 h-10 rounded-full"
           />
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="font-bold">{comment.user?.display_name || 'کاربر ناشناس'}</span>
-            {comment.user?.is_special && (
-              <span className="text-green-500">✔️</span>
-            )}
-            {comment.is_pinned && (
-              <span className="text-yellow-500 text-sm">📌</span>
-            )}
-            <span className="text-gray-400 text-sm">
-              {new Date(comment.created_at).toLocaleDateString('fa-IR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
-            </span>
-          </div>
-          <p className="text-gray-200 mb-2">{comment.content}</p>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => handleLike(comment.id)}
-              disabled={likeStates[comment.id]?.loading}
-              className={`flex items-center gap-1 transition-colors ${
-                likeStates[comment.id]?.liked
-                  ? 'text-red-500 hover:text-red-400'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              <span>❤️</span>
-              <span>{likeStates[comment.id]?.count || 0}</span>
-            </button>
-            {!isReply && (
+          <div className="flex-1">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                <span className="font-semibold">{name}</span>
+                {comment.is_pinned && (
+                  <span className="text-yellow-600">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 4.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V4.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.616a1 1 0 01.894-1.79l1.599.8L9 4.323V3a1 1 0 011-1z" />
+                    </svg>
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                <button
+                  onClick={() => handleLike(comment.id)}
+                  className={`text-gray-500 hover:text-red-500 ${likeStates[comment.id]?.liked ? 'text-red-500' : ''}`}
+                  disabled={likeStates[comment.id]?.loading}
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                  </svg>
+                </button>
+                <span className="text-sm text-gray-500">{likeStates[comment.id]?.count || 0}</span>
+                {user?.id === comment.user_id && (
+                  <>
+                    <button
+                      onClick={() => handlePin(comment.id)}
+                      className="text-gray-500 hover:text-yellow-500"
+                    >
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 4.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V4.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.616a1 1 0 01.894-1.79l1.599.8L9 4.323V3a1 1 0 011-1z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => handleDelete(comment.id)}
+                      className="text-gray-500 hover:text-red-500"
+                    >
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+            <p className="mt-1 text-gray-700">{comment.content}</p>
+            <div className="mt-2">
               <button
                 onClick={() => setReplyingTo(comment.id)}
-                className="text-gray-400 hover:text-white transition-colors"
+                className="text-sm text-gray-500 hover:text-blue-500"
               >
                 پاسخ
               </button>
+            </div>
+            {replyingTo === comment.id && (
+              <div className="mt-2">
+                <CommentForm
+                  gameId={gameId}
+                  parentId={comment.id}
+                  onSuccess={() => {
+                    setReplyingTo(null);
+                    loadComments();
+                  }}
+                />
+              </div>
             )}
-            {isAdmin && (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleAdminAction('pin', comment.id)}
-                  className="text-gray-400 hover:text-yellow-500 transition-colors"
-                >
-                  {comment.is_pinned ? 'برداشتن پین' : 'پین کردن'}
-                </button>
-                <button
-                  onClick={() => handleAdminAction('approve', comment.id)}
-                  className="text-gray-400 hover:text-green-500 transition-colors"
-                >
-                  {comment.is_approved ? 'عدم تایید' : 'تایید'}
-                </button>
-                <button
-                  onClick={() => handleAdminAction('delete', comment.id)}
-                  className="text-gray-400 hover:text-red-500 transition-colors"
-                >
-                  حذف
-                </button>
+            {comment.replies && comment.replies.length > 0 && (
+              <div className="mt-4 mr-8 space-y-4">
+                {comment.replies.map(reply => renderComment(reply))}
               </div>
             )}
           </div>
         </div>
       </div>
-    </motion.div>
-  );
+    );
+  };
 
   if (loading) {
-    return (
-      <div className="text-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto"></div>
-        <p className="mt-2 text-gray-400">در حال بارگذاری نظرات...</p>
-      </div>
-    );
+    return <div className="text-center py-4">در حال بارگذاری...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500 text-center py-4">{error}</div>;
   }
 
   return (
-    <div className="mt-8">
-      <h3 className="text-2xl font-bold mb-6">نظرات</h3>
-      
-      {error && (
-        <div className="bg-red-500/10 border border-red-500 text-red-500 rounded-lg p-4 mb-6">
-          {error}
-        </div>
-      )}
-      
-      {session?.user?.id ? (
-        <form onSubmit={handleSubmit} className="mb-8">
-          <textarea
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder={replyingTo ? 'پاسخ خود را بنویسید...' : 'نظر خود را بنویسید...'}
-            className="w-full bg-gray-800 text-white rounded-lg p-4 mb-2 resize-none focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            rows={3}
-            minLength={5}
-            maxLength={500}
-            disabled={submitting}
-          />
-          <div className="flex justify-between items-center">
-            <span className="text-gray-400 text-sm">
-              {newComment.length}/500 کاراکتر
-            </span>
-            <div className="flex gap-2">
-              {replyingTo && (
-                <button
-                  type="button"
-                  onClick={() => setReplyingTo(null)}
-                  className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
-                  disabled={submitting}
-                >
-                  انصراف
-                </button>
-              )}
-              <button
-                type="submit"
-                disabled={!newComment.trim() || newComment.length < 5 || submitting}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {submitting ? 'در حال ارسال...' : 'ارسال نظر'}
-              </button>
-            </div>
-          </div>
-        </form>
-      ) : (
-        <div className="text-center py-4 text-gray-400 bg-gray-800/50 rounded-lg mb-8">
-          برای ارسال نظر لطفاً وارد شوید.
-        </div>
-      )}
-
-      <AnimatePresence>
-        {comments.length === 0 ? (
-          <div className="text-center py-8 text-gray-400">
-            هنوز نظری ثبت نشده است. اولین نظر را شما ثبت کنید!
-          </div>
-        ) : (
-          comments.map((comment) => (
-            <div key={comment.id}>
-              {renderComment(comment)}
-              {comment.replies && comment.replies.length > 0 && (
-                <div className="mr-8">
-                  {comment.replies.map((reply) => renderComment(reply, true))}
-                </div>
-              )}
-            </div>
-          ))
-        )}
-      </AnimatePresence>
+    <div className="space-y-6">
+      <CommentForm
+        gameId={gameId}
+        onSuccess={loadComments}
+      />
+      <div className="space-y-4">
+        {comments.map(comment => renderComment(comment))}
+      </div>
     </div>
   );
-}; 
+} 

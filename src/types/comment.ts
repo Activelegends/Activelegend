@@ -1,21 +1,16 @@
-export interface User {
-  id: string;
-  email: string;
-  display_name: string | null;
-  profile_image_url: string | null;
-}
+import type { User } from '@supabase/supabase-js';
 
 export interface Comment {
   id: string;
   content: string;
-  user_id: string;
   game_id: string;
-  parent_id: string | null;
+  user_id: string;
+  user: User;
   created_at: string;
   updated_at: string;
   is_pinned: boolean;
   is_approved: boolean;
-  user: User;
+  parent_comment_id: string | null;
   likes_count: number;
   replies?: Comment[];
 }
@@ -23,12 +18,11 @@ export interface Comment {
 export interface CommentFormData {
   content: string;
   game_id: string;
-  parent_id?: string | null;
-  user_id: string;
+  parent_comment_id?: string;
 }
 
 export interface LikeState {
   liked: boolean;
-  count: number;
   loading: boolean;
+  count: number;
 } 
