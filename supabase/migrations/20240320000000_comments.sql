@@ -18,6 +18,13 @@ CREATE INDEX IF NOT EXISTS comments_created_at_idx ON public.comments(created_at
 -- Enable Row Level Security
 ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Comments are viewable by everyone" ON public.comments;
+DROP POLICY IF EXISTS "Users can insert their own comments" ON public.comments;
+DROP POLICY IF EXISTS "Users can update their own comments" ON public.comments;
+DROP POLICY IF EXISTS "Users can delete their own comments" ON public.comments;
+DROP POLICY IF EXISTS "Admins can manage all comments" ON public.comments;
+
 -- Create policies
 CREATE POLICY "Comments are viewable by everyone"
     ON public.comments FOR SELECT
@@ -92,6 +99,11 @@ CREATE TABLE IF NOT EXISTS public.comment_likes (
 
 -- Enable Row Level Security for comment_likes
 ALTER TABLE public.comment_likes ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Comment likes are viewable by everyone" ON public.comment_likes;
+DROP POLICY IF EXISTS "Users can insert their own likes" ON public.comment_likes;
+DROP POLICY IF EXISTS "Users can delete their own likes" ON public.comment_likes;
 
 -- Create policies for comment_likes
 CREATE POLICY "Comment likes are viewable by everyone"
