@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import type { Comment, CommentFormData, SupabaseComment } from '../types/comment';
+import type { Comment, CommentFormData } from '../types/comment';
 
 export const commentService = {
   async getComments(gameId: string): Promise<Comment[]> {

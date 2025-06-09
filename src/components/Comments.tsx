@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../contexts/AuthContext';
 import { commentService } from '../services/commentService';
-import type { Comment, CommentState } from '../types/comment';
-import { formatDate } from '../utils/date';
+import type { Comment, CommentFormData } from '../types/comment';
+import { useAuth } from '../contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
 import { faThumbsUp, faTrash, faEyeSlash, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,18 +12,26 @@ interface CommentsProps {
 }
 
 export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
-  const { user } = useAuth();
-  const [state, setState] = useState<CommentState>({
-    comments: [],
-    loading: true,
-    error: null,
-    submitting: false
-  });
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [newComment, setNewComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     loadComments();
-    const subscription = commentService.subscribeToComments(gameId, handleRealtimeUpdate);
+
+    const subscription = commentService.subscribeToComments(gameId, (payload) => {
+      if (payload.eventType === 'INSERT') {
+        setComments(prev => [payload.new as Comment, ...prev]);
+      } else if (payload.eventType === 'DELETE') {
+        setComments(prev => prev.filter(c => c.id !== payload.old.id));
+      } else if (payload.eventType === 'UPDATE') {
+        setComments(prev => prev.map(c => c.id === payload.new.id ? payload.new as Comment : c));
+      }
+    });
+
     return () => {
       subscription.unsubscribe();
     };
@@ -32,243 +39,189 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
 
   const loadComments = async () => {
     try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
-      const comments = await commentService.getComments(gameId);
-      setState(prev => ({ ...prev, comments, loading: false }));
-    } catch (error) {
-      console.error('Error loading comments:', error);
-      setState(prev => ({
-        ...prev,
-        error: 'خطا در بارگذاری نظرات. لطفاً صفحه را رفرش کنید.',
-        loading: false
-      }));
-    }
-  };
-
-  const handleRealtimeUpdate = (payload: any) => {
-    try {
-      if (payload.eventType === 'INSERT') {
-        setState(prev => ({
-          ...prev,
-          comments: [payload.new, ...prev.comments]
-        }));
-      } else if (payload.eventType === 'UPDATE') {
-        setState(prev => ({
-          ...prev,
-          comments: prev.comments.map(comment =>
-            comment.id === payload.new.id ? payload.new : comment
-          )
-        }));
-      } else if (payload.eventType === 'DELETE') {
-        setState(prev => ({
-          ...prev,
-          comments: prev.comments.filter(comment => comment.id !== payload.old.id)
-        }));
-      }
-    } catch (error) {
-      console.error('Error handling realtime update:', error);
+      setLoading(true);
+      setError(null);
+      const data = await commentService.getComments(gameId);
+      setComments(data);
+    } catch (err) {
+      console.error('Error loading comments:', err);
+      setError('Failed to load comments. Please try again later.');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || newComment.length < 5 || newComment.length > 500) return;
+    if (!newComment.trim() || !user) return;
 
     try {
-      setState(prev => ({ ...prev, submitting: true, error: null }));
-      await commentService.addComment({
-        content: newComment,
+      setSubmitting(true);
+      setError(null);
+      const commentData: CommentFormData = {
+        content: newComment.trim(),
         game_id: gameId
-      });
+      };
+
+      const comment = await commentService.addComment(commentData);
+      setComments(prev => [comment, ...prev]);
       setNewComment('');
-    } catch (error) {
-      console.error('Error submitting comment:', error);
-      setState(prev => ({
-        ...prev,
-        error: 'خطا در ارسال نظر. لطفاً دوباره تلاش کنید.'
-      }));
+    } catch (err) {
+      console.error('Error submitting comment:', err);
+      setError('Failed to submit comment. Please try again later.');
     } finally {
-      setState(prev => ({ ...prev, submitting: false }));
+      setSubmitting(false);
     }
   };
 
   const handleLike = async (commentId: string) => {
-    if (!user) return;
     try {
       await commentService.toggleLike(commentId);
-      await loadComments();
-    } catch (error) {
-      console.error('Error toggling like:', error);
-      setState(prev => ({
-        ...prev,
-        error: 'خطا در ثبت لایک. لطفاً دوباره تلاش کنید.'
-      }));
+      await loadComments(); // Reload comments to get updated like count
+    } catch (err) {
+      console.error('Error toggling like:', err);
+      setError('Failed to update like. Please try again later.');
     }
   };
 
   const handleDelete = async (commentId: string) => {
-    if (!user || user.email !== 'active.legendss@gmail.com') return;
-    if (!window.confirm('آیا از حذف این نظر مطمئن هستید؟')) return;
+    if (!window.confirm('Are you sure you want to delete this comment?')) return;
+
     try {
       await commentService.deleteComment(commentId);
-      setState(prev => ({
-        ...prev,
-        comments: prev.comments.filter(comment => comment.id !== commentId)
-      }));
-    } catch (error) {
-      console.error('Error deleting comment:', error);
-      setState(prev => ({
-        ...prev,
-        error: 'خطا در حذف نظر. لطفاً دوباره تلاش کنید.'
-      }));
+      setComments(prev => prev.filter(c => c.id !== commentId));
+    } catch (err) {
+      console.error('Error deleting comment:', err);
+      setError('Failed to delete comment. Please try again later.');
     }
   };
 
   const handleHide = async (commentId: string) => {
-    if (!user || user.email !== 'active.legendss@gmail.com') return;
     try {
       await commentService.hideComment(commentId);
-      setState(prev => ({
-        ...prev,
-        comments: prev.comments.filter(comment => comment.id !== commentId)
-      }));
-    } catch (error) {
-      console.error('Error hiding comment:', error);
-      setState(prev => ({
-        ...prev,
-        error: 'خطا در مخفی کردن نظر. لطفاً دوباره تلاش کنید.'
-      }));
+      setComments(prev => prev.filter(c => c.id !== commentId));
+    } catch (err) {
+      console.error('Error hiding comment:', err);
+      setError('Failed to hide comment. Please try again later.');
     }
   };
 
   const handleApprove = async (commentId: string) => {
-    if (!user || user.email !== 'active.legendss@gmail.com') return;
     try {
       await commentService.approveComment(commentId);
-      await loadComments();
-    } catch (error) {
-      console.error('Error approving comment:', error);
-      setState(prev => ({
-        ...prev,
-        error: 'خطا در تایید نظر. لطفاً دوباره تلاش کنید.'
-      }));
+      await loadComments(); // Reload comments to get updated approval status
+    } catch (err) {
+      console.error('Error approving comment:', err);
+      setError('Failed to approve comment. Please try again later.');
     }
   };
 
-  if (state.loading) {
+  if (loading) {
     return (
-      <div className="comments-section mt-8 bg-gray-50 p-6 rounded-lg">
-        <div className="text-center p-4 text-gray-600">در حال بارگذاری نظرات...</div>
+      <div className="flex justify-center items-center p-4">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <div className="comments-section mt-8 bg-gray-50 p-6 rounded-lg">
-      <h3 className="text-xl font-bold mb-4 text-gray-800">نظرات</h3>
-      
-      {state.error && (
-        <div className="text-red-500 text-center p-4 bg-red-50 rounded-lg mb-4">
-          {state.error}
+    <div className="space-y-4">
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <span className="block sm:inline">{error}</span>
         </div>
       )}
-      
-      {user ? (
-        <form onSubmit={handleSubmit} className="mb-6">
+
+      {user && (
+        <form onSubmit={handleSubmit} className="space-y-2">
           <textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            placeholder="نظر خود را بنویسید..."
-            className="w-full p-3 border rounded-lg mb-2 font-vazirmatn bg-white text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-[#F4B744] focus:border-transparent"
+            placeholder="Write a comment..."
+            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
             rows={3}
-            minLength={5}
-            maxLength={500}
+            disabled={submitting}
           />
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-500">
-              {newComment.length}/500 کاراکتر
-            </span>
-            <button
-              type="submit"
-              disabled={state.submitting || newComment.length < 5}
-              className="bg-[#F4B744] text-white px-4 py-2 rounded-lg hover:bg-[#e5a93d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {state.submitting ? 'در حال ارسال...' : 'ارسال نظر'}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={!newComment.trim() || submitting}
+            className={`px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors ${
+              (!newComment.trim() || submitting) ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            {submitting ? 'Posting...' : 'Post Comment'}
+          </button>
         </form>
-      ) : (
-        <div className="text-center p-4 bg-white rounded-lg mb-6 text-gray-700">
-          برای ارسال نظر لطفاً وارد شوید.
-        </div>
       )}
 
-      <AnimatePresence>
-        {state.comments.map((comment) => (
-          <motion.div
-            key={comment.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="bg-white p-4 rounded-lg shadow-sm mb-4 border border-gray-100"
-          >
-            <div className="flex justify-between items-start mb-2">
-              <div className="flex items-center">
-                <img
-                  src={comment.user?.avatar_url || '/default-avatar.png'}
-                  alt={comment.user?.display_name || 'کاربر'}
-                  className="w-8 h-8 rounded-full mr-2"
-                />
-                <div>
-                  <div className="font-bold text-gray-800">
-                    {comment.user?.display_name || 'کاربر ناشناس'}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
-                  </div>
-                </div>
-              </div>
-              {user?.email === 'active.legendss@gmail.com' && (
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleDelete(comment.id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
-                  <button
-                    onClick={() => handleHide(comment.id)}
-                    className="text-yellow-500 hover:text-yellow-700"
-                  >
-                    <FontAwesomeIcon icon={faEyeSlash} />
-                  </button>
-                  {!comment.is_approved && (
-                    <button
-                      onClick={() => handleApprove(comment.id)}
-                      className="text-green-500 hover:text-green-700"
-                    >
-                      <FontAwesomeIcon icon={faCheck} />
-                    </button>
+      {comments.length === 0 ? (
+        <div className="text-center text-gray-500 py-4">
+          No comments yet. Be the first to comment!
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {comments.map((comment) => (
+            <div key={comment.id} className="bg-white rounded-lg shadow p-4">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center space-x-2">
+                  {comment.user?.avatar_url ? (
+                    <img
+                      src={comment.user.avatar_url}
+                      alt={comment.user.display_name}
+                      className="w-8 h-8 rounded-full"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                      <span className="text-gray-500 text-sm">
+                        {comment.user?.display_name?.[0]?.toUpperCase() || '?'}
+                      </span>
+                    </div>
                   )}
+                  <div>
+                    <div className="font-medium">{comment.user?.display_name || 'Anonymous'}</div>
+                    <div className="text-sm text-gray-500">
+                      {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+                    </div>
+                  </div>
                 </div>
-              )}
+                {user && (user.id === comment.user_id || user.role === 'admin') && (
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleLike(comment.id)}
+                      className="text-gray-500 hover:text-primary transition-colors"
+                    >
+                      <FontAwesomeIcon icon={faThumbsUp} /> {comment.likes_count}
+                    </button>
+                    {user.role === 'admin' && (
+                      <>
+                        <button
+                          onClick={() => handleHide(comment.id)}
+                          className="text-gray-500 hover:text-red-500 transition-colors"
+                        >
+                          <FontAwesomeIcon icon={faEyeSlash} />
+                        </button>
+                        {!comment.is_approved && (
+                          <button
+                            onClick={() => handleApprove(comment.id)}
+                            className="text-gray-500 hover:text-green-500 transition-colors"
+                          >
+                            <FontAwesomeIcon icon={faCheck} />
+                          </button>
+                        )}
+                      </>
+                    )}
+                    <button
+                      onClick={() => handleDelete(comment.id)}
+                      className="text-gray-500 hover:text-red-500 transition-colors"
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </button>
+                  </div>
+                )}
+              </div>
+              <p className="mt-2 text-gray-700">{comment.content}</p>
             </div>
-            <p className="text-gray-700 mb-2 whitespace-pre-wrap">{comment.content}</p>
-            <button
-              onClick={() => handleLike(comment.id)}
-              disabled={!user}
-              className="flex items-center text-gray-500 hover:text-[#F4B744] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <FontAwesomeIcon icon={faThumbsUp} />
-              {comment.likes_count}
-            </button>
-          </motion.div>
-        ))}
-      </AnimatePresence>
-
-      {state.comments.length === 0 && !state.loading && (
-        <div className="text-center p-4 text-gray-500">
-          هنوز نظری ثبت نشده است. اولین نظر را شما ثبت کنید!
+          ))}
         </div>
       )}
     </div>
