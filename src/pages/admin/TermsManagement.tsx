@@ -147,7 +147,7 @@ export default function TermsManagement() {
                 onChange={(e) => setNewTerms({ ...newTerms, content_html: e.target.value })}
                 required
                 rows={12}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#F4B744] focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#F4B744] focus:border-transparent transition-all duration-200 bg-gray-50 text-gray-700 placeholder-gray-400"
                 placeholder="محتوی قوانین و مقررات را وارد کنید..."
               />
             </div>
