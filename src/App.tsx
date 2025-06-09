@@ -1,73 +1,58 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Header } from './components/Header';
-import { MainContent } from './components/MainContent';
-import { AuthProvider } from './contexts/AuthContext';
-import { TermsProvider } from './contexts/TermsContext';
-import { GamesProvider } from './contexts/GamesContext';
-import { AdminProvider } from './contexts/AdminContext';
-import { TermsAndConditions } from './pages/TermsAndConditions';
-import { AuthCallback } from './pages/AuthCallback';
+import { motion } from 'framer-motion';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Hero from './components/Hero';
+import AnimatedBackground from './components/AnimatedBackground';
+import MediaShowcase from './components/MediaShowcase';
 import { Games } from './pages/Games';
-import { AdminDashboard } from './pages/admin/AdminDashboard';
-import { TermsManagement } from './pages/admin/TermsManagement';
-import { GamesManagement } from './pages/admin/GamesManagement';
-import { UsersManagement } from './pages/admin/UsersManagement';
-import { AdminRoute } from './components/AdminRoute';
-import './styles/header.css';
+import { GameDetail } from './pages/GameDetail';
+import NotFound from './pages/NotFound';
+import { AuthProvider } from './contexts/AuthContext';
+import { useEffect } from 'react';
+import { MyGames } from './pages/MyGames';
+import TermsAndConditionsPage from './pages/TermsAndConditions';
+import TermsManagement from './pages/admin/TermsManagement';
+import './styles/admin.css';
 
 function App() {
+  useEffect(() => {
+    // Disable scroll chaining on mobile
+    document.body.style.overscrollBehavior = 'none';
+    
+    // Add passive scroll listener for better performance
+    const handleScroll = () => {
+      // This empty function is needed for passive scroll listener
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   return (
     <Router>
       <AuthProvider>
-        <TermsProvider>
-          <GamesProvider>
-            <AdminProvider>
-              <div className="app">
-                <Header />
-                <MainContent>
-                  <Routes>
-                    <Route path="/terms" element={<TermsAndConditions />} />
-                    <Route path="/auth/callback" element={<AuthCallback />} />
-                    <Route path="/games" element={<Games />} />
-                    <Route
-                      path="/admin"
-                      element={
-                        <AdminRoute>
-                          <AdminDashboard />
-                        </AdminRoute>
-                      }
-                    />
-                    <Route
-                      path="/admin/terms"
-                      element={
-                        <AdminRoute>
-                          <TermsManagement />
-                        </AdminRoute>
-                      }
-                    />
-                    <Route
-                      path="/admin/games"
-                      element={
-                        <AdminRoute>
-                          <GamesManagement />
-                        </AdminRoute>
-                      }
-                    />
-                    <Route
-                      path="/admin/users"
-                      element={
-                        <AdminRoute>
-                          <UsersManagement />
-                        </AdminRoute>
-                      }
-                    />
-                  </Routes>
-                </MainContent>
-              </div>
-            </AdminProvider>
-          </GamesProvider>
-        </TermsProvider>
+        <div className="min-h-screen relative scroll-container">
+          <AnimatedBackground />
+          <div className="relative z-20">
+            <Navbar />
+            <Routes>
+              <Route path="/" element={
+                <>
+                  <Hero />
+                  <MediaShowcase />
+                </>
+              } />
+              <Route path="/games" element={<Games />} />
+              <Route path="/games/:slug" element={<GameDetail />} />
+              <Route path="/my-games" element={<MyGames />} />
+              <Route path="/terms" element={<TermsAndConditionsPage />} />
+              <Route path="/admin/terms" element={<TermsManagement />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
+        </div>
       </AuthProvider>
     </Router>
   );

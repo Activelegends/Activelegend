@@ -1,6 +1,6 @@
 export interface TermsAndConditions {
-  id: number;
-  version: string;
+  id: string;
+  version: number;
   title: string;
   content_html: string;
   is_active: boolean;
