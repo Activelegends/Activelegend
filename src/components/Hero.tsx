@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import ScrollIndicator from './ScrollIndicator';
 import { useState } from 'react';
-import AuthModal from './AuthModal';
+import { AuthModal } from './AuthModal';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 
