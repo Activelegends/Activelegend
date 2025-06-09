@@ -17,9 +17,28 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [loading, setLoading] = useState(false);
   const { signIn, signUp, signInWithGoogle } = useAuth();
 
+  const validateForm = () => {
+    if (!email || !password) {
+      setError('لطفاً تمام فیلدها را پر کنید.');
+      return false;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('لطفاً یک ایمیل معتبر وارد کنید.');
+      return false;
+    }
+    if (password.length < 6) {
+      setError('رمز عبور باید حداقل ۶ کاراکتر باشد.');
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    
+    if (!validateForm()) return;
+    
     setLoading(true);
 
     try {
@@ -42,10 +61,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
     try {
       await signInWithGoogle();
-      onClose();
+      // Don't close the modal here as we're redirecting
     } catch (err: any) {
       setError(err.message || 'خطایی در ورود با گوگل رخ داد. لطفا دوباره تلاش کنید.');
-    } finally {
       setLoading(false);
     }
   };
@@ -84,6 +102,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-2 rounded bg-gray-700 border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 required
+                dir="ltr"
               />
             </div>
 
@@ -98,6 +117,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-2 rounded bg-gray-700 border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 required
+                minLength={6}
+                dir="ltr"
               />
             </div>
 

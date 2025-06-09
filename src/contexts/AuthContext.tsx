@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import type { User } from '@supabase/supabase-js';
+import type { User, AuthError } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
@@ -33,13 +33,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
+  const handleAuthError = (error: AuthError) => {
+    console.error('Auth error:', error);
+    if (error.message.includes('Invalid login credentials')) {
+      throw new Error('ایمیل یا رمز عبور اشتباه است.');
+    } else if (error.message.includes('Email not confirmed')) {
+      throw new Error('لطفاً ایمیل خود را تایید کنید.');
+    } else if (error.message.includes('User already registered')) {
+      throw new Error('این ایمیل قبلاً ثبت شده است.');
+    } else {
+      throw new Error('خطایی رخ داد. لطفاً دوباره تلاش کنید.');
+    }
+  };
+
   const signIn = async (email: string, password: string) => {
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      if (error) throw error;
+      if (error) handleAuthError(error);
     } catch (error) {
       console.error('Error signing in:', error);
       throw error;
@@ -55,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       });
-      if (error) throw error;
+      if (error) handleAuthError(error);
     } catch (error) {
       console.error('Error signing up:', error);
       throw error;
@@ -84,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           },
         },
       });
-      if (error) throw error;
+      if (error) handleAuthError(error);
     } catch (error) {
       console.error('Error signing in with Google:', error);
       throw error;
