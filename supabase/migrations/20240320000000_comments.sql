@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS public.users (
   email TEXT UNIQUE NOT NULL,
   display_name TEXT,
   profile_image_url TEXT,
+  avatar_url TEXT,
   is_special BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
@@ -86,19 +87,23 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.users (id, email, display_name)
+  INSERT INTO public.users (id, email, display_name, profile_image_url, avatar_url)
   VALUES (
     NEW.id,
     NEW.email,
     COALESCE(
       NEW.raw_user_meta_data->>'full_name',
       SPLIT_PART(NEW.email, '@', 1)
-    )
+    ),
+    NEW.raw_user_meta_data->>'avatar_url',
+    NEW.raw_user_meta_data->>'avatar_url'
   )
   ON CONFLICT (id) DO UPDATE
   SET
     email = EXCLUDED.email,
     display_name = COALESCE(EXCLUDED.display_name, users.display_name),
+    profile_image_url = COALESCE(EXCLUDED.profile_image_url, users.profile_image_url),
+    avatar_url = COALESCE(EXCLUDED.avatar_url, users.avatar_url),
     updated_at = NOW();
   RETURN NEW;
 END;
@@ -115,6 +120,14 @@ BEGIN
       NEW.raw_user_meta_data->>'full_name',
       users.display_name,
       SPLIT_PART(NEW.email, '@', 1)
+    ),
+    profile_image_url = COALESCE(
+      NEW.raw_user_meta_data->>'avatar_url',
+      users.profile_image_url
+    ),
+    avatar_url = COALESCE(
+      NEW.raw_user_meta_data->>'avatar_url',
+      users.avatar_url
     ),
     updated_at = NOW()
   WHERE id = NEW.id;

@@ -11,7 +11,6 @@ export const commentService = {
           id,
           display_name,
           profile_image_url,
-          avatar_url,
           is_special
         )
       `)
@@ -26,7 +25,7 @@ export const commentService = {
       ...comment,
       user: comment.user ? {
         ...comment.user,
-        profile_image_url: comment.user.profile_image_url || comment.user.avatar_url || null
+        profile_image_url: comment.user.profile_image_url || null
       } : null
     }));
   },

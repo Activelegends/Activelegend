@@ -194,9 +194,6 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
     if (user?.profile_image_url) {
       return user.profile_image_url;
     }
-    if (user?.avatar_url) {
-      return user.avatar_url;
-    }
     return '/images/default-avatar.png';
   };
 
