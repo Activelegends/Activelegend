@@ -15,7 +15,7 @@ export const commentService = {
           created_at,
           is_approved,
           is_hidden,
-          user:users!inner (
+          user:users (
             id,
             display_name,
             avatar_url
@@ -66,7 +66,7 @@ export const commentService = {
           created_at,
           is_approved,
           is_hidden,
-          user:users!inner (
+          user:users (
             id,
             display_name,
             avatar_url

@@ -4,6 +4,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { commentService } from '../services/commentService';
 import type { Comment, CommentState } from '../types/comment';
 import { formatDate } from '../utils/date';
+import { formatDistanceToNow } from 'date-fns';
+import { faThumbsUp, faTrash, faEyeSlash, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface CommentsProps {
   gameId: string;
@@ -93,6 +96,7 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
     if (!user) return;
     try {
       await commentService.toggleLike(commentId);
+      await loadComments();
     } catch (error) {
       console.error('Error toggling like:', error);
       setState(prev => ({
@@ -104,8 +108,13 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
 
   const handleDelete = async (commentId: string) => {
     if (!user || user.email !== 'active.legendss@gmail.com') return;
+    if (!window.confirm('آیا از حذف این نظر مطمئن هستید؟')) return;
     try {
       await commentService.deleteComment(commentId);
+      setState(prev => ({
+        ...prev,
+        comments: prev.comments.filter(comment => comment.id !== commentId)
+      }));
     } catch (error) {
       console.error('Error deleting comment:', error);
       setState(prev => ({
@@ -119,6 +128,10 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
     if (!user || user.email !== 'active.legendss@gmail.com') return;
     try {
       await commentService.hideComment(commentId);
+      setState(prev => ({
+        ...prev,
+        comments: prev.comments.filter(comment => comment.id !== commentId)
+      }));
     } catch (error) {
       console.error('Error hiding comment:', error);
       setState(prev => ({
@@ -132,6 +145,7 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
     if (!user || user.email !== 'active.legendss@gmail.com') return;
     try {
       await commentService.approveComment(commentId);
+      await loadComments();
     } catch (error) {
       console.error('Error approving comment:', error);
       setState(prev => ({
@@ -210,7 +224,7 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
                     {comment.user?.display_name || 'کاربر ناشناس'}
                   </div>
                   <div className="text-sm text-gray-500">
-                    {formatDate(comment.created_at)}
+                    {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
                   </div>
                 </div>
               </div>
@@ -220,20 +234,20 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
                     onClick={() => handleDelete(comment.id)}
                     className="text-red-500 hover:text-red-700"
                   >
-                    حذف
+                    <FontAwesomeIcon icon={faTrash} />
                   </button>
                   <button
                     onClick={() => handleHide(comment.id)}
                     className="text-yellow-500 hover:text-yellow-700"
                   >
-                    مخفی
+                    <FontAwesomeIcon icon={faEyeSlash} />
                   </button>
                   {!comment.is_approved && (
                     <button
                       onClick={() => handleApprove(comment.id)}
                       className="text-green-500 hover:text-green-700"
                     >
-                      تایید
+                      <FontAwesomeIcon icon={faCheck} />
                     </button>
                   )}
                 </div>
@@ -245,19 +259,7 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
               disabled={!user}
               className="flex items-center text-gray-500 hover:text-[#F4B744] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <svg
-                className="w-5 h-5 ml-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                />
-              </svg>
+              <FontAwesomeIcon icon={faThumbsUp} />
               {comment.likes_count}
             </button>
           </motion.div>
