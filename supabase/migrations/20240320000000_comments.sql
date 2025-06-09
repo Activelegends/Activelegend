@@ -33,6 +33,28 @@ CREATE TABLE IF NOT EXISTS public.comment_likes (
   UNIQUE(comment_id, user_id)
 );
 
+-- Create indexes
+CREATE INDEX IF NOT EXISTS idx_users_email ON public.users(email);
+CREATE INDEX IF NOT EXISTS idx_comments_game_id ON public.comments(game_id);
+CREATE INDEX IF NOT EXISTS idx_comments_user_id ON public.comments(user_id);
+CREATE INDEX IF NOT EXISTS idx_comments_parent_comment_id ON public.comments(parent_comment_id);
+CREATE INDEX IF NOT EXISTS idx_comment_likes_comment_id ON public.comment_likes(comment_id);
+CREATE INDEX IF NOT EXISTS idx_comment_likes_user_id ON public.comment_likes(user_id);
+
+-- Drop existing triggers first
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+DROP TRIGGER IF EXISTS on_auth_user_updated ON auth.users;
+DROP TRIGGER IF EXISTS ensure_user_exists_before_comment ON public.comments;
+DROP TRIGGER IF EXISTS ensure_user_exists_before_like ON public.comment_likes;
+DROP TRIGGER IF EXISTS update_comment_likes_count_insert ON public.comment_likes;
+DROP TRIGGER IF EXISTS update_comment_likes_count_delete ON public.comment_likes;
+
+-- Then drop existing functions
+DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
+DROP FUNCTION IF EXISTS public.handle_user_update() CASCADE;
+DROP FUNCTION IF EXISTS public.ensure_user_exists() CASCADE;
+DROP FUNCTION IF EXISTS public.update_comment_likes_count() CASCADE;
+
 -- Create function to update likes_count
 CREATE OR REPLACE FUNCTION public.update_comment_likes_count()
 RETURNS TRIGGER AS $$
@@ -45,81 +67,6 @@ BEGIN
   RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
-
--- Create triggers for likes_count
-CREATE TRIGGER update_comment_likes_count_insert
-  AFTER INSERT ON public.comment_likes
-  FOR EACH ROW
-  EXECUTE FUNCTION public.update_comment_likes_count();
-
-CREATE TRIGGER update_comment_likes_count_delete
-  AFTER DELETE ON public.comment_likes
-  FOR EACH ROW
-  EXECUTE FUNCTION public.update_comment_likes_count();
-
--- Add RLS policies
-ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.comment_likes ENABLE ROW LEVEL SECURITY;
-
--- Users policies
-CREATE POLICY "Users are viewable by everyone"
-  ON public.users FOR SELECT
-  USING (true);
-
-CREATE POLICY "Users can update their own profile"
-  ON public.users FOR UPDATE
-  USING (auth.uid() = id);
-
-CREATE POLICY "Admins can manage all users"
-  ON public.users FOR ALL
-  USING (
-    auth.jwt() ->> 'email' = 'active.legendss@gmail.com'
-  );
-
--- Comments policies
-CREATE POLICY "Comments are viewable by everyone"
-  ON public.comments FOR SELECT
-  USING (is_approved = true);
-
-CREATE POLICY "Users can insert their own comments"
-  ON public.comments FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update their own comments"
-  ON public.comments FOR UPDATE
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete their own comments"
-  ON public.comments FOR DELETE
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Admins can manage all comments"
-  ON public.comments FOR ALL
-  USING (
-    auth.jwt() ->> 'email' = 'active.legendss@gmail.com'
-  );
-
--- Comment likes policies
-CREATE POLICY "Comment likes are viewable by everyone"
-  ON public.comment_likes FOR SELECT
-  USING (true);
-
-CREATE POLICY "Users can insert their own likes"
-  ON public.comment_likes FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete their own likes"
-  ON public.comment_likes FOR DELETE
-  USING (auth.uid() = user_id);
-
--- Create indexes
-CREATE INDEX IF NOT EXISTS idx_users_email ON public.users(email);
-CREATE INDEX IF NOT EXISTS idx_comments_game_id ON public.comments(game_id);
-CREATE INDEX IF NOT EXISTS idx_comments_user_id ON public.comments(user_id);
-CREATE INDEX IF NOT EXISTS idx_comments_parent_comment_id ON public.comments(parent_comment_id);
-CREATE INDEX IF NOT EXISTS idx_comment_likes_comment_id ON public.comment_likes(comment_id);
-CREATE INDEX IF NOT EXISTS idx_comment_likes_user_id ON public.comment_likes(user_id);
 
 -- Create function to ensure user exists
 CREATE OR REPLACE FUNCTION public.ensure_user_exists()
@@ -134,18 +81,6 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Create trigger for ensuring user exists before comment insertion
-CREATE TRIGGER ensure_user_exists_before_comment
-  BEFORE INSERT ON public.comments
-  FOR EACH ROW
-  EXECUTE FUNCTION public.ensure_user_exists();
-
--- Create trigger for ensuring user exists before like insertion
-CREATE TRIGGER ensure_user_exists_before_like
-  BEFORE INSERT ON public.comment_likes
-  FOR EACH ROW
-  EXECUTE FUNCTION public.ensure_user_exists();
 
 -- Create function to handle new user creation
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -169,14 +104,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Create trigger for new user creation
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW
-  EXECUTE FUNCTION public.handle_new_user();
-
--- Create trigger for user update
+-- Create function to handle user update
 CREATE OR REPLACE FUNCTION public.handle_user_update()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -194,7 +122,100 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- Create triggers
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_new_user();
+
 CREATE TRIGGER on_auth_user_updated
   AFTER UPDATE ON auth.users
   FOR EACH ROW
-  EXECUTE FUNCTION public.handle_user_update(); 
+  EXECUTE FUNCTION public.handle_user_update();
+
+CREATE TRIGGER ensure_user_exists_before_comment
+  BEFORE INSERT ON public.comments
+  FOR EACH ROW
+  EXECUTE FUNCTION public.ensure_user_exists();
+
+CREATE TRIGGER ensure_user_exists_before_like
+  BEFORE INSERT ON public.comment_likes
+  FOR EACH ROW
+  EXECUTE FUNCTION public.ensure_user_exists();
+
+CREATE TRIGGER update_comment_likes_count_insert
+  AFTER INSERT ON public.comment_likes
+  FOR EACH ROW
+  EXECUTE FUNCTION public.update_comment_likes_count();
+
+CREATE TRIGGER update_comment_likes_count_delete
+  AFTER DELETE ON public.comment_likes
+  FOR EACH ROW
+  EXECUTE FUNCTION public.update_comment_likes_count();
+
+-- Drop existing policies
+DROP POLICY IF EXISTS "Users are viewable by everyone" ON public.users;
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.users;
+DROP POLICY IF EXISTS "Admins can manage all users" ON public.users;
+DROP POLICY IF EXISTS "Comments are viewable by everyone" ON public.comments;
+DROP POLICY IF EXISTS "Users can insert their own comments" ON public.comments;
+DROP POLICY IF EXISTS "Users can update their own comments" ON public.comments;
+DROP POLICY IF EXISTS "Users can delete their own comments" ON public.comments;
+DROP POLICY IF EXISTS "Admins can manage all comments" ON public.comments;
+DROP POLICY IF EXISTS "Comment likes are viewable by everyone" ON public.comment_likes;
+DROP POLICY IF EXISTS "Users can insert their own likes" ON public.comment_likes;
+DROP POLICY IF EXISTS "Users can delete their own likes" ON public.comment_likes;
+
+-- Enable RLS
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.comment_likes ENABLE ROW LEVEL SECURITY;
+
+-- Create policies
+CREATE POLICY "Users are viewable by everyone"
+  ON public.users FOR SELECT
+  USING (true);
+
+CREATE POLICY "Users can update their own profile"
+  ON public.users FOR UPDATE
+  USING (auth.uid() = id);
+
+CREATE POLICY "Admins can manage all users"
+  ON public.users FOR ALL
+  USING (
+    auth.jwt() ->> 'email' = 'active.legendss@gmail.com'
+  );
+
+CREATE POLICY "Comments are viewable by everyone"
+  ON public.comments FOR SELECT
+  USING (is_approved = true);
+
+CREATE POLICY "Users can insert their own comments"
+  ON public.comments FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own comments"
+  ON public.comments FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own comments"
+  ON public.comments FOR DELETE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Admins can manage all comments"
+  ON public.comments FOR ALL
+  USING (
+    auth.jwt() ->> 'email' = 'active.legendss@gmail.com'
+  );
+
+CREATE POLICY "Comment likes are viewable by everyone"
+  ON public.comment_likes FOR SELECT
+  USING (true);
+
+CREATE POLICY "Users can insert their own likes"
+  ON public.comment_likes FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own likes"
+  ON public.comment_likes FOR DELETE
+  USING (auth.uid() = user_id); 
