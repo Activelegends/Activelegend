@@ -15,7 +15,7 @@ export const commentService = {
         )
       `)
       .eq('game_id', gameId)
-      .eq('parent_comment_id', null)
+      .is('parent_comment_id', null)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -30,24 +30,31 @@ export const commentService = {
     }));
   },
 
-  async getReplies(commentId: string): Promise<Comment[]> {
+  async getReplies(parentCommentId: string): Promise<Comment[]> {
     const { data, error } = await supabase
       .from('comments')
       .select(`
         *,
         user:users (
           id,
-          email,
           display_name,
           profile_image_url,
           is_special
         )
       `)
-      .eq('parent_comment_id', commentId)
+      .eq('parent_comment_id', parentCommentId)
       .order('created_at', { ascending: true });
 
     if (error) throw error;
-    return data || [];
+
+    // Process comments to ensure user data is properly formatted
+    return data.map(comment => ({
+      ...comment,
+      user: comment.user ? {
+        ...comment.user,
+        profile_image_url: comment.user.profile_image_url || null
+      } : null
+    }));
   },
 
   async addComment(comment: CommentFormData): Promise<Comment> {
