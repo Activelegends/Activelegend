@@ -10,6 +10,8 @@ import NotFound from './pages/NotFound';
 import { AuthProvider } from './contexts/AuthContext';
 import { useEffect } from 'react';
 import { MyGames } from './pages/MyGames';
+import TermsAndConditionsPage from './pages/TermsAndConditions';
+import TermsManagement from './pages/admin/TermsManagement';
 
 function App() {
   useEffect(() => {
@@ -44,6 +46,8 @@ function App() {
               <Route path="/games" element={<Games />} />
               <Route path="/games/:slug" element={<GameDetail />} />
               <Route path="/my-games" element={<MyGames />} />
+              <Route path="/terms" element={<TermsAndConditionsPage />} />
+              <Route path="/admin/terms" element={<TermsManagement />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
