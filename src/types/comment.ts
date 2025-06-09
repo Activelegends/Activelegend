@@ -1,6 +1,5 @@
 export interface User {
   id: string;
-  email: string;
   display_name: string | null;
   profile_image_url: string | null;
 }
@@ -14,9 +13,8 @@ export interface Comment {
   created_at: string;
   updated_at: string;
   is_pinned: boolean;
-  is_approved: boolean;
-  user: User;
   likes_count: number;
+  user: User;
   replies?: Comment[];
 }
 
