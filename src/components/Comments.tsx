@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '../contexts/AuthContext';
 import { commentService } from '../services/commentService';
-import type { Comment, CommentFormData, LikeState } from '../types/comments';
-import { FaThumbsUp, FaThumbsDown, FaReply, FaPin, FaCheck, FaTimes } from 'react-icons/fa';
+import type { Comment, CommentFormData, LikeState } from '../types/comment';
+import { FaThumbsUp, FaThumbsDown, FaReply, FaThumbtack, FaCheck, FaTimes } from 'react-icons/fa';
 
 interface CommentsProps {
   gameId: string;
@@ -253,7 +253,7 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
                   } hover:bg-gray-100`}
                   title={comment.is_pinned ? 'حذف پین' : 'پین کردن'}
                 >
-                  <FaPin />
+                  <FaThumbtack />
                 </button>
                 <button
                   onClick={() => handleAdminAction('approve', comment.id)}
