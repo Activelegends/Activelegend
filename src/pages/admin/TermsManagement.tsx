@@ -219,7 +219,7 @@ export default function TermsManagement() {
             </div>
 
             <div
-              className="prose max-w-none prose-headings:text-gray-800 prose-p:text-gray-600 prose-strong:text-gray-800 prose-ul:text-gray-600 prose-li:text-gray-600"
+              className="prose max-w-none prose-headings:text-gray-800 prose-p:text-gray-600 prose-strong:text-gray-800 prose-ul:text-gray-600 prose-li:text-gray-600 bg-gray-50 p-6 rounded-lg border border-gray-200"
               dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(term.content_html) }}
             />
 

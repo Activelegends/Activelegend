@@ -10,4 +10,110 @@
 
 .admin-page-container .bg-white {
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Terms and Conditions Content Styles */
+.prose {
+  line-height: 1.8;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  color: #1f2937;
+  font-weight: 600;
+  margin-top: 2em;
+  margin-bottom: 1em;
+}
+
+.prose p {
+  color: #374151;
+  margin-bottom: 1.5em;
+}
+
+.prose ul, .prose ol {
+  color: #374151;
+  margin-bottom: 1.5em;
+  padding-right: 1.5em;
+}
+
+.prose li {
+  margin-bottom: 0.5em;
+}
+
+.prose strong {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.prose a {
+  color: #F4B744;
+  text-decoration: none;
+  border-bottom: 1px solid #F4B744;
+  transition: all 0.2s;
+}
+
+.prose a:hover {
+  color: #E5A93D;
+  border-bottom-color: #E5A93D;
+}
+
+.prose blockquote {
+  border-right: 4px solid #F4B744;
+  padding-right: 1em;
+  margin-right: 0;
+  color: #4B5563;
+  font-style: italic;
+}
+
+.prose code {
+  background-color: #F3F4F6;
+  padding: 0.2em 0.4em;
+  border-radius: 0.25em;
+  color: #1F2937;
+  font-size: 0.875em;
+}
+
+.prose pre {
+  background-color: #1F2937;
+  color: #F9FAFB;
+  padding: 1em;
+  border-radius: 0.5em;
+  overflow-x: auto;
+}
+
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5em;
+}
+
+.prose th {
+  background-color: #F3F4F6;
+  color: #1F2937;
+  font-weight: 600;
+  text-align: right;
+  padding: 0.75em 1em;
+  border: 1px solid #E5E7EB;
+}
+
+.prose td {
+  padding: 0.75em 1em;
+  border: 1px solid #E5E7EB;
+  color: #374151;
+}
+
+.prose img {
+  border-radius: 0.5em;
+  margin: 1.5em 0;
+}
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid #E5E7EB;
+  margin: 2em 0;
 } 
