@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '../contexts/AuthContext';
 import { commentService } from '../services/commentService';
-import type { Comment, CommentFormData } from '../types/comments';
+import type { Comment, CommentFormData, LikeState } from '../types/comments';
 
 interface CommentsProps {
   gameId: string;
@@ -18,6 +18,7 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [showReplies, setShowReplies] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [likeStates, setLikeStates] = useState<Record<string, LikeState>>({});
 
   const isAdmin = user?.email === 'active.legendss@gmail.com';
 
@@ -37,6 +38,20 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
       setError(null);
       const data = await commentService.getComments(gameId);
       setComments(data);
+      
+      // Load like states for each comment
+      if (session?.user?.id) {
+        const likeStates: Record<string, LikeState> = {};
+        for (const comment of data) {
+          const hasLiked = await commentService.hasLiked(comment.id, session.user.id);
+          likeStates[comment.id] = {
+            liked: hasLiked,
+            count: comment.likes_count,
+            loading: false
+          };
+        }
+        setLikeStates(likeStates);
+      }
     } catch (err) {
       console.error('Error loading comments:', err);
       setError('خطا در بارگذاری نظرات. لطفاً صفحه را رفرش کنید.');
@@ -97,10 +112,38 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
       setError('لطفاً ابتدا وارد حساب کاربری خود شوید.');
       return;
     }
+
     try {
+      // Update UI optimistically
+      setLikeStates(prev => ({
+        ...prev,
+        [commentId]: {
+          ...prev[commentId],
+          loading: true
+        }
+      }));
+
       await commentService.toggleLike(commentId, session.user.id);
+      
+      // Update UI after successful toggle
+      setLikeStates(prev => ({
+        ...prev,
+        [commentId]: {
+          liked: !prev[commentId].liked,
+          count: prev[commentId].liked ? prev[commentId].count - 1 : prev[commentId].count + 1,
+          loading: false
+        }
+      }));
     } catch (err) {
       console.error('Error toggling like:', err);
+      // Revert UI on error
+      setLikeStates(prev => ({
+        ...prev,
+        [commentId]: {
+          ...prev[commentId],
+          loading: false
+        }
+      }));
     }
   };
 
@@ -174,10 +217,15 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
           <div className="flex items-center gap-4">
             <button
               onClick={() => handleLike(comment.id)}
-              className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors"
+              disabled={likeStates[comment.id]?.loading}
+              className={`flex items-center gap-1 transition-colors ${
+                likeStates[comment.id]?.liked
+                  ? 'text-red-500 hover:text-red-400'
+                  : 'text-gray-400 hover:text-white'
+              }`}
             >
               <span>❤️</span>
-              <span>{comment.likes_count}</span>
+              <span>{likeStates[comment.id]?.count || 0}</span>
             </button>
             {!isReply && (
               <button

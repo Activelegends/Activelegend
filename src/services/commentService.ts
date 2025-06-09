@@ -77,26 +77,62 @@ export const commentService = {
   },
 
   async toggleLike(commentId: string, userId: string): Promise<void> {
-    const { data: existingLike, error: fetchError } = await supabase
-      .from('comment_likes')
-      .select()
-      .eq('comment_id', commentId)
-      .eq('user_id', userId)
-      .single();
-
-    if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
-
-    if (existingLike) {
-      const { error } = await supabase
+    try {
+      // First check if the user has already liked the comment
+      const { data: existingLike, error: fetchError } = await supabase
         .from('comment_likes')
-        .delete()
-        .eq('id', existingLike.id);
-      if (error) throw error;
-    } else {
-      const { error } = await supabase
+        .select('id')
+        .eq('comment_id', commentId)
+        .eq('user_id', userId)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        throw fetchError;
+      }
+
+      if (existingLike) {
+        // If the user has already liked the comment, remove the like
+        const { error: deleteError } = await supabase
+          .from('comment_likes')
+          .delete()
+          .eq('id', existingLike.id);
+        
+        if (deleteError) {
+          throw deleteError;
+        }
+      } else {
+        // If the user hasn't liked the comment yet, add a like
+        const { error: insertError } = await supabase
+          .from('comment_likes')
+          .insert([{ comment_id: commentId, user_id: userId }]);
+        
+        if (insertError) {
+          throw insertError;
+        }
+      }
+    } catch (error) {
+      console.error('Error in toggleLike:', error);
+      throw error;
+    }
+  },
+
+  async hasLiked(commentId: string, userId: string): Promise<boolean> {
+    try {
+      const { data, error } = await supabase
         .from('comment_likes')
-        .insert([{ comment_id: commentId, user_id: userId }]);
-      if (error) throw error;
+        .select('id')
+        .eq('comment_id', commentId)
+        .eq('user_id', userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      return !!data;
+    } catch (error) {
+      console.error('Error in hasLiked:', error);
+      return false;
     }
   },
 
