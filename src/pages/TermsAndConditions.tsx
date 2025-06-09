@@ -98,7 +98,8 @@ export default function TermsAndConditionsPage() {
         <div
           ref={contentRef}
           onScroll={handleScroll}
-          className="prose max-w-none prose-headings:text-gray-900 prose-p:text-gray-800 prose-strong:text-gray-900 prose-ul:text-gray-800 prose-li:text-gray-800 bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8 max-h-[60vh] overflow-y-auto"
+          className="prose max-w-none prose-headings:text-gray-900 prose-p:text-gray-900 prose-strong:text-gray-900 prose-ul:text-gray-900 prose-li:text-gray-900 prose-a:text-[#F4B744] prose-a:no-underline hover:prose-a:underline bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8 max-h-[60vh] overflow-y-auto"
+          style={{ color: '#111827' }}
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(terms.content_html) }}
         />
 
