@@ -1,5 +1,25 @@
 import { supabase } from '../lib/supabase';
-import type { Comment, CommentFormData } from '../types/comments';
+import type { Comment, CommentFormData, User } from '../types/comments';
+
+interface SupabaseUser {
+  id: string;
+  display_name: string;
+  profile_image_url: string | null;
+  is_special: boolean;
+}
+
+interface SupabaseComment {
+  id: string;
+  content: string;
+  game_id: string;
+  user_id: string;
+  parent_comment_id: string | null;
+  created_at: string;
+  updated_at: string;
+  is_pinned: boolean;
+  is_approved: boolean;
+  user: SupabaseUser | null;
+}
 
 export const commentService = {
   async getComments(gameId: string): Promise<Comment[]> {
@@ -7,7 +27,15 @@ export const commentService = {
       const { data, error } = await supabase
         .from('comments')
         .select(`
-          *,
+          id,
+          content,
+          game_id,
+          user_id,
+          parent_comment_id,
+          created_at,
+          updated_at,
+          is_pinned,
+          is_approved,
           user:users (
             id,
             display_name,
@@ -21,11 +49,13 @@ export const commentService = {
 
       if (error) throw error;
 
-      return (data || []).map(comment => ({
+      return (data as SupabaseComment[] || []).map(comment => ({
         ...comment,
         user: comment.user ? {
-          ...comment.user,
-          profile_image_url: comment.user.profile_image_url || null
+          id: comment.user.id,
+          display_name: comment.user.display_name,
+          profile_image_url: comment.user.profile_image_url,
+          is_special: comment.user.is_special
         } : null
       }));
     } catch (error) {
@@ -39,7 +69,15 @@ export const commentService = {
       const { data, error } = await supabase
         .from('comments')
         .select(`
-          *,
+          id,
+          content,
+          game_id,
+          user_id,
+          parent_comment_id,
+          created_at,
+          updated_at,
+          is_pinned,
+          is_approved,
           user:users (
             id,
             display_name,
@@ -52,11 +90,13 @@ export const commentService = {
 
       if (error) throw error;
 
-      return (data || []).map(comment => ({
+      return (data as SupabaseComment[] || []).map(comment => ({
         ...comment,
         user: comment.user ? {
-          ...comment.user,
-          profile_image_url: comment.user.profile_image_url || null
+          id: comment.user.id,
+          display_name: comment.user.display_name,
+          profile_image_url: comment.user.profile_image_url,
+          is_special: comment.user.is_special
         } : null
       }));
     } catch (error) {

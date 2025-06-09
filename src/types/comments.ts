@@ -21,10 +21,7 @@ export interface Comment {
 export interface CommentFormData {
   content: string;
   game_id: string;
-  user_id: string;
   parent_comment_id?: string;
-  is_pinned?: boolean;
-  is_approved?: boolean;
 }
 
 export interface CommentState {

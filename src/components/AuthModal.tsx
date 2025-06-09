@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog } from '@headlessui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
-import { FcGoogle } from 'react-icons/fc';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -66,7 +64,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
 
     try {
       await signInWithGoogle();
-      // Don't close the modal here as we're redirecting
     } catch (err: any) {
       setError(err.message || 'خطایی در ورود با گوگل رخ داد. لطفا دوباره تلاش کنید.');
       setLoading(false);
@@ -81,83 +78,111 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
         onClick={onClose}
       >
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
+          initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-gray-800 p-8 rounded-lg w-full max-w-md"
+          exit={{ scale: 0.95, opacity: 0 }}
+          className="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
           onClick={e => e.stopPropagation()}
         >
-          <h2 className="text-2xl font-bold mb-6 text-center">
-            {isLogin ? 'ورود به حساب کاربری' : 'ثبت نام'}
-          </h2>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-1">
-                ایمیل
-              </label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 rounded bg-gray-700 border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                required
-                dir="ltr"
+          <div className="p-6 sm:p-8">
+            <div className="text-center mb-8">
+              <img 
+                src="/AE-logo.png" 
+                alt="Active Legends" 
+                className="w-16 h-16 mx-auto mb-4"
               />
+              <h2 className="text-2xl font-bold text-white">
+                {isLogin ? 'ورود به حساب کاربری' : 'ثبت نام'}
+              </h2>
+              <p className="text-gray-400 mt-2">
+                {isLogin ? 'به Active Legends خوش آمدید' : 'حساب کاربری جدید بسازید'}
+              </p>
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium mb-1">
-                رمز عبور
-              </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 rounded bg-gray-700 border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                required
-                minLength={6}
-                dir="ltr"
-              />
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
+                  ایمیل
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  placeholder="example@email.com"
+                  required
+                  dir="ltr"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">
+                  رمز عبور
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  placeholder="••••••••"
+                  required
+                  minLength={6}
+                  dir="ltr"
+                />
+              </div>
+
+              {error && (
+                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-red-500 text-sm">
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <div className="flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    در حال پردازش...
+                  </div>
+                ) : isLogin ? 'ورود' : 'ثبت نام'}
+              </button>
+            </form>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-700"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-gray-900 text-gray-400">یا</span>
+              </div>
             </div>
 
-            {error && (
-              <div className="text-red-500 text-sm">{error}</div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
-            >
-              {loading ? 'در حال پردازش...' : isLogin ? 'ورود' : 'ثبت نام'}
-            </button>
-          </form>
-
-          <div className="mt-4">
             <button
               onClick={handleGoogleSignIn}
               disabled={loading}
-              className="w-full bg-white text-gray-800 py-2 rounded hover:bg-gray-100 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full bg-white text-gray-900 py-3 rounded-lg font-medium hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2 focus:ring-offset-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               <img src="/google-icon.png" alt="Google" className="w-5 h-5" />
               ورود با گوگل
             </button>
-          </div>
 
-          <div className="mt-4 text-center">
-            <button
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-blue-400 hover:text-blue-300"
-            >
-              {isLogin ? 'حساب کاربری ندارید؟ ثبت نام کنید' : 'قبلاً ثبت نام کرده‌اید؟ وارد شوید'}
-            </button>
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
+              >
+                {isLogin ? 'حساب کاربری ندارید؟ ثبت نام کنید' : 'قبلاً ثبت نام کرده‌اید؟ وارد شوید'}
+              </button>
+            </div>
           </div>
         </motion.div>
       </motion.div>
