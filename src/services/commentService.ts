@@ -24,7 +24,7 @@ class CommentService {
           )
         `)
         .eq('game_id', gameId)
-        .or('parent_id.is.null,parent_id.eq.null')
+        .is('parent_id', null)
         .order('created_at', { ascending: false });
 
       if (commentsError) {
