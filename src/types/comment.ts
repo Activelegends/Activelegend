@@ -6,6 +6,8 @@ export interface Comment {
   parent_id: string | null;
   created_at: string;
   updated_at: string;
+  is_pinned: boolean;
+  is_approved: boolean;
   user: {
     id: string;
     email: string;

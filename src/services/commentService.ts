@@ -4,44 +4,95 @@ import type { Comment, CommentFormData } from '../types/comment';
 class CommentService {
   async getComments(gameId: string): Promise<Comment[]> {
     try {
-      const { data, error } = await supabase
+      // First get comments with user info
+      const { data: comments, error: commentsError } = await supabase
         .from('comments')
         .select(`
-          *,
+          id,
+          content,
+          user_id,
+          game_id,
+          parent_id,
+          created_at,
+          updated_at,
+          is_pinned,
+          is_approved,
           user:user_id (
             id,
             email,
             profile_image_url
-          ),
-          likes_count:likes(count)
+          )
         `)
         .eq('game_id', gameId)
         .is('parent_id', null)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (commentsError) throw commentsError;
+
+      // Then get likes count for each comment
+      const commentsWithLikes = await Promise.all(
+        (comments as unknown as Comment[]).map(async (comment) => {
+          const { count, error: likesError } = await supabase
+            .from('likes')
+            .select('*', { count: 'exact', head: true })
+            .eq('comment_id', comment.id);
+
+          if (likesError) {
+            console.error(`Error getting likes count for comment ${comment.id}:`, likesError);
+            return { ...comment, likes_count: 0 };
+          }
+
+          return { ...comment, likes_count: count || 0 };
+        })
+      );
 
       // Get replies for each comment
       const commentsWithReplies = await Promise.all(
-        (data as Comment[]).map(async (comment) => {
-          const { data: replies } = await supabase
+        commentsWithLikes.map(async (comment) => {
+          const { data: replies, error: repliesError } = await supabase
             .from('comments')
             .select(`
-              *,
+              id,
+              content,
+              user_id,
+              game_id,
+              parent_id,
+              created_at,
+              updated_at,
+              is_pinned,
+              is_approved,
               user:user_id (
                 id,
                 email,
                 profile_image_url
-              ),
-              likes_count:likes(count)
+              )
             `)
             .eq('parent_id', comment.id)
             .order('created_at', { ascending: true });
 
-          return {
-            ...comment,
-            replies: replies || []
-          };
+          if (repliesError) {
+            console.error(`Error getting replies for comment ${comment.id}:`, repliesError);
+            return { ...comment, replies: [] };
+          }
+
+          // Get likes count for each reply
+          const repliesWithLikes = await Promise.all(
+            (replies as unknown as Comment[]).map(async (reply) => {
+              const { count, error: replyLikesError } = await supabase
+                .from('likes')
+                .select('*', { count: 'exact', head: true })
+                .eq('comment_id', reply.id);
+
+              if (replyLikesError) {
+                console.error(`Error getting likes count for reply ${reply.id}:`, replyLikesError);
+                return { ...reply, likes_count: 0 };
+              }
+
+              return { ...reply, likes_count: count || 0 };
+            })
+          );
+
+          return { ...comment, replies: repliesWithLikes };
         })
       );
 
@@ -56,20 +107,32 @@ class CommentService {
     try {
       const { data, error } = await supabase
         .from('comments')
-        .insert([commentData])
+        .insert([{
+          content: commentData.content,
+          game_id: commentData.game_id,
+          parent_id: commentData.parent_id,
+          user_id: commentData.user_id
+        }])
         .select(`
-          *,
+          id,
+          content,
+          user_id,
+          game_id,
+          parent_id,
+          created_at,
+          updated_at,
+          is_pinned,
+          is_approved,
           user:user_id (
             id,
             email,
             profile_image_url
-          ),
-          likes_count:likes(count)
+          )
         `)
         .single();
 
       if (error) throw error;
-      return data as Comment;
+      return { ...data, likes_count: 0, replies: [] } as unknown as Comment;
     } catch (error) {
       console.error('Error adding comment:', error);
       throw error;
@@ -128,6 +191,50 @@ class CommentService {
       }
     } catch (error) {
       console.error('Error toggling like:', error);
+      throw error;
+    }
+  }
+
+  async togglePin(commentId: string): Promise<void> {
+    try {
+      const { data: comment, error: fetchError } = await supabase
+        .from('comments')
+        .select('is_pinned')
+        .eq('id', commentId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      const { error } = await supabase
+        .from('comments')
+        .update({ is_pinned: !comment.is_pinned })
+        .eq('id', commentId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error toggling pin:', error);
+      throw error;
+    }
+  }
+
+  async toggleApproval(commentId: string): Promise<void> {
+    try {
+      const { data: comment, error: fetchError } = await supabase
+        .from('comments')
+        .select('is_approved')
+        .eq('id', commentId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      const { error } = await supabase
+        .from('comments')
+        .update({ is_approved: !comment.is_approved })
+        .eq('id', commentId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error toggling approval:', error);
       throw error;
     }
   }

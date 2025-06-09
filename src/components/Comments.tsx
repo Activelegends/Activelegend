@@ -88,69 +88,83 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session?.user?.id || !newComment.trim() || newComment.length < 5 || submitting) {
-      setError('لطفاً ابتدا وارد حساب کاربری خود شوید.');
+    if (!user) {
+      setError('برای ارسال نظر لطفاً وارد شوید.');
       return;
     }
 
+    if (!newComment.trim()) {
+      setError('لطفاً متن نظر را وارد کنید.');
+      return;
+    }
+
+    setSubmitting(true);
+    setError(null);
+
     try {
-      setSubmitting(true);
-      setError(null);
       const commentData: CommentFormData = {
         content: newComment.trim(),
         game_id: gameId,
-        user_id: session.user.id,
-        parent_comment_id: replyingTo || undefined,
+        parent_id: replyingTo,
+        user_id: user.id
       };
 
       await commentService.addComment(commentData);
       setNewComment('');
       setReplyingTo(null);
       await loadComments();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error submitting comment:', err);
-      setError('خطا در ارسال نظر. لطفاً دوباره تلاش کنید.');
+      setError(err.message || 'خطا در ارسال نظر. لطفاً دوباره تلاش کنید.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleLike = async (commentId: string) => {
-    if (!session?.user?.id) {
-      setError('لطفاً ابتدا وارد حساب کاربری خود شوید.');
+  const handleDelete = async (commentId: string) => {
+    if (!user) {
+      setError('برای حذف نظر لطفاً وارد شوید.');
       return;
     }
 
     try {
-      // Update UI optimistically
+      await commentService.deleteComment(commentId);
+      await loadComments();
+    } catch (err: any) {
+      console.error('Error deleting comment:', err);
+      setError(err.message || 'خطا در حذف نظر. لطفاً دوباره تلاش کنید.');
+    }
+  };
+
+  const handleLike = async (commentId: string) => {
+    if (!user) {
+      setError('برای لایک کردن نظر لطفاً وارد شوید.');
+      return;
+    }
+
+    try {
       setLikeStates(prev => ({
         ...prev,
-        [commentId]: {
-          ...prev[commentId],
-          loading: true
-        }
+        [commentId]: { ...prev[commentId], loading: true }
       }));
 
-      await commentService.toggleLike(commentId, session.user.id);
+      await commentService.toggleLike(commentId, user.id);
+      const hasLiked = await commentService.hasLiked(commentId, user.id);
       
-      // Update UI after successful toggle
       setLikeStates(prev => ({
         ...prev,
         [commentId]: {
-          liked: !prev[commentId].liked,
-          count: prev[commentId].liked ? prev[commentId].count - 1 : prev[commentId].count + 1,
+          liked: hasLiked,
+          count: hasLiked ? (prev[commentId]?.count || 0) + 1 : (prev[commentId]?.count || 0) - 1,
           loading: false
         }
       }));
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error toggling like:', err);
-      // Revert UI on error
+      setError(err.message || 'خطا در لایک کردن نظر. لطفاً دوباره تلاش کنید.');
       setLikeStates(prev => ({
         ...prev,
-        [commentId]: {
-          ...prev[commentId],
-          loading: false
-        }
+        [commentId]: { ...prev[commentId], loading: false }
       }));
     }
   };
