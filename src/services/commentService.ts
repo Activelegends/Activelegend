@@ -9,19 +9,26 @@ export const commentService = {
         *,
         user:users (
           id,
-          email,
           display_name,
           profile_image_url,
+          avatar_url,
           is_special
         )
       `)
       .eq('game_id', gameId)
-      .is('parent_comment_id', null)
-      .order('is_pinned', { ascending: false })
+      .eq('parent_comment_id', null)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+
+    // Process comments to ensure user data is properly formatted
+    return data.map(comment => ({
+      ...comment,
+      user: comment.user ? {
+        ...comment.user,
+        profile_image_url: comment.user.profile_image_url || comment.user.avatar_url || null
+      } : null
+    }));
   },
 
   async getReplies(commentId: string): Promise<Comment[]> {

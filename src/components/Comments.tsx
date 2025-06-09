@@ -43,12 +43,21 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
       if (session?.user?.id) {
         const likeStates: Record<string, LikeState> = {};
         for (const comment of data) {
-          const hasLiked = await commentService.hasLiked(comment.id, session.user.id);
-          likeStates[comment.id] = {
-            liked: hasLiked,
-            count: comment.likes_count,
-            loading: false
-          };
+          try {
+            const hasLiked = await commentService.hasLiked(comment.id, session.user.id);
+            likeStates[comment.id] = {
+              liked: hasLiked,
+              count: comment.likes_count,
+              loading: false
+            };
+          } catch (err) {
+            console.error(`Error checking like status for comment ${comment.id}:`, err);
+            likeStates[comment.id] = {
+              liked: false,
+              count: comment.likes_count,
+              loading: false
+            };
+          }
         }
         setLikeStates(likeStates);
       }
@@ -181,6 +190,16 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
     }
   };
 
+  const getAvatarUrl = (user: any) => {
+    if (user?.profile_image_url) {
+      return user.profile_image_url;
+    }
+    if (user?.avatar_url) {
+      return user.avatar_url;
+    }
+    return '/images/default-avatar.png';
+  };
+
   const renderComment = (comment: Comment, isReply = false) => (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -190,13 +209,17 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
     >
       <div className="flex items-start gap-4">
         <img
-          src={comment.user?.profile_image_url || '/default-avatar.png'}
-          alt={comment.user?.display_name}
-          className="w-10 h-10 rounded-full"
+          src={getAvatarUrl(comment.user)}
+          alt={comment.user?.display_name || 'کاربر'}
+          className="w-10 h-10 rounded-full object-cover"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = '/images/default-avatar.png';
+          }}
         />
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
-            <span className="font-bold">{comment.user?.display_name}</span>
+            <span className="font-bold">{comment.user?.display_name || 'کاربر ناشناس'}</span>
             {comment.user?.is_special && (
               <span className="text-green-500">✔️</span>
             )}
