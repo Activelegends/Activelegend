@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
-import { fa } from 'date-fns/locale';
 import { useAuth } from '../contexts/AuthContext';
 import { commentService } from '../services/commentService';
 import type { Comment, CommentFormData } from '../types/comments';
@@ -143,9 +142,12 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
               <span className="text-yellow-500 text-sm">📌</span>
             )}
             <span className="text-gray-400 text-sm">
-              {formatDistanceToNow(new Date(comment.created_at), {
-                addSuffix: true,
-                locale: fa,
+              {new Date(comment.created_at).toLocaleDateString('fa-IR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
               })}
             </span>
           </div>
