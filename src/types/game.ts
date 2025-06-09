@@ -10,7 +10,6 @@ export interface Game {
   is_visible: boolean;
   created_at: string;
   updated_at: string;
-  embed_url: string;
 }
 
 export interface GameFormData {

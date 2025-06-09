@@ -1,3 +1,12 @@
+export interface User {
+  id: string;
+  email: string;
+  display_name: string;
+  profile_image_url?: string;
+  is_special: boolean;
+  created_at: string;
+}
+
 export interface Comment {
   id: string;
   game_id: string;
@@ -10,20 +19,13 @@ export interface Comment {
   created_at: string;
   updated_at: string;
   user?: User;
-}
-
-export interface User {
-  id: string;
-  email: string;
-  profile_image_url: string;
-  is_special: boolean;
-  display_name?: string;
+  replies?: Comment[];
 }
 
 export interface CommentFormData {
   content: string;
   game_id: string;
-  parent_comment_id?: string | null;
+  parent_comment_id?: string;
 }
 
 export interface CommentState {
@@ -31,5 +33,10 @@ export interface CommentState {
   loading: boolean;
   error: string | null;
   submitting: boolean;
-  submittingError: string | null;
+}
+
+export interface LikeState {
+  liked: boolean;
+  count: number;
+  loading: boolean;
 } 

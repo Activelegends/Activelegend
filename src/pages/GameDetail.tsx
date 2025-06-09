@@ -6,6 +6,7 @@ import { ContentBlock } from '../components/ContentBlock';
 import { EditGameModal } from '../components/EditGameModal';
 import { FavoriteButton } from '../components/FavoriteButton';
 import { useAuth } from '../contexts/AuthContext';
+import { Comments } from '../components/Comments';
 
 interface Game {
   id: string;
@@ -145,6 +146,12 @@ export const GameDetail: React.FC = () => {
             onSave={handleUpdateGame}
           />
         )}
+
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto">
+            <Comments gameId={game.id} />
+          </div>
+        </div>
       </div>
     </div>
   );
