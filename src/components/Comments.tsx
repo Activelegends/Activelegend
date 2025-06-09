@@ -23,20 +23,19 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
   const isAdmin = user?.email === 'active.legendss@gmail.com';
 
   useEffect(() => {
-    if (session?.user?.id) {
-      loadComments();
-      const subscription = commentService.subscribeToComments(gameId, handleCommentChange);
-      return () => {
-        subscription.unsubscribe();
-      };
-    }
-  }, [gameId, session?.user?.id]);
+    loadComments();
+    const subscription = commentService.subscribeToComments(gameId, handleCommentChange);
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [gameId]);
 
   const loadComments = async () => {
     try {
       setLoading(true);
       setError(null);
       const data = await commentService.getComments(gameId);
+      console.log('Loaded comments:', data);
       setComments(data);
       
       // Load like states for each comment
@@ -47,14 +46,14 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
             const hasLiked = await commentService.hasLiked(comment.id, session.user.id);
             likeStates[comment.id] = {
               liked: hasLiked,
-              count: comment.likes_count,
+              count: comment.likes_count || 0,
               loading: false
             };
           } catch (err) {
             console.error(`Error checking like status for comment ${comment.id}:`, err);
             likeStates[comment.id] = {
               liked: false,
-              count: comment.likes_count,
+              count: comment.likes_count || 0,
               loading: false
             };
           }
@@ -70,10 +69,10 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
   };
 
   const handleCommentChange = async (payload: any) => {
+    console.log('Comment change payload:', payload);
     try {
       if (payload.eventType === 'INSERT') {
-        const newComments = await commentService.getComments(gameId);
-        setComments(newComments);
+        await loadComments();
       } else if (payload.eventType === 'UPDATE') {
         const updatedComments = comments.map(comment =>
           comment.id === payload.new.id ? { ...comment, ...payload.new } : comment

@@ -1,134 +1,80 @@
 import { supabase } from '../lib/supabase';
-import type { Comment, CommentFormData, User } from '../types/comments';
+import type { Comment, CommentFormData } from '../types/comment';
 
-interface SupabaseUser {
-  id: string;
-  display_name: string;
-  profile_image_url: string | null;
-  is_special: boolean;
-}
-
-interface SupabaseComment {
-  id: string;
-  content: string;
-  game_id: string;
-  user_id: string;
-  parent_comment_id: string | null;
-  created_at: string;
-  updated_at: string;
-  is_pinned: boolean;
-  is_approved: boolean;
-  user: SupabaseUser | null;
-}
-
-export const commentService = {
+class CommentService {
   async getComments(gameId: string): Promise<Comment[]> {
     try {
       const { data, error } = await supabase
         .from('comments')
         .select(`
-          id,
-          content,
-          game_id,
-          user_id,
-          parent_comment_id,
-          created_at,
-          updated_at,
-          is_pinned,
-          is_approved,
-          user:users (
+          *,
+          user:user_id (
             id,
-            display_name,
-            profile_image_url,
-            is_special
-          )
+            email,
+            profile_image_url
+          ),
+          likes_count:likes(count)
         `)
         .eq('game_id', gameId)
-        .is('parent_comment_id', null)
+        .is('parent_id', null)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      return (data as SupabaseComment[] || []).map(comment => ({
-        ...comment,
-        user: comment.user ? {
-          id: comment.user.id,
-          display_name: comment.user.display_name,
-          profile_image_url: comment.user.profile_image_url,
-          is_special: comment.user.is_special
-        } : null
-      }));
+      // Get replies for each comment
+      const commentsWithReplies = await Promise.all(
+        (data as Comment[]).map(async (comment) => {
+          const { data: replies } = await supabase
+            .from('comments')
+            .select(`
+              *,
+              user:user_id (
+                id,
+                email,
+                profile_image_url
+              ),
+              likes_count:likes(count)
+            `)
+            .eq('parent_id', comment.id)
+            .order('created_at', { ascending: true });
+
+          return {
+            ...comment,
+            replies: replies || []
+          };
+        })
+      );
+
+      return commentsWithReplies;
     } catch (error) {
-      console.error('Error in getComments:', error);
+      console.error('Error fetching comments:', error);
       throw error;
     }
-  },
+  }
 
-  async getReplies(parentCommentId: string): Promise<Comment[]> {
+  async addComment(commentData: CommentFormData): Promise<Comment> {
     try {
       const { data, error } = await supabase
         .from('comments')
+        .insert([commentData])
         .select(`
-          id,
-          content,
-          game_id,
-          user_id,
-          parent_comment_id,
-          created_at,
-          updated_at,
-          is_pinned,
-          is_approved,
-          user:users (
+          *,
+          user:user_id (
             id,
-            display_name,
-            profile_image_url,
-            is_special
-          )
+            email,
+            profile_image_url
+          ),
+          likes_count:likes(count)
         `)
-        .eq('parent_comment_id', parentCommentId)
-        .order('created_at', { ascending: true });
+        .single();
 
       if (error) throw error;
-
-      return (data as SupabaseComment[] || []).map(comment => ({
-        ...comment,
-        user: comment.user ? {
-          id: comment.user.id,
-          display_name: comment.user.display_name,
-          profile_image_url: comment.user.profile_image_url,
-          is_special: comment.user.is_special
-        } : null
-      }));
+      return data as Comment;
     } catch (error) {
-      console.error('Error in getReplies:', error);
+      console.error('Error adding comment:', error);
       throw error;
     }
-  },
-
-  async addComment(commentData: CommentFormData): Promise<void> {
-    try {
-      const { error } = await supabase
-        .from('comments')
-        .insert([commentData]);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error in addComment:', error);
-      throw error;
-    }
-  },
-
-  async updateComment(commentId: string, updates: Partial<Comment>): Promise<Comment> {
-    const { data, error } = await supabase
-      .from('comments')
-      .update(updates)
-      .eq('id', commentId)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  },
+  }
 
   async deleteComment(commentId: string): Promise<void> {
     try {
@@ -139,114 +85,52 @@ export const commentService = {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error in deleteComment:', error);
+      console.error('Error deleting comment:', error);
       throw error;
     }
-  },
-
-  async toggleLike(commentId: string, userId: string): Promise<void> {
-    try {
-      // First check if the user has already liked the comment
-      const { data: existingLike, error: fetchError } = await supabase
-        .from('comment_likes')
-        .select('id')
-        .eq('comment_id', commentId)
-        .eq('user_id', userId)
-        .single();
-
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        throw fetchError;
-      }
-
-      if (existingLike) {
-        // If the user has already liked the comment, remove the like
-        const { error: deleteError } = await supabase
-          .from('comment_likes')
-          .delete()
-          .eq('id', existingLike.id);
-        
-        if (deleteError) {
-          throw deleteError;
-        }
-      } else {
-        // If the user hasn't liked the comment yet, add a like
-        const { error: insertError } = await supabase
-          .from('comment_likes')
-          .insert([{ comment_id: commentId, user_id: userId }]);
-        
-        if (insertError) {
-          throw insertError;
-        }
-      }
-    } catch (error) {
-      console.error('Error in toggleLike:', error);
-      throw error;
-    }
-  },
+  }
 
   async hasLiked(commentId: string, userId: string): Promise<boolean> {
     try {
       const { data, error } = await supabase
-        .from('comment_likes')
+        .from('likes')
         .select('id')
         .eq('comment_id', commentId)
         .eq('user_id', userId)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
-      }
-
+      if (error && error.code !== 'PGRST116') throw error;
       return !!data;
     } catch (error) {
-      console.error('Error in hasLiked:', error);
+      console.error('Error checking like status:', error);
       return false;
     }
-  },
+  }
 
-  async togglePin(commentId: string): Promise<void> {
+  async toggleLike(commentId: string, userId: string): Promise<void> {
     try {
-      const { data: comment, error: fetchError } = await supabase
-        .from('comments')
-        .select('is_pinned')
-        .eq('id', commentId)
-        .single();
+      const hasLiked = await this.hasLiked(commentId, userId);
 
-      if (fetchError) throw fetchError;
+      if (hasLiked) {
+        const { error } = await supabase
+          .from('likes')
+          .delete()
+          .eq('comment_id', commentId)
+          .eq('user_id', userId);
 
-      const { error } = await supabase
-        .from('comments')
-        .update({ is_pinned: !comment.is_pinned })
-        .eq('id', commentId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('likes')
+          .insert([{ comment_id: commentId, user_id: userId }]);
 
-      if (error) throw error;
+        if (error) throw error;
+      }
     } catch (error) {
-      console.error('Error in togglePin:', error);
+      console.error('Error toggling like:', error);
       throw error;
     }
-  },
-
-  async toggleApproval(commentId: string): Promise<void> {
-    try {
-      const { data: comment, error: fetchError } = await supabase
-        .from('comments')
-        .select('is_approved')
-        .eq('id', commentId)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      const { error } = await supabase
-        .from('comments')
-        .update({ is_approved: !comment.is_approved })
-        .eq('id', commentId);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error in toggleApproval:', error);
-      throw error;
-    }
-  },
+  }
 
   subscribeToComments(gameId: string, callback: (payload: any) => void) {
     return supabase
@@ -257,26 +141,12 @@ export const commentService = {
           event: '*',
           schema: 'public',
           table: 'comments',
-          filter: `game_id=eq.${gameId}`,
+          filter: `game_id=eq.${gameId}`
         },
         callback
       )
       .subscribe();
-  },
+  }
+}
 
-  subscribeToLikes(commentId: string, callback: (payload: any) => void) {
-    return supabase
-      .channel('likes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'comment_likes',
-          filter: `comment_id=eq.${commentId}`,
-        },
-        callback
-      )
-      .subscribe();
-  },
-}; 
+export const commentService = new CommentService(); 
