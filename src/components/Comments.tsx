@@ -17,6 +17,7 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
   const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [showReplies, setShowReplies] = useState<Record<string, boolean>>({});
+  const [submitting, setSubmitting] = useState(false);
 
   const isAdmin = user?.email === 'active.legendss@gmail.com';
 
@@ -31,36 +32,42 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
   const loadComments = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await commentService.getComments(gameId);
       setComments(data);
-      setError(null);
     } catch (err) {
-      setError('خطا در بارگذاری نظرات');
-      console.error(err);
+      console.error('Error loading comments:', err);
+      setError('خطا در بارگذاری نظرات. لطفاً صفحه را رفرش کنید.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleCommentChange = async (payload: any) => {
-    if (payload.eventType === 'INSERT') {
-      const newComment = await commentService.getComments(gameId);
-      setComments(newComment);
-    } else if (payload.eventType === 'UPDATE') {
-      const updatedComments = comments.map(comment =>
-        comment.id === payload.new.id ? { ...comment, ...payload.new } : comment
-      );
-      setComments(updatedComments);
-    } else if (payload.eventType === 'DELETE') {
-      setComments(comments.filter(comment => comment.id !== payload.old.id));
+    try {
+      if (payload.eventType === 'INSERT') {
+        const newComments = await commentService.getComments(gameId);
+        setComments(newComments);
+      } else if (payload.eventType === 'UPDATE') {
+        const updatedComments = comments.map(comment =>
+          comment.id === payload.new.id ? { ...comment, ...payload.new } : comment
+        );
+        setComments(updatedComments);
+      } else if (payload.eventType === 'DELETE') {
+        setComments(comments.filter(comment => comment.id !== payload.old.id));
+      }
+    } catch (err) {
+      console.error('Error handling comment change:', err);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !newComment.trim() || newComment.length < 5) return;
+    if (!user || !newComment.trim() || newComment.length < 5 || submitting) return;
 
     try {
+      setSubmitting(true);
+      setError(null);
       const commentData: CommentFormData = {
         content: newComment.trim(),
         game_id: gameId,
@@ -72,8 +79,10 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
       setReplyingTo(null);
       await loadComments();
     } catch (err) {
-      setError('خطا در ارسال نظر');
-      console.error(err);
+      console.error('Error submitting comment:', err);
+      setError('خطا در ارسال نظر. لطفاً دوباره تلاش کنید.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -82,7 +91,7 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
     try {
       await commentService.toggleLike(commentId, user.id);
     } catch (err) {
-      console.error(err);
+      console.error('Error toggling like:', err);
     }
   };
 
@@ -115,7 +124,8 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
       }
       await loadComments();
     } catch (err) {
-      console.error(err);
+      console.error('Error performing admin action:', err);
+      setError('خطا در انجام عملیات. لطفاً دوباره تلاش کنید.');
     }
   };
 
@@ -197,16 +207,23 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
   );
 
   if (loading) {
-    return <div className="text-center py-8">در حال بارگذاری...</div>;
-  }
-
-  if (error) {
-    return <div className="text-red-500 text-center py-8">{error}</div>;
+    return (
+      <div className="text-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto"></div>
+        <p className="mt-2 text-gray-400">در حال بارگذاری نظرات...</p>
+      </div>
+    );
   }
 
   return (
     <div className="mt-8">
       <h3 className="text-2xl font-bold mb-6">نظرات</h3>
+      
+      {error && (
+        <div className="bg-red-500/10 border border-red-500 text-red-500 rounded-lg p-4 mb-6">
+          {error}
+        </div>
+      )}
       
       {user ? (
         <form onSubmit={handleSubmit} className="mb-8">
@@ -214,41 +231,60 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder={replyingTo ? 'پاسخ خود را بنویسید...' : 'نظر خود را بنویسید...'}
-            className="w-full bg-gray-800 text-white rounded-lg p-4 mb-2 resize-none"
+            className="w-full bg-gray-800 text-white rounded-lg p-4 mb-2 resize-none focus:ring-2 focus:ring-blue-500 focus:outline-none"
             rows={3}
             minLength={5}
             maxLength={500}
+            disabled={submitting}
           />
           <div className="flex justify-between items-center">
             <span className="text-gray-400 text-sm">
               {newComment.length}/500 کاراکتر
             </span>
-            <button
-              type="submit"
-              disabled={!newComment.trim() || newComment.length < 5}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-            >
-              ارسال نظر
-            </button>
+            <div className="flex gap-2">
+              {replyingTo && (
+                <button
+                  type="button"
+                  onClick={() => setReplyingTo(null)}
+                  className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                  disabled={submitting}
+                >
+                  انصراف
+                </button>
+              )}
+              <button
+                type="submit"
+                disabled={!newComment.trim() || newComment.length < 5 || submitting}
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {submitting ? 'در حال ارسال...' : 'ارسال نظر'}
+              </button>
+            </div>
           </div>
         </form>
       ) : (
-        <div className="text-center py-4 text-gray-400">
+        <div className="text-center py-4 text-gray-400 bg-gray-800/50 rounded-lg mb-8">
           برای ارسال نظر لطفاً وارد شوید.
         </div>
       )}
 
       <AnimatePresence>
-        {comments.map((comment) => (
-          <div key={comment.id}>
-            {renderComment(comment)}
-            {comment.replies && comment.replies.length > 0 && (
-              <div className="mr-8">
-                {comment.replies.map((reply) => renderComment(reply, true))}
-              </div>
-            )}
+        {comments.length === 0 ? (
+          <div className="text-center py-8 text-gray-400">
+            هنوز نظری ثبت نشده است. اولین نظر را شما ثبت کنید!
           </div>
-        ))}
+        ) : (
+          comments.map((comment) => (
+            <div key={comment.id}>
+              {renderComment(comment)}
+              {comment.replies && comment.replies.length > 0 && (
+                <div className="mr-8">
+                  {comment.replies.map((reply) => renderComment(reply, true))}
+                </div>
+              )}
+            </div>
+          ))
+        )}
       </AnimatePresence>
     </div>
   );
