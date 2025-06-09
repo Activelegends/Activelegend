@@ -7,8 +7,15 @@ export const commentService = {
       const { data, error } = await supabase
         .from('comments')
         .select(`
-          *,
-          user:users(
+          id,
+          game_id,
+          user_id,
+          content,
+          likes_count,
+          created_at,
+          is_approved,
+          is_hidden,
+          user:users (
             id,
             display_name,
             avatar_url
@@ -23,7 +30,7 @@ export const commentService = {
         throw error;
       }
 
-      console.log('Fetched comments:', data); // برای دیباگ
+      console.log('Fetched comments:', data);
       return data || [];
     } catch (error) {
       console.error('Error in getComments:', error);
@@ -37,20 +44,29 @@ export const commentService = {
       if (!user) throw new Error('User not authenticated');
 
       const newComment = {
-        ...comment,
+        game_id: comment.game_id,
         user_id: user.id,
+        content: comment.content,
         is_approved: true,
-        is_hidden: false
+        is_hidden: false,
+        likes_count: 0
       };
 
-      console.log('Submitting comment:', newComment); // برای دیباگ
+      console.log('Submitting comment:', newComment);
 
       const { data, error } = await supabase
         .from('comments')
-        .insert([newComment])
+        .insert(newComment)
         .select(`
-          *,
-          user:users(
+          id,
+          game_id,
+          user_id,
+          content,
+          likes_count,
+          created_at,
+          is_approved,
+          is_hidden,
+          user:users (
             id,
             display_name,
             avatar_url
@@ -63,7 +79,7 @@ export const commentService = {
         throw error;
       }
 
-      console.log('Comment added successfully:', data); // برای دیباگ
+      console.log('Comment added successfully:', data);
       return data;
     } catch (error) {
       console.error('Error in addComment:', error);

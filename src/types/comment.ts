@@ -5,12 +5,13 @@ export interface Comment {
   content: string;
   likes_count: number;
   created_at: string;
-  user?: {
+  is_approved: boolean;
+  is_hidden: boolean;
+  user: {
+    id: string;
     display_name: string;
     avatar_url?: string;
   };
-  is_approved?: boolean;
-  is_hidden?: boolean;
 }
 
 export interface CommentFormData {
