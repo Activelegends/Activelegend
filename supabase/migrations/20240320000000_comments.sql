@@ -121,18 +121,80 @@ CREATE INDEX IF NOT EXISTS idx_comments_parent_comment_id ON public.comments(par
 CREATE INDEX IF NOT EXISTS idx_comment_likes_comment_id ON public.comment_likes(comment_id);
 CREATE INDEX IF NOT EXISTS idx_comment_likes_user_id ON public.comment_likes(user_id);
 
+-- Create function to ensure user exists
+CREATE OR REPLACE FUNCTION public.ensure_user_exists()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM public.users WHERE id = NEW.user_id) THEN
+    INSERT INTO public.users (id, email, display_name)
+    SELECT id, email, raw_user_meta_data->>'full_name'
+    FROM auth.users
+    WHERE id = NEW.user_id;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Create trigger for ensuring user exists before comment insertion
+CREATE TRIGGER ensure_user_exists_before_comment
+  BEFORE INSERT ON public.comments
+  FOR EACH ROW
+  EXECUTE FUNCTION public.ensure_user_exists();
+
+-- Create trigger for ensuring user exists before like insertion
+CREATE TRIGGER ensure_user_exists_before_like
+  BEFORE INSERT ON public.comment_likes
+  FOR EACH ROW
+  EXECUTE FUNCTION public.ensure_user_exists();
+
 -- Create function to handle new user creation
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO public.users (id, email, display_name)
-  VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data->>'full_name');
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(
+      NEW.raw_user_meta_data->>'full_name',
+      SPLIT_PART(NEW.email, '@', 1)
+    )
+  )
+  ON CONFLICT (id) DO UPDATE
+  SET
+    email = EXCLUDED.email,
+    display_name = COALESCE(EXCLUDED.display_name, users.display_name),
+    updated_at = NOW();
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Create trigger for new user creation
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW
-  EXECUTE FUNCTION public.handle_new_user(); 
+  EXECUTE FUNCTION public.handle_new_user();
+
+-- Create trigger for user update
+CREATE OR REPLACE FUNCTION public.handle_user_update()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE public.users
+  SET
+    email = NEW.email,
+    display_name = COALESCE(
+      NEW.raw_user_meta_data->>'full_name',
+      users.display_name,
+      SPLIT_PART(NEW.email, '@', 1)
+    ),
+    updated_at = NOW()
+  WHERE id = NEW.id;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_auth_user_updated
+  AFTER UPDATE ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_user_update(); 
