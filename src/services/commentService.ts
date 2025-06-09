@@ -1,12 +1,20 @@
 import { supabase } from '../lib/supabase';
-import type { Comment, CommentFormData } from '../types/comment';
+import type { Comment, CommentFormData, DatabaseComment, Like } from '../types/comment';
 
 class CommentService {
   async getComments(gameId: string): Promise<Comment[]> {
     const { data: comments, error } = await supabase
       .from('comments')
       .select(`
-        *,
+        id,
+        content,
+        user_id,
+        game_id,
+        parent_id,
+        created_at,
+        updated_at,
+        is_pinned,
+        likes_count,
         user:users (
           id,
           display_name,
@@ -31,15 +39,30 @@ class CommentService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return comments || [];
+    return (comments || []) as unknown as Comment[];
   }
 
   async addComment(commentData: CommentFormData): Promise<Comment> {
     const { data: comment, error } = await supabase
       .from('comments')
-      .insert([commentData])
+      .insert({
+        content: commentData.content,
+        game_id: commentData.game_id,
+        parent_id: commentData.parent_id || null,
+        user_id: commentData.user_id,
+        is_pinned: false,
+        likes_count: 0
+      })
       .select(`
-        *,
+        id,
+        content,
+        user_id,
+        game_id,
+        parent_id,
+        created_at,
+        updated_at,
+        is_pinned,
+        likes_count,
         user:users (
           id,
           display_name,
@@ -49,7 +72,7 @@ class CommentService {
       .single();
 
     if (error) throw error;
-    return comment;
+    return comment as unknown as Comment;
   }
 
   async deleteComment(commentId: string): Promise<void> {
@@ -64,7 +87,7 @@ class CommentService {
   async toggleLike(commentId: string, userId: string): Promise<void> {
     const { data: existingLike } = await supabase
       .from('likes')
-      .select('*')
+      .select('id')
       .eq('comment_id', commentId)
       .eq('user_id', userId)
       .single();
@@ -73,7 +96,7 @@ class CommentService {
       const { error } = await supabase
         .from('likes')
         .delete()
-        .eq('id', existingLike.id);
+        .eq('id', (existingLike as Like).id);
 
       if (error) throw error;
     } else {
