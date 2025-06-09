@@ -194,7 +194,7 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
     if (user?.profile_image_url) {
       return user.profile_image_url;
     }
-    return '/images/default-avatar.png';
+    return '/AE-logo.png';
   };
 
   const renderComment = (comment: Comment, isReply = false) => (
@@ -205,15 +205,18 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
       className={`bg-gray-800 rounded-lg p-4 mb-4 ${isReply ? 'mr-8' : ''}`}
     >
       <div className="flex items-start gap-4">
-        <img
-          src={getAvatarUrl(comment.user)}
-          alt={comment.user?.display_name || 'کاربر'}
-          className="w-10 h-10 rounded-full object-cover"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.src = '/images/default-avatar.png';
-          }}
-        />
+        <div className="relative w-10 h-10">
+          <img
+            src={getAvatarUrl(comment.user)}
+            alt={comment.user?.display_name || 'کاربر'}
+            className="w-10 h-10 rounded-full object-cover bg-gray-700"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = '/AE-logo.png';
+              target.onerror = null;
+            }}
+          />
+        </div>
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             <span className="font-bold">{comment.user?.display_name || 'کاربر ناشناس'}</span>

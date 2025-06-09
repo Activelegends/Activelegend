@@ -3,69 +3,79 @@ import type { Comment, CommentFormData } from '../types/comments';
 
 export const commentService = {
   async getComments(gameId: string): Promise<Comment[]> {
-    const { data, error } = await supabase
-      .from('comments')
-      .select(`
-        *,
-        user:users (
-          id,
-          display_name,
-          profile_image_url,
-          is_special
-        )
-      `)
-      .eq('game_id', gameId)
-      .is('parent_comment_id', null)
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('comments')
+        .select(`
+          *,
+          user:users (
+            id,
+            display_name,
+            profile_image_url,
+            is_special
+          )
+        `)
+        .eq('game_id', gameId)
+        .is('parent_comment_id', null)
+        .order('created_at', { ascending: false });
 
-    if (error) throw error;
+      if (error) throw error;
 
-    // Process comments to ensure user data is properly formatted
-    return data.map(comment => ({
-      ...comment,
-      user: comment.user ? {
-        ...comment.user,
-        profile_image_url: comment.user.profile_image_url || null
-      } : null
-    }));
+      return (data || []).map(comment => ({
+        ...comment,
+        user: comment.user ? {
+          ...comment.user,
+          profile_image_url: comment.user.profile_image_url || null
+        } : null
+      }));
+    } catch (error) {
+      console.error('Error in getComments:', error);
+      throw error;
+    }
   },
 
   async getReplies(parentCommentId: string): Promise<Comment[]> {
-    const { data, error } = await supabase
-      .from('comments')
-      .select(`
-        *,
-        user:users (
-          id,
-          display_name,
-          profile_image_url,
-          is_special
-        )
-      `)
-      .eq('parent_comment_id', parentCommentId)
-      .order('created_at', { ascending: true });
+    try {
+      const { data, error } = await supabase
+        .from('comments')
+        .select(`
+          *,
+          user:users (
+            id,
+            display_name,
+            profile_image_url,
+            is_special
+          )
+        `)
+        .eq('parent_comment_id', parentCommentId)
+        .order('created_at', { ascending: true });
 
-    if (error) throw error;
+      if (error) throw error;
 
-    // Process comments to ensure user data is properly formatted
-    return data.map(comment => ({
-      ...comment,
-      user: comment.user ? {
-        ...comment.user,
-        profile_image_url: comment.user.profile_image_url || null
-      } : null
-    }));
+      return (data || []).map(comment => ({
+        ...comment,
+        user: comment.user ? {
+          ...comment.user,
+          profile_image_url: comment.user.profile_image_url || null
+        } : null
+      }));
+    } catch (error) {
+      console.error('Error in getReplies:', error);
+      throw error;
+    }
   },
 
-  async addComment(comment: CommentFormData): Promise<Comment> {
-    const { data, error } = await supabase
-      .from('comments')
-      .insert([comment])
-      .select()
-      .single();
+  async addComment(commentData: CommentFormData): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('comments')
+        .insert([commentData]);
 
-    if (error) throw error;
-    return data;
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error in addComment:', error);
+      throw error;
+    }
   },
 
   async updateComment(commentId: string, updates: Partial<Comment>): Promise<Comment> {
@@ -81,12 +91,17 @@ export const commentService = {
   },
 
   async deleteComment(commentId: string): Promise<void> {
-    const { error } = await supabase
-      .from('comments')
-      .delete()
-      .eq('id', commentId);
+    try {
+      const { error } = await supabase
+        .from('comments')
+        .delete()
+        .eq('id', commentId);
 
-    if (error) throw error;
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error in deleteComment:', error);
+      throw error;
+    }
   },
 
   async toggleLike(commentId: string, userId: string): Promise<void> {
@@ -150,37 +165,47 @@ export const commentService = {
   },
 
   async togglePin(commentId: string): Promise<void> {
-    const { data: comment, error: fetchError } = await supabase
-      .from('comments')
-      .select('is_pinned')
-      .eq('id', commentId)
-      .single();
+    try {
+      const { data: comment, error: fetchError } = await supabase
+        .from('comments')
+        .select('is_pinned')
+        .eq('id', commentId)
+        .single();
 
-    if (fetchError) throw fetchError;
+      if (fetchError) throw fetchError;
 
-    const { error } = await supabase
-      .from('comments')
-      .update({ is_pinned: !comment.is_pinned })
-      .eq('id', commentId);
+      const { error } = await supabase
+        .from('comments')
+        .update({ is_pinned: !comment.is_pinned })
+        .eq('id', commentId);
 
-    if (error) throw error;
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error in togglePin:', error);
+      throw error;
+    }
   },
 
   async toggleApproval(commentId: string): Promise<void> {
-    const { data: comment, error: fetchError } = await supabase
-      .from('comments')
-      .select('is_approved')
-      .eq('id', commentId)
-      .single();
+    try {
+      const { data: comment, error: fetchError } = await supabase
+        .from('comments')
+        .select('is_approved')
+        .eq('id', commentId)
+        .single();
 
-    if (fetchError) throw fetchError;
+      if (fetchError) throw fetchError;
 
-    const { error } = await supabase
-      .from('comments')
-      .update({ is_approved: !comment.is_approved })
-      .eq('id', commentId);
+      const { error } = await supabase
+        .from('comments')
+        .update({ is_approved: !comment.is_approved })
+        .eq('id', commentId);
 
-    if (error) throw error;
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error in toggleApproval:', error);
+      throw error;
+    }
   },
 
   subscribeToComments(gameId: string, callback: (payload: any) => void) {

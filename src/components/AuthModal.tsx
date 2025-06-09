@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dialog } from '@headlessui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
@@ -7,58 +7,21 @@ import { FcGoogle } from 'react-icons/fc';
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialMode?: 'login' | 'signup';
 }
 
-export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalProps) {
-  const [isLogin, setIsLogin] = useState(initialMode === 'login');
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
+  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const { signIn, signUp, signInWithGoogle } = useAuth();
-
-  useEffect(() => {
-    setIsLogin(initialMode === 'login');
-  }, [initialMode]);
-
-  const handleError = (err: unknown) => {
-    if (err instanceof Error) {
-      if (err.message.includes('over_email_send_rate_limit')) {
-        setError('تعداد درخواست‌ها زیاد است. لطفاً کمی صبر کنید و دوباره تلاش کنید.');
-      } else if (err.message.includes('invalid_credentials')) {
-        setError('ایمیل یا رمز عبور اشتباه است.');
-      } else if (err.message.includes('Email not confirmed')) {
-        setError('لطفاً ایمیل خود را تایید کنید.');
-      } else {
-        setError('خطایی رخ داد. لطفاً دوباره تلاش کنید.');
-      }
-    } else {
-      setError('خطایی رخ داد');
-    }
-  };
-
-  const validateForm = () => {
-    if (!email || !password) {
-      setError('لطفاً تمام فیلدها را پر کنید.');
-      return false;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('لطفاً یک ایمیل معتبر وارد کنید.');
-      return false;
-    }
-    if (password.length < 6) {
-      setError('رمز عبور باید حداقل ۶ کاراکتر باشد.');
-      return false;
-    }
-    return true;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    
-    if (!validateForm()) return;
-    
+    setError(null);
+    setLoading(true);
+
     try {
       if (isLogin) {
         await signIn(email, password);
@@ -66,118 +29,112 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }: Au
         await signUp(email, password);
       }
       onClose();
-    } catch (err) {
-      handleError(err);
+    } catch (err: any) {
+      setError(err.message || 'خطایی رخ داد. لطفا دوباره تلاش کنید.');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
+    setError(null);
+    setLoading(true);
+
     try {
       await signInWithGoogle();
       onClose();
-    } catch (err) {
-      handleError(err);
+    } catch (err: any) {
+      setError(err.message || 'خطایی در ورود با گوگل رخ داد. لطفا دوباره تلاش کنید.');
+    } finally {
+      setLoading(false);
     }
   };
 
+  if (!isOpen) return null;
+
   return (
     <AnimatePresence>
-      {isOpen && (
-        <Dialog
-          as={motion.div}
-          static
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          open={isOpen}
-          onClose={onClose}
-          className="relative z-50"
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          className="bg-gray-800 p-8 rounded-lg w-full max-w-md"
+          onClick={e => e.stopPropagation()}
         >
-          <div className="fixed inset-0 bg-black/70" aria-hidden="true" />
-          
-          <div className="fixed inset-0 flex items-center justify-center p-4">
-            <Dialog.Panel
-              as={motion.div}
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="w-full max-w-md overflow-hidden rounded-2xl bg-black p-6 text-right shadow-xl border border-white/10"
+          <h2 className="text-2xl font-bold mb-6 text-center">
+            {isLogin ? 'ورود به حساب کاربری' : 'ثبت نام'}
+          </h2>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium mb-1">
+                ایمیل
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-2 rounded bg-gray-700 border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium mb-1">
+                رمز عبور
+              </label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-2 rounded bg-gray-700 border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            {error && (
+              <div className="text-red-500 text-sm">{error}</div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
             >
-              <Dialog.Title className="text-2xl font-bold text-white mb-4">
-                {isLogin ? 'ورود به حساب کاربری' : 'ثبت‌نام'}
-              </Dialog.Title>
+              {loading ? 'در حال پردازش...' : isLogin ? 'ورود' : 'ثبت نام'}
+            </button>
+          </form>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300">
-                    ایمیل
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-white focus:border-primary focus:ring-primary"
-                    dir="ltr"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300">
-                    رمز عبور
-                  </label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="mt-1 block w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-white focus:border-primary focus:ring-primary"
-                    dir="ltr"
-                    required
-                    minLength={6}
-                  />
-                </div>
-
-                {error && (
-                  <p className="text-red-500 text-sm">{error}</p>
-                )}
-
-                <button
-                  type="submit"
-                  className="w-full btn-primary"
-                >
-                  {isLogin ? 'ورود' : 'ثبت‌نام'}
-                </button>
-
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-white/10"></div>
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 text-gray-500 bg-black">یا</span>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleGoogleSignIn}
-                  className="w-full btn-secondary flex items-center justify-center gap-2"
-                >
-                  <FcGoogle className="w-5 h-5" />
-                  <span>ورود با گوگل</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsLogin(!isLogin)}
-                  className="w-full text-sm text-gray-400 hover:text-white"
-                >
-                  {isLogin ? 'حساب کاربری ندارید؟ ثبت‌نام کنید' : 'قبلاً ثبت‌نام کرده‌اید؟ وارد شوید'}
-                </button>
-              </form>
-            </Dialog.Panel>
+          <div className="mt-4">
+            <button
+              onClick={handleGoogleSignIn}
+              disabled={loading}
+              className="w-full bg-white text-gray-800 py-2 rounded hover:bg-gray-100 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              <img src="/google-icon.png" alt="Google" className="w-5 h-5" />
+              ورود با گوگل
+            </button>
           </div>
-        </Dialog>
-      )}
+
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => setIsLogin(!isLogin)}
+              className="text-blue-400 hover:text-blue-300"
+            >
+              {isLogin ? 'حساب کاربری ندارید؟ ثبت نام کنید' : 'قبلاً ثبت نام کرده‌اید؟ وارد شوید'}
+            </button>
+          </div>
+        </motion.div>
+      </motion.div>
     </AnimatePresence>
   );
-}
+};

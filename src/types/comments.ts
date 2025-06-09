@@ -1,25 +1,21 @@
 export interface User {
   id: string;
-  email: string;
   display_name: string;
-  profile_image_url?: string;
+  profile_image_url: string | null;
   is_special: boolean;
-  created_at: string;
 }
 
 export interface Comment {
   id: string;
+  content: string;
   game_id: string;
   user_id: string;
   parent_comment_id: string | null;
-  content: string;
-  likes_count: number;
-  is_pinned: boolean;
-  is_approved: boolean;
   created_at: string;
   updated_at: string;
-  user?: User;
-  replies?: Comment[];
+  is_pinned: boolean;
+  is_approved: boolean;
+  user: User | null;
 }
 
 export interface CommentFormData {
@@ -27,6 +23,8 @@ export interface CommentFormData {
   game_id: string;
   user_id: string;
   parent_comment_id?: string;
+  is_pinned?: boolean;
+  is_approved?: boolean;
 }
 
 export interface CommentState {
@@ -40,4 +38,11 @@ export interface LikeState {
   liked: boolean;
   count: number;
   loading: boolean;
+}
+
+export interface CommentLike {
+  id: string;
+  comment_id: string;
+  user_id: string;
+  created_at: string;
 } 
