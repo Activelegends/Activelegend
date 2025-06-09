@@ -6,7 +6,7 @@ import { ContentBlock } from '../components/ContentBlock';
 import { EditGameModal } from '../components/EditGameModal';
 import { FavoriteButton } from '../components/FavoriteButton';
 import { useAuth } from '../contexts/AuthContext';
-import { Comments } from '../components/Comments';
+import Comments from '../components/Comments';
 
 interface Game {
   id: string;
