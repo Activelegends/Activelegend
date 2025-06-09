@@ -12,6 +12,7 @@ import { useEffect } from 'react';
 import { MyGames } from './pages/MyGames';
 import TermsAndConditionsPage from './pages/TermsAndConditions';
 import TermsManagement from './pages/admin/TermsManagement';
+import './styles/admin.css';
 
 function App() {
   useEffect(() => {
