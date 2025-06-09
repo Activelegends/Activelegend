@@ -208,6 +208,7 @@ CREATE POLICY "Admins can manage all comments"
     auth.jwt() ->> 'email' = 'active.legendss@gmail.com'
   );
 
+-- Updated comment_likes policies
 CREATE POLICY "Comment likes are viewable by everyone"
   ON public.comment_likes FOR SELECT
   USING (true);
@@ -218,4 +219,14 @@ CREATE POLICY "Users can insert their own likes"
 
 CREATE POLICY "Users can delete their own likes"
   ON public.comment_likes FOR DELETE
-  USING (auth.uid() = user_id); 
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can view their own likes"
+  ON public.comment_likes FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Admins can manage all likes"
+  ON public.comment_likes FOR ALL
+  USING (
+    auth.jwt() ->> 'email' = 'active.legendss@gmail.com'
+  ); 
