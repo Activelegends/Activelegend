@@ -4,12 +4,6 @@
   background-color: #f9fafb;
 }
 
-.page-container {
-  min-height: calc(100vh - 4rem);
-  padding-top: 6rem;
-  background-color: #f9fafb;
-}
-
 .admin-page-container h1 {
   color: #1f2937;
 }

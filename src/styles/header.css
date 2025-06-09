@@ -1,0 +1,118 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 4rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #1f2937;
+  font-weight: bold;
+  font-size: 1.25rem;
+}
+
+.logo img {
+  height: 2rem;
+  margin-left: 0.5rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #4b5563;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-link:hover {
+  color: #F4B744;
+}
+
+.nav-link.active {
+  color: #F4B744;
+}
+
+.user-menu {
+  position: relative;
+}
+
+.user-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.user-menu-button:hover {
+  color: #F4B744;
+}
+
+.user-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  min-width: 12rem;
+  z-index: 50;
+}
+
+.user-menu-item {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  text-align: right;
+  color: #4b5563;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.user-menu-item:hover {
+  background-color: #f3f4f6;
+  color: #F4B744;
+}
+
+.user-menu-item.logout {
+  color: #ef4444;
+}
+
+.user-menu-item.logout:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+/* Add padding to main content to prevent header overlap */
+main {
+  padding-top: 4rem;
+} 

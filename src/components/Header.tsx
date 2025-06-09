@@ -4,7 +4,7 @@ import { UserAvatar } from './UserAvatar';
 
 export const Header: React.FC = () => {
   return (
-    <header className="header">
+    <header className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
       <div className="container">
         <nav className="nav">
           <Link to="/" className="logo-link">
