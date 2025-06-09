@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import type { Comment, CommentFormData } from '../types/comment';
+import type { Comment, CommentFormData, SupabaseComment } from '../types/comment';
 
 export const commentService = {
   async getComments(gameId: string): Promise<Comment[]> {
@@ -15,7 +15,7 @@ export const commentService = {
           created_at,
           is_approved,
           is_hidden,
-          user:users (
+          user:users!inner (
             id,
             display_name,
             avatar_url
@@ -30,8 +30,10 @@ export const commentService = {
         throw error;
       }
 
-      console.log('Fetched comments:', data);
-      return data || [];
+      return (data || []).map(comment => ({
+        ...comment,
+        user: comment.user?.[0] || null
+      })) as Comment[];
     } catch (error) {
       console.error('Error in getComments:', error);
       throw error;
@@ -52,8 +54,6 @@ export const commentService = {
         likes_count: 0
       };
 
-      console.log('Submitting comment:', newComment);
-
       const { data, error } = await supabase
         .from('comments')
         .insert(newComment)
@@ -66,7 +66,7 @@ export const commentService = {
           created_at,
           is_approved,
           is_hidden,
-          user:users (
+          user:users!inner (
             id,
             display_name,
             avatar_url
@@ -79,8 +79,10 @@ export const commentService = {
         throw error;
       }
 
-      console.log('Comment added successfully:', data);
-      return data;
+      return {
+        ...data,
+        user: data.user?.[0] || null
+      } as Comment;
     } catch (error) {
       console.error('Error in addComment:', error);
       throw error;

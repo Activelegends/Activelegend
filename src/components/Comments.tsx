@@ -29,31 +29,41 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
 
   const loadComments = async () => {
     try {
+      setState(prev => ({ ...prev, loading: true, error: null }));
       const comments = await commentService.getComments(gameId);
       setState(prev => ({ ...prev, comments, loading: false }));
     } catch (error) {
-      setState(prev => ({ ...prev, error: 'خطا در بارگذاری نظرات', loading: false }));
+      console.error('Error loading comments:', error);
+      setState(prev => ({
+        ...prev,
+        error: 'خطا در بارگذاری نظرات. لطفاً صفحه را رفرش کنید.',
+        loading: false
+      }));
     }
   };
 
   const handleRealtimeUpdate = (payload: any) => {
-    if (payload.eventType === 'INSERT') {
-      setState(prev => ({
-        ...prev,
-        comments: [payload.new, ...prev.comments]
-      }));
-    } else if (payload.eventType === 'UPDATE') {
-      setState(prev => ({
-        ...prev,
-        comments: prev.comments.map(comment =>
-          comment.id === payload.new.id ? payload.new : comment
-        )
-      }));
-    } else if (payload.eventType === 'DELETE') {
-      setState(prev => ({
-        ...prev,
-        comments: prev.comments.filter(comment => comment.id !== payload.old.id)
-      }));
+    try {
+      if (payload.eventType === 'INSERT') {
+        setState(prev => ({
+          ...prev,
+          comments: [payload.new, ...prev.comments]
+        }));
+      } else if (payload.eventType === 'UPDATE') {
+        setState(prev => ({
+          ...prev,
+          comments: prev.comments.map(comment =>
+            comment.id === payload.new.id ? payload.new : comment
+          )
+        }));
+      } else if (payload.eventType === 'DELETE') {
+        setState(prev => ({
+          ...prev,
+          comments: prev.comments.filter(comment => comment.id !== payload.old.id)
+        }));
+      }
+    } catch (error) {
+      console.error('Error handling realtime update:', error);
     }
   };
 
@@ -61,15 +71,19 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
     e.preventDefault();
     if (!user || newComment.length < 5 || newComment.length > 500) return;
 
-    setState(prev => ({ ...prev, submitting: true }));
     try {
+      setState(prev => ({ ...prev, submitting: true, error: null }));
       await commentService.addComment({
         content: newComment,
         game_id: gameId
       });
       setNewComment('');
     } catch (error) {
-      setState(prev => ({ ...prev, error: 'خطا در ارسال نظر' }));
+      console.error('Error submitting comment:', error);
+      setState(prev => ({
+        ...prev,
+        error: 'خطا در ارسال نظر. لطفاً دوباره تلاش کنید.'
+      }));
     } finally {
       setState(prev => ({ ...prev, submitting: false }));
     }
@@ -80,7 +94,11 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
     try {
       await commentService.toggleLike(commentId);
     } catch (error) {
-      setState(prev => ({ ...prev, error: 'خطا در ثبت لایک' }));
+      console.error('Error toggling like:', error);
+      setState(prev => ({
+        ...prev,
+        error: 'خطا در ثبت لایک. لطفاً دوباره تلاش کنید.'
+      }));
     }
   };
 
@@ -89,7 +107,11 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
     try {
       await commentService.deleteComment(commentId);
     } catch (error) {
-      setState(prev => ({ ...prev, error: 'خطا در حذف نظر' }));
+      console.error('Error deleting comment:', error);
+      setState(prev => ({
+        ...prev,
+        error: 'خطا در حذف نظر. لطفاً دوباره تلاش کنید.'
+      }));
     }
   };
 
@@ -98,7 +120,11 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
     try {
       await commentService.hideComment(commentId);
     } catch (error) {
-      setState(prev => ({ ...prev, error: 'خطا در مخفی کردن نظر' }));
+      console.error('Error hiding comment:', error);
+      setState(prev => ({
+        ...prev,
+        error: 'خطا در مخفی کردن نظر. لطفاً دوباره تلاش کنید.'
+      }));
     }
   };
 
@@ -107,17 +133,31 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
     try {
       await commentService.approveComment(commentId);
     } catch (error) {
-      setState(prev => ({ ...prev, error: 'خطا در تایید نظر' }));
+      console.error('Error approving comment:', error);
+      setState(prev => ({
+        ...prev,
+        error: 'خطا در تایید نظر. لطفاً دوباره تلاش کنید.'
+      }));
     }
   };
 
   if (state.loading) {
-    return <div className="text-center p-4">در حال بارگذاری نظرات...</div>;
+    return (
+      <div className="comments-section mt-8 bg-gray-50 p-6 rounded-lg">
+        <div className="text-center p-4 text-gray-600">در حال بارگذاری نظرات...</div>
+      </div>
+    );
   }
 
   return (
     <div className="comments-section mt-8 bg-gray-50 p-6 rounded-lg">
       <h3 className="text-xl font-bold mb-4 text-gray-800">نظرات</h3>
+      
+      {state.error && (
+        <div className="text-red-500 text-center p-4 bg-red-50 rounded-lg mb-4">
+          {state.error}
+        </div>
+      )}
       
       {user ? (
         <form onSubmit={handleSubmit} className="mb-6">
@@ -139,7 +179,7 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
               disabled={state.submitting || newComment.length < 5}
               className="bg-[#F4B744] text-white px-4 py-2 rounded-lg hover:bg-[#e5a93d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              ارسال نظر
+              {state.submitting ? 'در حال ارسال...' : 'ارسال نظر'}
             </button>
           </div>
         </form>
@@ -162,11 +202,13 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
               <div className="flex items-center">
                 <img
                   src={comment.user?.avatar_url || '/default-avatar.png'}
-                  alt={comment.user?.display_name}
+                  alt={comment.user?.display_name || 'کاربر'}
                   className="w-8 h-8 rounded-full mr-2"
                 />
                 <div>
-                  <div className="font-bold text-gray-800">{comment.user?.display_name}</div>
+                  <div className="font-bold text-gray-800">
+                    {comment.user?.display_name || 'کاربر ناشناس'}
+                  </div>
                   <div className="text-sm text-gray-500">
                     {formatDate(comment.created_at)}
                   </div>
@@ -222,12 +264,10 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
         ))}
       </AnimatePresence>
 
-      {state.error && (
-        <div className="text-red-500 text-center p-4 bg-red-50 rounded-lg">{state.error}</div>
-      )}
-
-      {state.loading && (
-        <div className="text-center p-4 text-gray-600">در حال بارگذاری نظرات...</div>
+      {state.comments.length === 0 && !state.loading && (
+        <div className="text-center p-4 text-gray-500">
+          هنوز نظری ثبت نشده است. اولین نظر را شما ثبت کنید!
+        </div>
       )}
     </div>
   );

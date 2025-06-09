@@ -11,7 +11,7 @@ export interface Comment {
     id: string;
     display_name: string;
     avatar_url?: string;
-  };
+  } | null;
 }
 
 export interface CommentFormData {
@@ -24,4 +24,20 @@ export interface CommentState {
   loading: boolean;
   error: string | null;
   submitting: boolean;
+}
+
+export interface SupabaseComment {
+  id: string;
+  game_id: string;
+  user_id: string;
+  content: string;
+  likes_count: number;
+  created_at: string;
+  is_approved: boolean;
+  is_hidden: boolean;
+  user: {
+    id: string;
+    display_name: string;
+    avatar_url?: string;
+  } | null;
 } 
