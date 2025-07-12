@@ -211,9 +211,27 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
     return '/AE-logo.png';
   };
 
+  // تابع مرتب‌سازی کامنت‌ها بر اساس پین و تایید
+  const sortComments = (comments: Comment[]) => {
+    return comments.slice().sort((a, b) => {
+      // پین‌شده‌ها بالا
+      if (a.is_pinned && !b.is_pinned) return -1;
+      if (!a.is_pinned && b.is_pinned) return 1;
+      // تاییدنشده‌ها پایین
+      if (!a.is_approved && b.is_approved) return 1;
+      if (a.is_approved && !b.is_approved) return -1;
+      // بقیه بر اساس تاریخ
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+  };
+
   const renderComment = (comment: Comment, isReply = false) => {
     const likeState = likeStates[comment.id] || { liked: false, count: 0, loading: false };
     const isAdmin = user?.email === 'active.legendss@gmail.com';
+    // تعیین کلاس حاشیه بر اساس وضعیت پین و تایید
+    let borderClass = '';
+    if (comment.is_pinned) borderClass = 'border-2 border-blue-500';
+    else if (!comment.is_approved) borderClass = 'border-2 border-red-500';
 
     return (
       <motion.div
@@ -221,7 +239,7 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
-        className={`bg-white rounded-lg shadow-md p-4 mb-4 ${isReply ? 'ml-8' : ''} ${comment.is_pinned ? 'border-2 border-blue-500' : ''}`}
+        className={`bg-white rounded-lg shadow-md p-4 mb-4 ${isReply ? 'ml-8' : ''} ${borderClass}`}
       >
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3">
@@ -248,25 +266,22 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
               <>
                 <button
                   onClick={() => handleAdminAction('pin', comment.id)}
-                  className={`p-2 rounded-full ${
-                    comment.is_pinned ? 'text-blue-500' : 'text-gray-400'
-                  } hover:bg-gray-100`}
+                  className={`p-2 rounded-full ${comment.is_pinned ? 'text-blue-500' : 'text-gray-400'} hover:bg-gray-100`}
                   title={comment.is_pinned ? 'حذف پین' : 'پین کردن'}
                 >
                   <FaThumbtack />
                 </button>
                 <button
                   onClick={() => handleAdminAction('approve', comment.id)}
-                  className={`p-2 rounded-full ${
-                    comment.is_approved ? 'text-green-500' : 'text-gray-400'
-                  } hover:bg-gray-100`}
+                  className={`p-2 rounded-full ${comment.is_approved ? 'text-green-500' : 'text-gray-400'} hover:bg-gray-100`}
                   title={comment.is_approved ? 'لغو تایید' : 'تایید نظر'}
                 >
                   {comment.is_approved ? <FaCheck /> : <FaTimes />}
                 </button>
               </>
             )}
-            {user && (
+            {/* فقط اگر کاربر صاحب کامنت باشد دکمه حذف نمایش داده شود */}
+            {user && user.id === comment.user_id && (
               <button
                 onClick={() => handleDelete(comment.id)}
                 className="text-red-500 hover:text-red-700"
@@ -277,16 +292,15 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
           </div>
         </div>
         <p className="mt-2 text-gray-700">{comment.content}</p>
-        <div className="mt-3 flex items-center space-x-4">
+        {/* دکمه لایک و تعداد لایک با تراز مناسب */}
+        <div className="mt-3 flex items-center gap-2">
           <button
             onClick={() => handleLike(comment.id)}
             disabled={!user || likeState.loading}
-            className={`flex items-center space-x-1 ${
-              likeState.liked ? 'text-blue-500' : 'text-gray-400'
-            } hover:text-blue-500`}
+            className={`flex items-center gap-1 ${likeState.liked ? 'text-blue-500' : 'text-gray-400'} hover:text-blue-500`}
           >
             <FaThumbsUp />
-            <span>{likeState.count}</span>
+            <span className="text-base font-medium">{likeState.count}</span>
           </button>
           {!isReply && (
             <button
@@ -308,36 +322,36 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
               <textarea
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                placeholder="پاسخ خود را بنویسید..."
-                className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                rows={3}
-              />
-              <div className="flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setReplyingTo(null)}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                >
-                  انصراف
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                >
-                  ارسال پاسخ
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        )}
-        {comment.replies && comment.replies.length > 0 && (
-          <div className="mt-4 space-y-4">
-            {comment.replies.map((reply) => renderComment(reply, true))}
-          </div>
-        )}
-      </motion.div>
-    );
-  };
+              placeholder="پاسخ خود را بنویسید..."
+              className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              rows={3}
+            />
+            <div className="flex justify-end space-x-2">
+              <button
+                type="button"
+                onClick={() => setReplyingTo(null)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                انصراف
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              >
+                ارسال پاسخ
+              </button>
+            </div>
+          </form>
+        </motion.div>
+      )}
+      {comment.replies && comment.replies.length > 0 && (
+        <div className="mt-4 space-y-4">
+          {sortComments(comment.replies).map((reply) => renderComment(reply, true))}
+        </div>
+      )}
+    </motion.div>
+  );
+};
 
   if (loading) {
     return (
@@ -407,7 +421,7 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
             هنوز نظری ثبت نشده است. اولین نظر را شما ثبت کنید!
           </div>
         ) : (
-          comments.map((comment) => (
+          sortComments(comments).map((comment) => (
             <div key={comment.id}>
               {renderComment(comment)}
             </div>
