@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { commentService } from '../services/commentService';
 import type { Comment, CommentFormData, LikeState } from '../types/comment';
 import { FaThumbsUp, FaThumbsDown, FaReply, FaThumbtack, FaCheck, FaTimes } from 'react-icons/fa';
+import { supabase } from '../lib/supabase';
 
 interface CommentsProps {
   gameId: string;
@@ -22,6 +23,20 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
   const [likeStates, setLikeStates] = useState<Record<string, LikeState>>({});
 
   const isAdmin = user?.email === 'active.legendss@gmail.com';
+
+  // همگام‌سازی نام کاربر گوگل با پروفایل دیتابیس
+  useEffect(() => {
+    if (user && user.app_metadata?.provider === 'google') {
+      const fullName = user.user_metadata?.full_name;
+      if (fullName && (!user.user_metadata.display_name || user.user_metadata.display_name === '')) {
+        supabase
+          .from('users')
+          .update({ display_name: fullName })
+          .eq('id', user.id)
+          .then();
+      }
+    }
+  }, [user]);
 
   useEffect(() => {
     loadComments();
