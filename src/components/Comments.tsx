@@ -223,6 +223,10 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
     if (user?.profile_image_url) {
       return user.profile_image_url;
     }
+    // اگر کاربر گوگل است و avatar_url در user_metadata وجود دارد
+    if (user?.user_metadata?.avatar_url) {
+      return user.user_metadata.avatar_url;
+    }
     return '/AE-logo.png';
   };
 
