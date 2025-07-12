@@ -280,8 +280,8 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
                 </button>
               </>
             )}
-            {/* فقط اگر کاربر صاحب کامنت باشد دکمه حذف نمایش داده شود */}
-            {user && user.id === comment.user_id && (
+            {/* فقط اگر کاربر صاحب کامنت باشد یا ادمین باشد دکمه حذف نمایش داده شود */}
+            {user && (user.id === comment.user_id || isAdmin) && (
               <button
                 onClick={() => handleDelete(comment.id)}
                 className="text-red-500 hover:text-red-700"
