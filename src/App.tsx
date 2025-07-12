@@ -33,9 +33,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <div className="min-h-screen relative scroll-container">
+        <div className="min-h-screen relative scroll-container flex flex-col">
           <AnimatedBackground />
-          <div className="relative z-20">
+          <div className="relative z-20 flex-1 flex flex-col">
             <Navbar />
             <Routes>
               <Route path="/" element={
@@ -52,11 +52,11 @@ function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
+          {/* فوتر کپی‌رایت */}
+          <footer className="w-full bg-gray-100 text-gray-600 text-center py-4 mt-auto border-t border-gray-200 font-vazirmatn text-sm">
+            <span>تمامی حقوق متعلق به <b>ACTIVE LEGENDS</b> و <b>محمدمهدی مولایاری</b> است © {new Date().getFullYear()}</span>
+          </footer>
         </div>
-        {/* Footer */}
-        <footer className="w-full bg-black/80 text-center text-gray-300 py-4 text-sm fixed bottom-0 left-0 z-50" style={{backdropFilter: 'blur(4px)'}}>
-          © {new Date().getFullYear()} ACTIVE LEGENDS | محمدمهدی مولایاری
-        </footer>
       </AuthProvider>
     </Router>
   );
