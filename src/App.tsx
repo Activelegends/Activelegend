@@ -53,6 +53,10 @@ function App() {
             </Routes>
           </div>
         </div>
+        {/* Footer */}
+        <footer className="w-full bg-black/80 text-center text-gray-300 py-4 text-sm fixed bottom-0 left-0 z-50" style={{backdropFilter: 'blur(4px)'}}>
+          © {new Date().getFullYear()} ACTIVE LEGENDS | محمدمهدی مولایاری
+        </footer>
       </AuthProvider>
     </Router>
   );
