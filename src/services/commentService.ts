@@ -20,8 +20,7 @@ class CommentService {
           user:user_id (
             id,
             email,
-            profile_image_url,
-            avatar_url
+            profile_image_url
           )
         `)
         .eq('game_id', gameId)
@@ -72,8 +71,7 @@ class CommentService {
               user:user_id (
                 id,
                 email,
-                profile_image_url,
-                avatar_url
+                profile_image_url
               )
             `)
             .eq('parent_id', comment.id)
@@ -141,8 +139,7 @@ class CommentService {
           user:user_id (
             id,
             email,
-            profile_image_url,
-            avatar_url
+            profile_image_url
           )
         `)
         .single();
