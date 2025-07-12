@@ -243,3 +243,11 @@ CREATE POLICY "Admins can manage all likes"
   USING (
     auth.jwt() ->> 'email' = 'active.legendss@gmail.com'
   ); 
+
+-- MIGRATION: همگام‌سازی avatar_url و profile_image_url کاربران فعلی با اطلاعات auth.users
+UPDATE public.users u
+SET profile_image_url = a.raw_user_meta_data->>'avatar_url',
+    avatar_url = a.raw_user_meta_data->>'avatar_url'
+FROM auth.users a
+WHERE u.id = a.id
+  AND (u.profile_image_url IS NULL OR u.profile_image_url = '' OR u.avatar_url IS NULL OR u.avatar_url = ''); 
