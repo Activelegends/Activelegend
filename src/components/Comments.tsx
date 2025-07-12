@@ -225,6 +225,13 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
     });
   };
 
+  // تابع کمکی برای گرفتن نام کاربر
+  const getDisplayName = (user: any) => {
+    if (user?.display_name && user.display_name.trim() !== '') return user.display_name;
+    if (user?.email) return user.email.split('@')[0];
+    return 'کاربر ناشناس';
+  };
+
   const renderComment = (comment: Comment, isReply = false) => {
     const likeState = likeStates[comment.id] || { liked: false, count: 0, loading: false };
     const isAdmin = user?.email === 'active.legendss@gmail.com';
@@ -249,7 +256,7 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
               className="w-10 h-10 rounded-full"
             />
             <div>
-              <p className="font-semibold text-gray-800">{comment.user?.display_name || 'کاربر ناشناس'}</p>
+              <p className="font-semibold text-gray-800">{getDisplayName(comment.user)}</p>
               <p className="text-sm text-gray-500">
                 {new Date(comment.created_at).toLocaleDateString('fa-IR', {
                   year: 'numeric',
