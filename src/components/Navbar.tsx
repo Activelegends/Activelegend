@@ -330,7 +330,7 @@ export default function Navbar() {
         </div>
         {/* Mobile Menu Drawer */}
         {mobileMenuOpen && (
-          <div className="fixed inset-0 z-[999] bg-black/80 flex flex-col lg:hidden">
+          <div className="fixed inset-0 z-[999] bg-black flex flex-col lg:hidden">
             <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
               <Link to="/" onClick={() => setMobileMenuOpen(false)}>
                 <img src={import.meta.env.BASE_URL + 'AE-logo.png'} alt="Active Legends" className="h-8 w-auto" />
