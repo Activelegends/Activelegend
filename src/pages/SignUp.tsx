@@ -39,8 +39,8 @@ export default function SignUp() {
 
   return (
     <>
-      {/* Fixed wrapper: form follows user on scroll */}
-      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md px-4">
+      {/* Fixed wrapper at top-center */}
+      <div className="fixed top-0 left-1/2 transform -translate-x-1/2 w-full max-w-md px-4 py-4 bg-transparent z-50">
         <div className="bg-white p-6 rounded-lg shadow-md">
           <form onSubmit={handleSignUp} className="space-y-4">
             <div>
