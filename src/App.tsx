@@ -8,22 +8,31 @@ import { Games } from './pages/Games';
 import { GameDetail } from './pages/GameDetail';
 import NotFound from './pages/NotFound';
 import { AuthProvider } from './contexts/AuthContext';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { MyGames } from './pages/MyGames';
 import TermsAndConditionsPage from './pages/TermsAndConditions';
 import TermsManagement from './pages/admin/TermsManagement';
 import './styles/admin.css';
+import { Footer } from './components/Footer';
 
 function App() {
+  const [showFooter, setShowFooter] = useState(false);
+
   useEffect(() => {
     // Disable scroll chaining on mobile
     document.body.style.overscrollBehavior = 'none';
     
     // Add passive scroll listener for better performance
     const handleScroll = () => {
-      // This empty function is needed for passive scroll listener
+      const scrollY = window.scrollY || window.pageYOffset;
+      const windowHeight = window.innerHeight;
+      const bodyHeight = document.body.scrollHeight;
+      // Show footer if user is at (or very near) the bottom
+      setShowFooter(scrollY + windowHeight >= bodyHeight - 10);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
+    // Run once on mount in case already at bottom
+    handleScroll();
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
@@ -52,6 +61,11 @@ function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
+          {showFooter && (
+            <div className="fixed bottom-0 left-0 w-full z-50">
+              <Footer />
+            </div>
+          )}
         </div>
       </AuthProvider>
     </Router>
