@@ -46,78 +46,82 @@ export default function SignUp() {
 
   return (
     <>
-      <form onSubmit={handleSignUp} className="space-y-4">
-        <div>
-          <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-            نام و نام خانوادگی
-          </label>
-          <input
-            type="text"
-            id="fullName"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
+      {/* Wrapper for centering the form */}
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+        <form onSubmit={handleSignUp} className="space-y-4 bg-white p-6 rounded-lg shadow-md w-full max-w-md">
+          <div>
+            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
+              نام و نام خانوادگی
+            </label>
+            <input
+              type="text"
+              id="fullName"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
 
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-            ایمیل
-          </label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              ایمیل
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
 
-        <div>
-          <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">
-            شماره موبایل
-          </label>
-          <input
-            type="tel"
-            id="phoneNumber"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
+          <div>
+            <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">
+              شماره موبایل
+            </label>
+            <input
+              type="tel"
+              id="phoneNumber"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              required
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
 
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-            رمز عبور
-          </label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              رمز عبور
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
 
-        {error && (
-          <div className="text-red-500 text-sm">{error}</div>
-        )}
+          {error && (
+            <div className="text-red-500 text-sm">{error}</div>
+          )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-            loading ? 'bg-gray-400' : 'bg-[#F4B744] hover:bg-[#E5A93D]'
-          }`}
-        >
-          {loading ? 'در حال ثبت‌نام...' : 'ثبت‌نام'}
-        </button>
-      </form>
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+              loading ? 'bg-gray-400' : 'bg-[#F4B744] hover:bg-[#E5A93D]'
+            }`}
+          >
+            {loading ? 'در حال ثبت‌نام...' : 'ثبت‌نام'}
+          </button>
+        </form>
+      </div>
 
+      {/* Terms Modal */}
       <TermsModal
         isOpen={showTerms}
         onClose={() => setShowTerms(false)}
@@ -125,4 +129,4 @@ export default function SignUp() {
       />
     </>
   );
-} 
+}
