@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-
-// نمونه lookup داخلی برای id → url
-const DOWNLOAD_LINKS: Record<string, string> = {
-  'tessst': 'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTaswPq25-wdAkYbZQR71xnWyY14v2ybX84zsbPJv00JXaAX1-TxnJnvRfax4HP5l6LIQZqT4g0Qn428pRNQYQl4TKbuzSTzuiWiZlm8TRz',
-  'game2': 'https://example.com/game2.zip',
-  // ... سایر لینک‌ها
-};
+import { downloadLinksService } from '../services/downloadLinksService';
+import type { DownloadLink } from '../services/downloadLinksService';
 
 const AD_BANNER = (
   <div className="w-full flex justify-center items-center bg-gradient-to-r from-primary/10 to-black/30 rounded-xl border border-primary/20 p-4 my-6 min-h-[80px]">
@@ -21,14 +16,30 @@ export default function DownloadPage() {
   const [count, setCount] = useState(10);
   const [notFound, setNotFound] = useState(false);
   const [ready, setReady] = useState(false);
-  const downloadUrl = id ? DOWNLOAD_LINKS[id] : undefined;
+  const [loading, setLoading] = useState(true);
+  const [link, setLink] = useState<DownloadLink | null>(null);
 
   useEffect(() => {
-    if (!id || !downloadUrl) {
+    if (!id) {
       setNotFound(true);
+      setLoading(false);
       return;
     }
+    setLoading(true);
     setNotFound(false);
+    setLink(null);
+    downloadLinksService.getById(id).then((data) => {
+      if (!data) {
+        setNotFound(true);
+      } else {
+        setLink(data);
+      }
+      setLoading(false);
+    });
+  }, [id]);
+
+  useEffect(() => {
+    if (!link) return;
     setCount(10);
     setReady(false);
     const timer = setInterval(() => {
@@ -36,20 +47,29 @@ export default function DownloadPage() {
         if (c <= 1) {
           clearInterval(timer);
           setReady(true);
-          // Redirect directly after countdown (optional)
-          // window.location.href = downloadUrl;
+          // window.location.href = link.url;
         }
         return c - 1;
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [id, downloadUrl]);
+  }, [link]);
 
   const handleDownload = () => {
-    if (downloadUrl) {
-      window.location.href = downloadUrl;
+    if (link?.url) {
+      window.location.href = link.url;
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-black px-4">
+        <div className="bg-white/10 border border-primary/40 rounded-2xl p-8 max-w-md w-full text-center">
+          <div className="text-lg text-primary font-bold mb-4">در حال بارگذاری...</div>
+        </div>
+      </div>
+    );
+  }
 
   if (notFound) {
     return (
@@ -66,7 +86,8 @@ export default function DownloadPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-black px-4 py-12">
       <div className="w-full max-w-md bg-white/10 border border-white/10 rounded-2xl shadow-lg p-8 flex flex-col items-center">
-        <h1 className="text-2xl font-bold text-white mb-6 text-center">دانلود فایل</h1>
+        <h1 className="text-2xl font-bold text-white mb-2 text-center">دانلود فایل</h1>
+        {link?.title && <div className="text-primary text-lg font-bold mb-4 text-center">{link.title}</div>}
         {AD_BANNER}
         {!ready ? (
           <>
