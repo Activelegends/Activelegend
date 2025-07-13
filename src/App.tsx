@@ -52,10 +52,6 @@ function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
-          {/* Copyright Notice - Not a footer, always below content */}
-          <div className="w-full text-center text-xs text-gray-400 mt-12 mb-4 select-none" dir="rtl">
-            © {new Date().getFullYear()} محمد مهدی مولایاری. تمامی حقوق محفوظ است.
-          </div>
         </div>
       </AuthProvider>
     </Router>
