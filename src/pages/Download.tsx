@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 
 // نمونه lookup داخلی برای id → url
 const DOWNLOAD_LINKS: Record<string, string> = {
-  'game1': 'https://example.com/game1.apk',
+  'tessst': 'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTaswPq25-wdAkYbZQR71xnWyY14v2ybX84zsbPJv00JXaAX1-TxnJnvRfax4HP5l6LIQZqT4g0Qn428pRNQYQl4TKbuzSTzuiWiZlm8TRz',
   'game2': 'https://example.com/game2.zip',
   // ... سایر لینک‌ها
 };
