@@ -46,8 +46,8 @@ export default function SignUp() {
 
   return (
     <>
-      {/* Wrapper for centering the form */}
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      {/* Absolute full-screen overlay to center form */}
+      <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
         <form onSubmit={handleSignUp} className="space-y-4 bg-white p-6 rounded-lg shadow-md w-full max-w-md">
           <div>
             <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
