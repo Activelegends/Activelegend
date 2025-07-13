@@ -186,7 +186,7 @@ export default function Navbar() {
           <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="nav-link">درباره ما</a>
           <Link to="/games" className="nav-link">بازی‌ها</Link>
           {user && <Link to="/my-games" className="nav-link">بازی‌های من</Link>}
-          <a href="#gallery" onClick={handleGalleryClick} className="nav-link">ویترین</a>
+          <a href="#gallery" onClick={(e) => { if (mobileMenuOpen) setMobileMenuOpen(false); setTimeout(() => handleGalleryClick(e), 100); }} className="nav-link">ویترین</a>
           <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
         </>
       );
