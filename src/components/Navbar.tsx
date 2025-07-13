@@ -295,15 +295,15 @@ export default function Navbar() {
           </form>
           {/* Hamburger Icon and UserMenu for Mobile */}
           <div className="flex items-center gap-2 lg:hidden">
-            {user && <UserMenu />}
             <button
-              className="flex items-center justify-center p-2 rounded-md text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="flex items-center justify-center p-2 rounded-md text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-primary order-2"
               onClick={() => setMobileMenuOpen(true)}
               aria-label="باز کردن منو"
               type="button"
             >
               <HiMenu className="w-8 h-8" />
             </button>
+            {user && <div className="order-1"><UserMenu /></div>}
           </div>
           {/* Desktop Nav/User */}
           <div className="hidden lg:flex items-center gap-8">
@@ -405,39 +405,36 @@ export default function Navbar() {
                 </div>
               )}
             </form>
-            {/* Mobile Nav Links */}
-            <nav className="flex flex-col gap-2 p-4">
-              {renderNavLinks() &&
-                React.Children.map(renderNavLinks().props.children, (child) =>
-                  child && React.cloneElement(child, {
-                    className: (child.props.className || '') + ' bg-black rounded-lg px-4 py-3 mb-2 hover:bg-white/10 transition-colors',
-                    onClick: () => setMobileMenuOpen(false),
-                  })
-                )
-              }
-            </nav>
-            {/* Mobile Auth/User */}
-            <div className="flex flex-col gap-4 p-4 mt-auto">
-              {user ? (
-                <div className="bg-black rounded-lg px-4 py-3 flex items-center justify-center">
-                  <UserMenu />
-                </div>
-              ) : (
-                <>
-                  <button
-                    className="btn-secondary w-full bg-black rounded-lg mb-2"
-                    onClick={() => { setMobileMenuOpen(false); handleAuthClick('login'); }}
-                  >
-                    ورود
-                  </button>
-                  <button
-                    className="btn-primary w-full bg-black rounded-lg"
-                    onClick={() => { setMobileMenuOpen(false); handleAuthClick('signup'); }}
-                  >
-                    ثبت‌نام
-                  </button>
-                </>
-              )}
+            {/* Mobile Nav & Auth Section with Shared Background */}
+            <div className="mx-4 my-6 rounded-2xl bg-black/80 p-2 flex flex-col gap-1">
+              <nav className="flex flex-col gap-1">
+                {renderNavLinks() &&
+                  React.Children.map(renderNavLinks().props.children, (child) =>
+                    child && React.cloneElement(child, {
+                      className: (child.props.className || '') + ' rounded-lg px-3 py-2 hover:bg-white/10 transition-colors',
+                      onClick: () => setMobileMenuOpen(false),
+                    })
+                  )
+                }
+              </nav>
+              <div className="flex flex-col gap-1 mt-2">
+                {user ? null : (
+                  <>
+                    <button
+                      className="btn-secondary w-full rounded-lg mb-1"
+                      onClick={() => { setMobileMenuOpen(false); handleAuthClick('login'); }}
+                    >
+                      ورود
+                    </button>
+                    <button
+                      className="btn-primary w-full rounded-lg"
+                      onClick={() => { setMobileMenuOpen(false); handleAuthClick('signup'); }}
+                    >
+                      ثبت‌نام
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         )}
