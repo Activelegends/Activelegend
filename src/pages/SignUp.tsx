@@ -24,11 +24,8 @@ export default function SignUp() {
       const { error } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          data: { full_name: fullName, phone_number: phoneNumber },
-        },
+        options: { data: { full_name: fullName, phone_number: phoneNumber } },
       });
-
       if (error) throw error;
       setShowTerms(false);
       navigate('/verify-email');
@@ -42,9 +39,9 @@ export default function SignUp() {
 
   return (
     <>
-      {/* Container at top to avoid scrolling to middle */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
+      {/* Fixed wrapper: form follows user on scroll */}
+      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md px-4">
+        <div className="bg-white p-6 rounded-lg shadow-md">
           <form onSubmit={handleSignUp} className="space-y-4">
             <div>
               <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
@@ -112,7 +109,7 @@ export default function SignUp() {
         </div>
       </div>
 
-      {/* Terms Modal (overlay) */}
+      {/* Terms Modal */}
       <TermsModal isOpen={showTerms} onClose={() => setShowTerms(false)} onAccept={handleTermsAccept} />
     </>
   );
