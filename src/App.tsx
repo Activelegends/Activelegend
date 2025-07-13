@@ -61,7 +61,11 @@ function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
-          {showFooter && <Footer />}
+          {showFooter && (
+            <div className="fixed bottom-0 left-0 w-full z-50">
+              <Footer />
+            </div>
+          )}
         </div>
       </AuthProvider>
     </Router>
