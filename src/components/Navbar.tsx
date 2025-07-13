@@ -105,14 +105,36 @@ export default function Navbar() {
     setSearchError(null);
     setShowDropdown(true);
     try {
-      // Search games
+      // Search games by title/description
       const { data: games, error: gamesError } = await supabase
         .from('games')
         .select('*')
         .or(`title.ilike.%${query}%,description.ilike.%${query}%`)
         .eq('is_visible', true)
-        .limit(5);
+        .limit(20);
       if (gamesError) throw gamesError;
+      // Search all games for content_blocks
+      const { data: allGames, error: allGamesError } = await supabase
+        .from('games')
+        .select('*')
+        .eq('is_visible', true);
+      if (allGamesError) throw allGamesError;
+      const lowerQuery = query.toLowerCase();
+      const contentBlockMatches = (allGames || []).filter(g =>
+        Array.isArray(g.content_blocks) && g.content_blocks.some((block: any) =>
+          (block.content && block.content.toLowerCase().includes(lowerQuery)) ||
+          (block.caption && block.caption.toLowerCase().includes(lowerQuery))
+        )
+      );
+      // Merge and deduplicate
+      const allGameResults = [...(games || [])];
+      contentBlockMatches.forEach(match => {
+        if (!allGameResults.find(g => g.id === match.id)) {
+          allGameResults.push(match);
+        }
+      });
+      // Limit to 10 results
+      const finalGames = allGameResults.slice(0, 10);
       // Search videos (Aparat)
       let videos: any[] = [];
       try {
@@ -130,7 +152,7 @@ export default function Navbar() {
         // ignore aparat error
       }
       setSearchResults([
-        { type: 'games', items: games || [] },
+        { type: 'games', items: finalGames },
         { type: 'videos', items: videos }
       ]);
     } catch (err: any) {
