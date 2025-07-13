@@ -1,11 +1,12 @@
 import { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
-import { HiUser, HiLogout, HiShieldCheck, HiUserGroup, HiTrash, HiHeart } from 'react-icons/hi';
+import { HiUser, HiLogout, HiShieldCheck, HiUserGroup, HiTrash, HiHeart, HiLink, HiDocumentText } from 'react-icons/hi';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 
 export default function UserMenu() {
-  const { user, isAdmin, signOut } = useAuth();
+  const { user, signOut } = useAuth();
+  const isAdmin = user?.email === 'active.legendss@gmail.com';
 
   if (!user) return null;
 
@@ -50,6 +51,32 @@ export default function UserMenu() {
 
             {isAdmin && (
               <>
+                <Menu.Item>
+                  {({ active }) => (
+                    <Link
+                      to="/admin/download-links"
+                      className={`${
+                        active ? 'bg-white/10' : ''
+                      } group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}
+                    >
+                      <HiLink className="w-5 h-5" />
+                      مدیریت لینک‌های دانلود
+                    </Link>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <Link
+                      to="/admin/terms"
+                      className={`${
+                        active ? 'bg-white/10' : ''
+                      } group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}
+                    >
+                      <HiDocumentText className="w-5 h-5" />
+                      مدیریت قوانین و مقررات
+                    </Link>
+                  )}
+                </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
                     <button

@@ -135,7 +135,8 @@ export default function DownloadLinksAdmin() {
               <thead>
                 <tr className="bg-black/30">
                   <th className="p-2">آیدی</th>
-                  <th className="p-2">لینک</th>
+                  <th className="p-2">لینک دانلود نهایی</th>
+                  <th className="p-2">لینک صفحه شمارش/تبلیغ</th>
                   <th className="p-2">عنوان</th>
                   <th className="p-2">عملیات</th>
                 </tr>
@@ -145,7 +146,25 @@ export default function DownloadLinksAdmin() {
                   <tr key={link.id} className="border-b border-white/10 hover:bg-white/5">
                     <td className="p-2 font-mono">{link.id}</td>
                     <td className="p-2 truncate max-w-[120px]">
-                      <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-primary underline break-all">دانلود</a>
+                      <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-primary underline break-all">{link.url}</a>
+                      <button
+                        className="ml-2 text-xs text-gray-400 hover:text-primary"
+                        onClick={() => navigator.clipboard.writeText(link.url)}
+                        title="کپی لینک نهایی"
+                      >کپی</button>
+                    </td>
+                    <td className="p-2 truncate max-w-[120px]">
+                      <a
+                        href={`${window.location.origin}/#/download/${link.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary underline break-all"
+                      >{`${window.location.origin}/#/download/${link.id}`}</a>
+                      <button
+                        className="ml-2 text-xs text-gray-400 hover:text-primary"
+                        onClick={() => navigator.clipboard.writeText(`${window.location.origin}/#/download/${link.id}`)}
+                        title="کپی لینک صفحه تبلیغ"
+                      >کپی</button>
                     </td>
                     <td className="p-2">{link.title || '-'}</td>
                     <td className="p-2 flex gap-2">
