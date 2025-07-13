@@ -61,16 +61,10 @@ function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
-          {/* Footer: only show when at bottom, but as static element with animation */}
           {showFooter && (
-            <motion.div
-              initial={{ opacity: 0, y: 32 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 32 }}
-              transition={{ duration: 0.4, ease: 'easeOut' }}
-            >
+            <div className="fixed bottom-0 left-0 w-full z-50">
               <Footer />
-            </motion.div>
+            </div>
           )}
         </div>
       </AuthProvider>
