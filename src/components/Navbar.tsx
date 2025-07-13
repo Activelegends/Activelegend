@@ -7,6 +7,7 @@ import { AuthModal } from './AuthModal';
 import { supabase } from '../lib/supabaseClient';
 import { aparatApi } from '../lib/aparatApi';
 import { HiMenu, HiX } from 'react-icons/hi';
+import React from 'react'; // Added for React.Children.map
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -292,15 +293,18 @@ export default function Navbar() {
               </div>
             )}
           </form>
-          {/* Hamburger Icon for Mobile */}
-          <button
-            className="lg:hidden flex items-center justify-center p-2 rounded-md text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-primary"
-            onClick={() => setMobileMenuOpen(true)}
-            aria-label="باز کردن منو"
-            type="button"
-          >
-            <HiMenu className="w-8 h-8" />
-          </button>
+          {/* Hamburger Icon and UserMenu for Mobile */}
+          <div className="flex items-center gap-2 lg:hidden">
+            {user && <UserMenu />}
+            <button
+              className="flex items-center justify-center p-2 rounded-md text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-primary"
+              onClick={() => setMobileMenuOpen(true)}
+              aria-label="باز کردن منو"
+              type="button"
+            >
+              <HiMenu className="w-8 h-8" />
+            </button>
+          </div>
           {/* Desktop Nav/User */}
           <div className="hidden lg:flex items-center gap-8">
             {renderNavLinks()}
@@ -379,7 +383,7 @@ export default function Navbar() {
                             key={item.id || item.uid || item.slug}
                             to={group.type === 'games' ? `/games/${item.slug}` : item.url || item.link || '#'}
                             target={group.type === 'videos' ? '_blank' : undefined}
-                            className="block px-4 py-2 hover:bg-primary/10 text-sm text-white transition-colors rounded-lg"
+                            className="block px-4 py-2 hover:bg-primary/10 text-sm text-white transition-colors rounded-lg bg-black"
                             onClick={() => setMobileMenuOpen(false)}
                           >
                             {group.type === 'games' ? (
@@ -403,22 +407,31 @@ export default function Navbar() {
             </form>
             {/* Mobile Nav Links */}
             <nav className="flex flex-col gap-2 p-4">
-              {renderNavLinks()}
+              {renderNavLinks() &&
+                React.Children.map(renderNavLinks().props.children, (child) =>
+                  child && React.cloneElement(child, {
+                    className: (child.props.className || '') + ' bg-black rounded-lg px-4 py-3 mb-2 hover:bg-white/10 transition-colors',
+                    onClick: () => setMobileMenuOpen(false),
+                  })
+                )
+              }
             </nav>
             {/* Mobile Auth/User */}
             <div className="flex flex-col gap-4 p-4 mt-auto">
               {user ? (
-                <UserMenu />
+                <div className="bg-black rounded-lg px-4 py-3 flex items-center justify-center">
+                  <UserMenu />
+                </div>
               ) : (
                 <>
                   <button
-                    className="btn-secondary w-full"
+                    className="btn-secondary w-full bg-black rounded-lg mb-2"
                     onClick={() => { setMobileMenuOpen(false); handleAuthClick('login'); }}
                   >
                     ورود
                   </button>
                   <button
-                    className="btn-primary w-full"
+                    className="btn-primary w-full bg-black rounded-lg"
                     onClick={() => { setMobileMenuOpen(false); handleAuthClick('signup'); }}
                   >
                     ثبت‌نام
