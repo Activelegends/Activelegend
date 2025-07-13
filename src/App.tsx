@@ -62,9 +62,7 @@ function App() {
             </Routes>
           </div>
           {showFooter && (
-            <div className="fixed bottom-0 left-0 w-full z-50">
-              <Footer />
-            </div>
+            <Footer />
           )}
         </div>
       </AuthProvider>
