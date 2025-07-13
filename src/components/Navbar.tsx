@@ -4,7 +4,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import UserMenu from './UserMenu';
 import { AuthModal } from './AuthModal';
-import { HiSearch } from 'react-icons/hi';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -13,7 +12,6 @@ export default function Navbar() {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [search, setSearch] = useState('');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -89,13 +87,6 @@ export default function Navbar() {
     }
   };
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (search.trim()) {
-      navigate(`/games?q=${encodeURIComponent(search.trim())}`);
-    }
-  };
-
   const renderNavLinks = () => {
     if (location.pathname === '/') {
       return (
@@ -144,29 +135,16 @@ export default function Navbar() {
           perspective: '1000px'
         }}
       >
-        <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4 w-full sm:w-auto">
-            <Link to="/">
-              <motion.img
-                src={import.meta.env.BASE_URL + 'AE-logo.png'}
-                alt="Active Legends"
-                className="h-8 w-auto"
-                whileHover={{ scale: 1.05 }}
-              />
-            </Link>
-            <form onSubmit={handleSearchSubmit} className="relative w-full max-w-xs">
-              <input
-                type="text"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="جستجو در بازی‌ها..."
-                className="w-full pl-10 pr-3 py-2 rounded-lg bg-black/60 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all"
-                dir="rtl"
-              />
-              <HiSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none w-5 h-5" />
-            </form>
-          </div>
-          <div className="flex items-center gap-8 w-full sm:w-auto justify-end">
+        <div className="container mx-auto px-4 flex items-center justify-between">
+          <Link to="/">
+            <motion.img
+              src={import.meta.env.BASE_URL + 'AE-logo.png'}
+              alt="Active Legends"
+              className="h-8 w-auto"
+              whileHover={{ scale: 1.05 }}
+            />
+          </Link>
+          <div className="flex items-center gap-8">
             {renderNavLinks()}
             {user ? (
               <UserMenu />
