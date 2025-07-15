@@ -37,24 +37,11 @@ export default function Navbar() {
     setIsAuthModalOpen(true);
   };
 
-  const handleGalleryClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    
-    if (location.pathname !== '/') {
-      navigate('/');
-      setTimeout(() => {
-        const galleryElement = document.getElementById('gallery');
-        if (galleryElement) {
-          const headerOffset = 80;
-          const elementPosition = galleryElement.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-          });
-        }
-      }, 100);
-    } else {
+  const scrollToGallery = () => {
+    let attempts = 0;
+    const maxAttempts = 10;
+    const delay = 100;
+    function tryScroll() {
       const galleryElement = document.getElementById('gallery');
       if (galleryElement) {
         const headerOffset = 80;
@@ -62,9 +49,25 @@ export default function Navbar() {
         const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
         window.scrollTo({
           top: offsetPosition,
-          behavior: 'smooth'
+          behavior: 'smooth',
         });
+      } else if (attempts < maxAttempts) {
+        attempts++;
+        setTimeout(tryScroll, delay);
       }
+    }
+    tryScroll();
+  };
+
+  const handleGalleryClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        scrollToGallery();
+      }, 100);
+    } else {
+      scrollToGallery();
     }
   };
 
@@ -196,7 +199,7 @@ export default function Navbar() {
           <Link to="/" className="nav-link">صفحه اصلی</Link>
           <Link to="/games" className="nav-link">بازی‌ها</Link>
           {user && <Link to="/my-games" className="nav-link">بازی‌های من</Link>}
-          <a href="#gallery" onClick={(e) => { if (mobileMenuOpen) setMobileMenuOpen(false); setTimeout(() => handleGalleryClick(e), 100); }} className="nav-link">ویترین</a>
+          <a href="#gallery" onClick={handleGalleryClick} className="nav-link">ویترین</a>
           <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
         </>
       );
