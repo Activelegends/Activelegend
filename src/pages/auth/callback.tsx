@@ -38,7 +38,7 @@ export default function AuthCallback() {
       >
         <div className="mb-6">
           <img 
-            src="/AE-logo.png" 
+            src="/AE logo.svg" 
             alt="Active Legends" 
             className="w-24 h-24 mx-auto mb-4"
           />

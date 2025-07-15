@@ -254,7 +254,7 @@ export default function Navbar() {
         <div className="container mx-auto px-4 flex items-center justify-between gap-4">
           <Link to="/">
             <motion.img
-              src={import.meta.env.BASE_URL + 'AE-logo.png'}
+              src={import.meta.env.BASE_URL + 'AE logo.svg'}
               alt="Active Legends"
               className="h-8 w-auto"
               whileHover={{ scale: 1.05 }}
@@ -361,7 +361,7 @@ export default function Navbar() {
           <div className="fixed inset-0 z-[999] bg-black flex flex-col lg:hidden">
             <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
               <Link to="/" onClick={() => setMobileMenuOpen(false)}>
-                <img src={import.meta.env.BASE_URL + 'AE-logo.png'} alt="Active Legends" className="h-8 w-auto" />
+                <img src={import.meta.env.BASE_URL + 'AE logo.svg'} alt="Active Legends" className="h-8 w-auto" />
               </Link>
             <button
                 className="p-2 rounded-md text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-primary"

@@ -438,7 +438,7 @@ export default function MediaShowcase() {
     }
     
     // اگر هیچ کدام کار نکرد، از لوگوی موجود استفاده کن
-    target.src = '/AE-logo.png';
+    target.src = '/AE logo.svg';
   };
 
   // فیلتر کردن آیتم‌ها برای نمایش

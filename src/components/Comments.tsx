@@ -227,7 +227,7 @@ export const Comments: React.FC<CommentsProps> = ({ gameId }) => {
     if (user?.user_metadata?.avatar_url) {
       return user.user_metadata.avatar_url;
     }
-    return '/AE-logo.png';
+    return '/AE logo.svg';
   };
 
   // تابع مرتب‌سازی کامنت‌ها بر اساس پین و تایید

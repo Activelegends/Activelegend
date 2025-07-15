@@ -101,7 +101,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
           <div className="p-6 sm:p-8">
             <div className="text-center mb-8">
               <img 
-                src="/AE-logo.png" 
+                src="/AE logo.svg" 
                 alt="Active Legends" 
                 className="w-16 h-16 mx-auto mb-4"
               />
