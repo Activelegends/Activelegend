@@ -267,7 +267,7 @@ export default function Navbar() {
                       <div className="px-4 py-2 text-gray-500 text-xs">موردی یافت نشد.</div>
                     ) : (
                       group.items.map((item: any) => (
-                        <Link
+                    <Link
                           key={item.id || item.uid || item.slug}
                           to={group.type === 'games' ? `/games/${item.slug}` : item.url || item.link || '#'}
                           target={group.type === 'videos' ? '_blank' : undefined}
@@ -285,7 +285,7 @@ export default function Navbar() {
                               <span className="text-xs text-gray-400 ml-2">{item.description?.slice(0, 40) || ''}</span>
                             </>
                           )}
-                        </Link>
+                    </Link>
                       ))
                     )}
                   </div>
@@ -295,7 +295,7 @@ export default function Navbar() {
           </form>
           {/* Hamburger Icon and UserMenu for Mobile */}
           <div className="flex items-center gap-2 lg:hidden">
-            <button
+                <button
               className="flex items-center justify-center p-2 rounded-md text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-primary order-2"
               onClick={() => setMobileMenuOpen(true)}
               aria-label="باز کردن منو"
@@ -339,7 +339,7 @@ export default function Navbar() {
               <Link to="/" onClick={() => setMobileMenuOpen(false)}>
                 <img src={import.meta.env.BASE_URL + 'AE-logo.png'} alt="Active Legends" className="h-8 w-auto" />
               </Link>
-              <button
+            <button
                 className="p-2 rounded-md text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-primary"
                 onClick={() => setMobileMenuOpen(false)}
                 aria-label="بستن منو"
@@ -391,7 +391,7 @@ export default function Navbar() {
                                 <span className="font-bold">{item.title}</span>
                                 <span className="text-xs text-gray-400 ml-2">{item.description?.slice(0, 40)}...</span>
                               </>
-                            ) : (
+              ) : (
                               <>
                                 <span className="font-bold">{item.title || item.name}</span>
                                 <span className="text-xs text-gray-400 ml-2">{item.description?.slice(0, 40) || ''}</span>
@@ -431,19 +431,19 @@ export default function Navbar() {
                       onClick={() => { setMobileMenuOpen(false); handleAuthClick('signup'); }}
                     >
                       ثبت‌نام
-                    </button>
+            </button>
                   </>
                 )}
-              </div>
+        </div>
             </div>
           </div>
         )}
       </motion.nav>
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
         initialMode={authMode}
-      />
+        />
     </>
   );
 }
