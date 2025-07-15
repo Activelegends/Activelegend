@@ -37,8 +37,8 @@ export default function Navbar() {
     setIsAuthModalOpen(true);
   };
 
-  const handleGalleryClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
+  const handleGalleryClick = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.preventDefault?.();
     
     if (location.pathname !== '/') {
       navigate('/');
@@ -68,8 +68,8 @@ export default function Navbar() {
     }
   };
 
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
-    e.preventDefault();
+  const handleNavClick = (e: React.MouseEvent | React.KeyboardEvent, targetId: string) => {
+    e.preventDefault?.();
     if (location.pathname !== '/') {
       navigate('/');
       setTimeout(() => {
@@ -186,7 +186,15 @@ export default function Navbar() {
           <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="nav-link">درباره ما</a>
           <Link to="/games" className="nav-link">بازی‌ها</Link>
           {user && <Link to="/my-games" className="nav-link">بازی‌های من</Link>}
-          <a href="#gallery" onClick={(e) => { if (mobileMenuOpen) setMobileMenuOpen(false); setTimeout(() => handleGalleryClick(e), 100); }} className="nav-link">ویترین</a>
+          <span
+            role="button"
+            tabIndex={0}
+            onClick={(e) => { if (mobileMenuOpen) setMobileMenuOpen(false); setTimeout(() => handleGalleryClick(e), 100); }}
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { if (mobileMenuOpen) setMobileMenuOpen(false); setTimeout(() => handleGalleryClick(e), 100); } }}
+            className="nav-link cursor-pointer"
+          >
+            ویترین
+          </span>
           <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
         </>
       );
@@ -196,7 +204,15 @@ export default function Navbar() {
           <Link to="/" className="nav-link">صفحه اصلی</Link>
           <Link to="/games" className="nav-link">بازی‌ها</Link>
           {user && <Link to="/my-games" className="nav-link">بازی‌های من</Link>}
-          <a href="#gallery" onClick={handleGalleryClick} className="nav-link">ویترین</a>
+          <span
+            role="button"
+            tabIndex={0}
+            onClick={handleGalleryClick}
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleGalleryClick(e); }}
+            className="nav-link cursor-pointer"
+          >
+            ویترین
+          </span>
           <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
         </>
       );
@@ -206,7 +222,15 @@ export default function Navbar() {
         <Link to="/" className="nav-link">صفحه اصلی</Link>
         <Link to="/games" className="nav-link">بازی‌ها</Link>
         {user && <Link to="/my-games" className="nav-link">بازی‌های من</Link>}
-        <a href="#gallery" onClick={handleGalleryClick} className="nav-link">ویترین</a>
+        <span
+          role="button"
+          tabIndex={0}
+          onClick={handleGalleryClick}
+          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleGalleryClick(e); }}
+          className="nav-link cursor-pointer"
+        >
+          ویترین
+        </span>
         <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
       </>
     );
