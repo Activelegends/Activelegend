@@ -37,11 +37,24 @@ export default function Navbar() {
     setIsAuthModalOpen(true);
   };
 
-  const scrollToGallery = () => {
-    let attempts = 0;
-    const maxAttempts = 10;
-    const delay = 100;
-    function tryScroll() {
+  const handleGalleryClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        const galleryElement = document.getElementById('gallery');
+        if (galleryElement) {
+          const headerOffset = 80;
+          const elementPosition = galleryElement.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+    } else {
       const galleryElement = document.getElementById('gallery');
       if (galleryElement) {
         const headerOffset = 80;
@@ -49,25 +62,9 @@ export default function Navbar() {
         const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
         window.scrollTo({
           top: offsetPosition,
-          behavior: 'smooth',
+          behavior: 'smooth'
         });
-      } else if (attempts < maxAttempts) {
-        attempts++;
-        setTimeout(tryScroll, delay);
       }
-    }
-    tryScroll();
-  };
-
-  const handleGalleryClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    if (location.pathname !== '/') {
-      navigate('/');
-      setTimeout(() => {
-        scrollToGallery();
-      }, 100);
-    } else {
-      scrollToGallery();
     }
   };
 
