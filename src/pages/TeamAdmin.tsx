@@ -7,6 +7,7 @@ import { Plus, Edit, Trash2, X, Save, UserPlus } from 'lucide-react';
 interface Social {
   icon: string;
   url: string;
+  img?: string;
 }
 
 interface TeamMember {
@@ -71,7 +72,7 @@ export default function TeamAdmin() {
     }));
   }
   function addSocial() {
-    setForm(f => ({ ...f, socials: [...f.socials, { icon: '', url: '' }] }));
+    setForm(f => ({ ...f, socials: [...f.socials, { icon: '', url: '', img: '' }] }));
   }
   function removeSocial(idx: number) {
     setForm(f => ({ ...f, socials: f.socials.filter((_, i) => i !== idx) }));
@@ -186,9 +187,11 @@ export default function TeamAdmin() {
                 <div>
                   <label className="block text-gray-300 mb-1 text-right">شبکه‌های اجتماعی</label>
                   {form.socials.map((s, idx) => (
-                    <div key={idx} className="flex gap-2 mb-2">
-                      <input type="text" value={s.icon} onChange={e => handleSocialChange(idx, 'icon', e.target.value)} placeholder="آیکون (github/linkedin/instagram)" className="flex-1 px-3 py-2 rounded bg-gray-800 border border-gray-700 text-white text-xs" />
+                    <div key={idx} className="flex gap-2 mb-2 items-center">
+                      <input type="text" value={s.icon} onChange={e => handleSocialChange(idx, 'icon', e.target.value)} placeholder="آیکون (github/linkedin/instagram یا custom)" className="flex-1 px-3 py-2 rounded bg-gray-800 border border-gray-700 text-white text-xs" />
                       <input type="text" value={s.url} onChange={e => handleSocialChange(idx, 'url', e.target.value)} placeholder="لینک" className="flex-1 px-3 py-2 rounded bg-gray-800 border border-gray-700 text-white text-xs" />
+                      <input type="text" value={s.img || ''} onChange={e => handleSocialChange(idx, 'img', e.target.value)} placeholder="آدرس عکس دلخواه (اختیاری)" className="flex-1 px-3 py-2 rounded bg-gray-800 border border-gray-700 text-white text-xs" />
+                      {s.img && <img src={s.img} alt="icon" className="w-6 h-6 rounded-full object-cover" />}
                       <button type="button" onClick={() => removeSocial(idx)} className="text-red-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   ))}
