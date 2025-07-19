@@ -21,6 +21,8 @@ interface Game {
   }>;
 }
 
+export { default as Contact } from './Contact';
+
 export const Games: React.FC = () => {
   const [games, setGames] = useState<Game[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
