@@ -183,7 +183,7 @@ export default function Navbar() {
     if (location.pathname === '/') {
       return (
         <>
-          <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className="nav-link">درباره ما</a>
+          <Link to="/about" className="nav-link">درباره ما</Link>
           <Link to="/games" className="nav-link">بازی‌ها</Link>
           {user && <Link to="/my-games" className="nav-link">بازی‌های من</Link>}
           <span
