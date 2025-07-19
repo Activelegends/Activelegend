@@ -16,7 +16,6 @@ import './styles/admin.css';
 import { Footer } from './components/Footer';
 import DownloadPage from './pages/Download';
 import DownloadLinksAdmin from './pages/admin/DownloadLinksAdmin';
-import Contact from './pages/Contact';
 
 function App() {
   const [showFooter, setShowFooter] = useState(false);
@@ -63,7 +62,6 @@ function App() {
               <Route path="/admin/terms" element={<TermsManagement />} />
               <Route path="/admin/download-links" element={<DownloadLinksAdmin />} />
               <Route path="/download/:id" element={<DownloadPage />} />
-              <Route path="/contact" element={<Contact />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
