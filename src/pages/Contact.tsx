@@ -62,7 +62,7 @@ const itemVariants = {
 };
 
 export default function Contact() {
-  const [tooltip, setTooltip] = React.useState<number|null>(null);
+  const [hovered, setHovered] = React.useState<number|null>(null);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 px-4 py-12">
@@ -89,25 +89,22 @@ export default function Contact() {
               variants={itemVariants}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
-              onMouseEnter={() => setTooltip(i)}
-              onMouseLeave={() => setTooltip(null)}
-              onFocus={() => setTooltip(i)}
-              onBlur={() => setTooltip(null)}
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(null)}
+              onFocus={() => setHovered(i)}
+              onBlur={() => setHovered(null)}
             >
               <span>{link.icon}</span>
               <span className="text-lg md:text-xl font-semibold text-white">{link.label}</span>
-              <span className="ml-auto text-base md:text-lg text-gray-200 truncate">{link.value}</span>
-              {tooltip === i && (
-                <motion.span
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="absolute left-1/2 -translate-x-1/2 bottom-[-2.2rem] bg-black/90 text-xs text-white rounded px-2 py-1 shadow-lg z-50 whitespace-nowrap"
-                  style={{ fontSize: '0.75rem' }}
-                >
-                  {link.href}
-                </motion.span>
-              )}
+              <motion.span
+                initial={{ opacity: 0, x: 20 }}
+                animate={hovered === i ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+                className="ml-2 text-base md:text-lg text-primary-300 bg-black/30 rounded px-2 py-1 font-mono select-all"
+                style={{ display: hovered === i ? 'inline-block' : 'none' }}
+              >
+                {link.value}
+              </motion.span>
             </motion.a>
           ))}
         </div>
