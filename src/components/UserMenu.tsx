@@ -67,7 +67,7 @@ export default function UserMenu() {
                 <Menu.Item>
                   {({ active }) => (
                     <Link
-                      to="/admin/terms"
+                      to="/team-admin"
                       className={`${
                         active ? 'bg-white/10' : ''
                       } group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}
