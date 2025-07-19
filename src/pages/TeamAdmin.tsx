@@ -81,17 +81,23 @@ export default function TeamAdmin() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    // پاکسازی فیلد img خالی
+    const socialsCleaned = form.socials.map(s => ({
+      icon: s.icon,
+      url: s.url,
+      ...(s.img && s.img.length > 0 ? { img: s.img } : {})
+    }));
     if (!form.name.trim() || !form.role.trim()) {
       setError('نام و نقش الزامی است');
       return;
     }
     if (editId) {
       // update
-      const { error } = await supabase.from('team_members').update(form).eq('id', editId);
+      const { error } = await supabase.from('team_members').update({ ...form, socials: socialsCleaned }).eq('id', editId);
       if (error) setError('خطا در ویرایش عضو');
     } else {
       // insert
-      const { error } = await supabase.from('team_members').insert([form]);
+      const { error } = await supabase.from('team_members').insert([{ ...form, socials: socialsCleaned }]);
       if (error) setError('خطا در افزودن عضو');
     }
     closeModal();
