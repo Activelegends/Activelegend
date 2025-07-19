@@ -22,12 +22,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
     setAcceptedTerms(initialMode === 'login');
   }, [initialMode]);
 
-  // On mount, check localStorage for termsAccepted
-  useEffect(() => {
-    const termsAccepted = localStorage.getItem('termsAccepted') === 'true';
-    setAcceptedTerms(termsAccepted || initialMode === 'login');
-  }, []);
-
   const validateForm = () => {
     if (!email || !password) {
       setError('لطفاً تمام فیلدها را پر کنید.');
@@ -164,14 +158,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
     id="accept-terms"
     type="checkbox"
     checked={acceptedTerms}
-    onChange={e => {
-      setAcceptedTerms(e.target.checked);
-      if (e.target.checked) {
-        localStorage.setItem('termsAccepted', 'true');
-      } else {
-        localStorage.removeItem('termsAccepted');
-      }
-    }}
+    onChange={e => setAcceptedTerms(e.target.checked)}
     className="form-checkbox h-4 w-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
     style={{ accentColor: '#2563eb' }}
   />
@@ -211,7 +198,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
 
                 <button
                   onClick={handleGoogleSignIn}
-              disabled={!acceptedTerms || loading}
+              disabled={loading}
               className="w-full bg-white text-gray-900 py-3 rounded-lg font-medium hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-300 flex items-center justify-center gap-3 shadow-md hover:shadow-lg"
                 >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
