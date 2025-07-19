@@ -73,16 +73,6 @@ export default function UserMenu() {
                       } group flex w-full items-center rounded-md px-3 py-2 text-sm text-white gap-2`}
                     >
                       <HiDocumentText className="w-5 h-5" />
-                      مدیریت قوانین و مقررات
-                    </Link>
-                  )}
-                </Menu.Item>
-                <Menu.Item>
-                  {({ active }) => (
-                    <Link
-                      to="/team-admin"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition"
-                    >
                       مدیریت اعضای تیم
                     </Link>
                   )}
