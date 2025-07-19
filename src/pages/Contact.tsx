@@ -42,6 +42,14 @@ const contactLinks = [
     ),
     value: 'Discord',
   },
+  {
+    label: 'یوتیوب',
+    href: 'https://www.youtube.com/@ActiveLegends',
+    icon: (
+      <svg className="w-7 h-7 text-red-600" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a2.994 2.994 0 00-2.107-2.117C19.403 3.5 12 3.5 12 3.5s-7.403 0-9.391.569A2.994 2.994 0 00.502 6.186C0 8.174 0 12 0 12s0 3.826.502 5.814a2.994 2.994 0 002.107 2.117C4.597 20.5 12 20.5 12 20.5s7.403 0 9.391-.569a2.994 2.994 0 002.107-2.117C24 15.826 24 12 24 12s0-3.826-.502-5.814zM9.75 15.568V8.432L15.818 12 9.75 15.568z"/></svg>
+    ),
+    value: 'YouTube',
+  },
 ];
 
 const containerVariants = {
@@ -54,8 +62,10 @@ const itemVariants = {
 };
 
 export default function Contact() {
+  const [tooltip, setTooltip] = React.useState<number|null>(null);
+
   return (
-    <div className="min-h-[70vh] flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 px-4 py-12">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 px-4 py-12">
       <motion.div
         className="w-full max-w-2xl bg-white/10 rounded-3xl shadow-2xl p-8 md:p-12 backdrop-blur-md border border-white/20"
         initial="hidden"
@@ -79,10 +89,25 @@ export default function Contact() {
               variants={itemVariants}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
+              onMouseEnter={() => setTooltip(i)}
+              onMouseLeave={() => setTooltip(null)}
+              onFocus={() => setTooltip(i)}
+              onBlur={() => setTooltip(null)}
             >
               <span>{link.icon}</span>
               <span className="text-lg md:text-xl font-semibold text-white">{link.label}</span>
               <span className="ml-auto text-base md:text-lg text-gray-200 truncate">{link.value}</span>
+              {tooltip === i && (
+                <motion.span
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute left-1/2 -translate-x-1/2 bottom-[-2.2rem] bg-black/90 text-xs text-white rounded px-2 py-1 shadow-lg z-50 whitespace-nowrap"
+                  style={{ fontSize: '0.75rem' }}
+                >
+                  {link.href}
+                </motion.span>
+              )}
             </motion.a>
           ))}
         </div>

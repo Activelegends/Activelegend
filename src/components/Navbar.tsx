@@ -195,7 +195,7 @@ export default function Navbar() {
           >
             ویترین
           </span>
-          <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
+          <Link to="/contact" className="nav-link">تماس</Link>
         </>
       );
     } else if (location.pathname.startsWith('/games')) {
@@ -213,7 +213,7 @@ export default function Navbar() {
           >
             ویترین
           </span>
-          <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
+          <Link to="/contact" className="nav-link">تماس</Link>
         </>
       );
     }
@@ -231,7 +231,7 @@ export default function Navbar() {
         >
           ویترین
         </span>
-        <a href="#contact" onClick={(e) => handleNavClick(e, 'contact')} className="nav-link">تماس</a>
+        <Link to="/contact" className="nav-link">تماس</Link>
       </>
     );
   };
