@@ -65,7 +65,7 @@ export default function Contact() {
   const [hovered, setHovered] = React.useState<number|null>(null);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 px-4 py-12 mt-24">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 px-4 py-12">
       <motion.div
         className="w-full max-w-2xl bg-white/10 rounded-3xl shadow-2xl p-8 md:p-12 backdrop-blur-md border border-white/20"
         initial="hidden"
@@ -85,7 +85,7 @@ export default function Contact() {
               href={link.href}
               target="_blank"
               rel="noopener noreferrer"
-              className={`flex items-center gap-4 bg-white/20 hover:bg-white/30 transition rounded-xl px-6 py-4 shadow-lg backdrop-blur-md border border-white/10 relative ${hovered === i ? 'text-right' : 'text-center'}`}
+              className="flex items-center gap-4 bg-white/20 hover:bg-white/30 transition rounded-xl px-6 py-4 shadow-lg backdrop-blur-md border border-white/10"
               variants={itemVariants}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
@@ -95,12 +95,12 @@ export default function Contact() {
               onBlur={() => setHovered(null)}
             >
               <span>{link.icon}</span>
-              <span className="text-lg md:text-xl font-semibold text-white w-full">{link.label}</span>
+              <span className="text-lg md:text-xl font-semibold text-white">{link.label}</span>
               <motion.span
                 initial={{ opacity: 0, x: 20 }}
                 animate={hovered === i ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-                className="ml-2 text-base md:text-lg text-primary-300 bg-black/30 rounded px-2 py-1 font-mono select-all inline-block w-full"
+                className="ml-2 text-base md:text-lg text-primary-300 bg-black/30 rounded px-2 py-1 font-mono select-all"
                 style={{ display: hovered === i ? 'inline-block' : 'none' }}
               >
                 {link.value}
