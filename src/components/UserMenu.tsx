@@ -80,7 +80,7 @@ export default function UserMenu() {
                 <Menu.Item>
                   {({ active }) => (
                     <Link
-                      to="/team-admin"
+                      to="/admin/terms"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition"
                     >
                       مدیریت اعضای تیم
