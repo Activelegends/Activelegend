@@ -484,18 +484,6 @@ export default function MediaShowcase() {
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="flex justify-center items-center w-full mb-6">
-          <motion.div
-            animate={{ y: [0, -16, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-            className="inline-block"
-          >
-            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="24" cy="24" r="22" stroke="#22c55e" strokeWidth="4" fill="#f0fdf4" />
-              <path d="M16 25l6 6 10-12" stroke="#22c55e" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-            </svg>
-          </motion.div>
-        </div>
         <motion.h2
           variants={itemVariants}
           className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-10 sm:mb-14 text-center"
