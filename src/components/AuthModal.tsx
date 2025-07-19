@@ -163,7 +163,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
     style={{ accentColor: '#2563eb' }}
   />
   <label htmlFor="accept-terms" className="text-[11px] text-gray-400 select-none cursor-pointer">
-    من <a href="https://activelegend.ir/#/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-400 transition">شرایط را خوانده‌ام و آن را قبول دارم</a>
+    <a href="https://activelegend.ir/#/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-400 transition">
+      من شرایط را خوانده‌ام و آن را قبول دارم
+    </a>
   </label>
 </div>
 
@@ -198,7 +200,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
 
                 <button
                   onClick={handleGoogleSignIn}
-              disabled={loading}
+              disabled={!acceptedTerms || loading}
               className="w-full bg-white text-gray-900 py-3 rounded-lg font-medium hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-300 flex items-center justify-center gap-3 shadow-md hover:shadow-lg"
                 >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
