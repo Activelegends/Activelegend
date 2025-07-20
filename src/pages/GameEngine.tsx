@@ -33,15 +33,21 @@ function OfflineGameArea() {
   const lastPos = useRef({ x: player.x, y: player.y });
   const keys = useRef<{ [key: string]: boolean }>({});
   const animationRef = useRef<number>();
+  const areaRef = useRef<HTMLDivElement>(null);
 
-  // Handle keydown/keyup for smooth movement
+  // Focus game area on mount for keyboard events
+  useEffect(() => {
+    areaRef.current?.focus();
+  }, []);
+
+  // Handle keydown/keyup for smooth movement and prevent default for WSAD
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
-      if (["arrowup", "w"].includes(key)) keys.current["up"] = true;
-      if (["arrowdown", "s"].includes(key)) keys.current["down"] = true;
-      if (["arrowleft", "a"].includes(key)) keys.current["left"] = true;
-      if (["arrowright", "d"].includes(key)) keys.current["right"] = true;
+      if (["arrowup", "w"].includes(key)) { keys.current["up"] = true; if (["w"].includes(key)) e.preventDefault(); }
+      if (["arrowdown", "s"].includes(key)) { keys.current["down"] = true; if (["s"].includes(key)) e.preventDefault(); }
+      if (["arrowleft", "a"].includes(key)) { keys.current["left"] = true; if (["a"].includes(key)) e.preventDefault(); }
+      if (["arrowright", "d"].includes(key)) { keys.current["right"] = true; if (["d"].includes(key)) e.preventDefault(); }
     };
     const handleKeyUp = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
@@ -50,7 +56,7 @@ function OfflineGameArea() {
       if (["arrowleft", "a"].includes(key)) keys.current["left"] = false;
       if (["arrowright", "d"].includes(key)) keys.current["right"] = false;
     };
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, { passive: false });
     window.addEventListener('keyup', handleKeyUp);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
@@ -103,7 +109,9 @@ function OfflineGameArea() {
   return (
     <div className="w-full flex justify-center mt-8">
       <div
-        className="relative bg-gradient-to-br from-blue-900/40 to-gray-800/60 rounded-2xl border border-white/10 overflow-hidden shadow-lg"
+        ref={areaRef}
+        tabIndex={0}
+        className="relative bg-gradient-to-br from-blue-900/40 to-gray-800/60 rounded-2xl border border-white/10 overflow-hidden shadow-lg outline-none"
         style={{ width: '90vw', maxWidth: GAME_WIDTH, height: '50vh', maxHeight: GAME_HEIGHT, minWidth: 320, minHeight: 200 }}
       >
         <div className="absolute left-0 top-0 w-full flex items-center justify-between px-4 py-2 z-10 bg-black/30 text-blue-100 text-sm shadow border-b border-blue-400/30">
