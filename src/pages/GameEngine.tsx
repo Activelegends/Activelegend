@@ -5,7 +5,6 @@ import Player from '../game/Player';
 
 const MODES = [
   { key: 'offline', label: 'آفلاین' },
-  // { key: 'online', label: 'آنلاین' }, // Online mode hidden for now
 ];
 
 function randomColor() {
@@ -17,9 +16,10 @@ function randomName() {
   return names[Math.floor(Math.random() * names.length)];
 }
 
-const GAME_WIDTH = 480;
-const GAME_HEIGHT = 320;
-const SPEED = 6;
+const GAME_WIDTH = 900;
+const GAME_HEIGHT = 500;
+const PLAYER_SIZE = 48;
+const SPEED = 14;
 
 function OfflineGameArea() {
   const [player, setPlayer] = useState({
@@ -31,26 +31,57 @@ function OfflineGameArea() {
   const [distance, setDistance] = useState(0);
   const [best, setBest] = useState(() => Number(localStorage.getItem('best_distance') || 0));
   const lastPos = useRef({ x: player.x, y: player.y });
+  const keys = useRef<{ [key: string]: boolean }>({});
+  const animationRef = useRef<number>();
 
+  // Handle keydown/keyup for smooth movement
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase();
+      if (["arrowup", "w"].includes(key)) keys.current["up"] = true;
+      if (["arrowdown", "s"].includes(key)) keys.current["down"] = true;
+      if (["arrowleft", "a"].includes(key)) keys.current["left"] = true;
+      if (["arrowright", "d"].includes(key)) keys.current["right"] = true;
+    };
+    const handleKeyUp = (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase();
+      if (["arrowup", "w"].includes(key)) keys.current["up"] = false;
+      if (["arrowdown", "s"].includes(key)) keys.current["down"] = false;
+      if (["arrowleft", "a"].includes(key)) keys.current["left"] = false;
+      if (["arrowright", "d"].includes(key)) keys.current["right"] = false;
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
+
+  // Animation loop for smooth movement
+  useEffect(() => {
+    function animate() {
       let dx = 0, dy = 0;
-      if (['ArrowUp', 'w', 'W'].includes(e.key)) dy = -SPEED;
-      if (['ArrowDown', 's', 'S'].includes(e.key)) dy = SPEED;
-      if (['ArrowLeft', 'a', 'A'].includes(e.key)) dx = -SPEED;
-      if (['ArrowRight', 'd', 'D'].includes(e.key)) dx = SPEED;
+      if (keys.current["up"]) dy -= SPEED;
+      if (keys.current["down"]) dy += SPEED;
+      if (keys.current["left"]) dx -= SPEED;
+      if (keys.current["right"]) dx += SPEED;
       if (dx !== 0 || dy !== 0) {
         setPlayer((p) => {
-          const nx = Math.max(0, Math.min(GAME_WIDTH - 40, p.x + dx));
-          const ny = Math.max(0, Math.min(GAME_HEIGHT - 40, p.y + dy));
+          let nx = Math.max(0, Math.min(GAME_WIDTH - PLAYER_SIZE, p.x + dx));
+          let ny = Math.max(0, Math.min(GAME_HEIGHT - PLAYER_SIZE, p.y + dy));
           return { ...p, x: nx, y: ny };
         });
       }
+      animationRef.current = requestAnimationFrame(animate);
+    }
+    animationRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
   }, []);
 
+  // Distance and best record
   useEffect(() => {
     const dx = player.x - lastPos.current.x;
     const dy = player.y - lastPos.current.y;
@@ -68,14 +99,18 @@ function OfflineGameArea() {
     }
   }, [player.x, player.y, best]);
 
+  // Responsive game area
   return (
-    <div className="w-full max-w-xl mx-auto mt-8">
-      <div className="mb-4 flex items-center justify-between px-4 py-2 rounded-xl bg-black/30 text-blue-100 text-sm shadow border border-blue-400/30">
-        <span className="font-bold text-green-400">حالت آفلاین</span>
-        <span>مسافت طی‌شده: {Math.floor(distance)} px</span>
-        <span>رکورد: {Math.floor(best)} px</span>
-      </div>
-      <div className="relative w-full h-80 bg-gradient-to-br from-blue-900/40 to-gray-800/60 rounded-2xl border border-white/10 overflow-hidden shadow-lg">
+    <div className="w-full flex justify-center mt-8">
+      <div
+        className="relative bg-gradient-to-br from-blue-900/40 to-gray-800/60 rounded-2xl border border-white/10 overflow-hidden shadow-lg"
+        style={{ width: '90vw', maxWidth: GAME_WIDTH, height: '50vh', maxHeight: GAME_HEIGHT, minWidth: 320, minHeight: 200 }}
+      >
+        <div className="absolute left-0 top-0 w-full flex items-center justify-between px-4 py-2 z-10 bg-black/30 text-blue-100 text-sm shadow border-b border-blue-400/30">
+          <span className="font-bold text-green-400">حالت آفلاین</span>
+          <span>مسافت طی‌شده: {Math.floor(distance)} px</span>
+          <span>رکورد: {Math.floor(best)} px</span>
+        </div>
         <Player x={player.x} y={player.y} color={player.color} name={player.name} isMe />
       </div>
     </div>
