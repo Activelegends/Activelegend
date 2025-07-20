@@ -19,6 +19,7 @@ import DownloadLinksAdmin from './pages/admin/DownloadLinksAdmin';
 import { Contact } from './pages/Games';
 import About from './pages/About';
 import TeamAdmin from './pages/TeamAdmin';
+import GameEngine from './pages/GameEngine';
 
 function App() {
   const [showFooter, setShowFooter] = useState(false);
@@ -67,6 +68,7 @@ function App() {
               <Route path="/download/:id" element={<DownloadPage />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/about" element={<About />} />
+              <Route path="/game" element={<GameEngine />} />
               <Route path="/team-admin" element={<TeamAdmin />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

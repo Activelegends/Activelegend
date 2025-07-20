@@ -1,3 +1,26 @@
+# ActiveLegend 2D Web Game Engine
+
+این پروژه شامل یک موتور بازی ۲بعدی تحت وب با React، TypeScript، TailwindCSS و Framer Motion است که هم حالت آنلاین (با WebSocket/Supabase Realtime) و هم آفلاین را پشتیبانی می‌کند.
+
+## امکانات کلیدی
+- صفحه اصلی مدرن و مینیمال با انتخاب حالت آنلاین/آفلاین
+- اتصال real-time به سرور WebSocket یا Supabase Realtime
+- نمایش چند پلیر هم‌زمان و همگام‌سازی موقعیت
+- محیط کدنویسی درون بازی با sandbox امن
+- محدودیت اجرا و امکانات ویژه برای کاربران دونیت‌دار
+- جدول امتیاز و کارت پلیرها با اسم و آواتار
+- انیمیشن‌های نرم و UI/UX حرفه‌ای
+
+## شروع سریع
+1. `npm install`
+2. اجرای پروژه: `npm run dev`
+3. ورود به صفحه بازی: `/game`
+4. برای حالت آنلاین، یک سرور WebSocket راه‌اندازی کنید (نمونه کد در انتهای این فایل)
+
+### فایل اصلی بازی: `src/pages/GameEngine.tsx`
+
+---
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
