@@ -167,7 +167,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
       من شرایط را خوانده‌ام و آن را قبول دارم
     </a>
   </label>
-</div>
+                </div>
 
                 {error && (
                 <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-red-500 text-sm">
