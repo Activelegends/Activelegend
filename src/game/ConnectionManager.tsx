@@ -24,19 +24,98 @@ export const useConnection = () => {
   return ctx;
 };
 
-export const ConnectionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Dummy state for now
-  const [players, setPlayers] = useState<Player[]>([
-    { id: '1', name: 'مهدی', color: '#3b82f6', x: 100, y: 120 },
-    { id: '2', name: 'سارا', color: '#f59e42', x: 200, y: 180 },
-  ]);
-  const [myId] = useState('1');
-  const [status] = useState<'connecting' | 'connected' | 'disconnected'>('connected');
-  const [ping] = useState(42);
+function randomColor() {
+  const colors = ['#3b82f6', '#f59e42', '#10b981', '#e11d48', '#a21caf', '#fbbf24'];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+function randomName() {
+  const names = ['مهدی', 'سارا', 'آرش', 'نگین', 'علی', 'زهرا', 'رضا', 'نازنین'];
+  return names[Math.floor(Math.random() * names.length)];
+}
+function uuidv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 
-  // Placeholder for sending position
+export const ConnectionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [myId] = useState(() => uuidv4());
+  const [myName] = useState(() => randomName());
+  const [myColor] = useState(() => randomColor());
+  const [status, setStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting');
+  const [ping, setPing] = useState(0);
+  const wsRef = useRef<WebSocket | null>(null);
+  const pingStart = useRef<number>(0);
+
+  // Connect to WebSocket server
+  useEffect(() => {
+    let ws: WebSocket;
+    let pingInterval: NodeJS.Timeout;
+    let reconnectTimeout: NodeJS.Timeout;
+    function connect() {
+      setStatus('connecting');
+      ws = new window.WebSocket('ws://localhost:3001');
+      wsRef.current = ws;
+      ws.onopen = () => {
+        setStatus('connected');
+        ws.send(JSON.stringify({
+          type: 'join',
+          id: myId,
+          name: myName,
+          color: myColor,
+          x: 100,
+          y: 100,
+        }));
+        // Start ping
+        pingInterval = setInterval(() => {
+          if (ws.readyState === ws.OPEN) {
+            pingStart.current = Date.now();
+            ws.send(JSON.stringify({ type: 'ping' }));
+          }
+        }, 3000);
+      };
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'players') {
+            setPlayers(data.players);
+          }
+          if (data.type === 'pong') {
+            setPing(Date.now() - pingStart.current);
+          }
+        } catch {}
+      };
+      ws.onclose = () => {
+        setStatus('disconnected');
+        clearInterval(pingInterval);
+        // Try to reconnect after 2s
+        reconnectTimeout = setTimeout(connect, 2000);
+      };
+      ws.onerror = () => {
+        ws.close();
+      };
+    }
+    connect();
+    return () => {
+      clearInterval(pingInterval);
+      clearTimeout(reconnectTimeout);
+      ws && ws.close();
+    };
+    // eslint-disable-next-line
+  }, [myId, myName, myColor]);
+
+  // Send position to server
   const sendPosition = (x: number, y: number) => {
-    // In real impl: send via WebSocket
+    if (wsRef.current && wsRef.current.readyState === wsRef.current.OPEN) {
+      wsRef.current.send(JSON.stringify({
+        type: 'move',
+        id: myId,
+        x,
+        y,
+      }));
+    }
     setPlayers((prev) => prev.map(p => p.id === myId ? { ...p, x, y } : p));
   };
 
