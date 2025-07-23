@@ -2,19 +2,49 @@
 <html lang="fa">
 <head>
   <meta charset="UTF-8" />
-  <meta name="robots" content="noindex" />
-  <title>صفحه پیدا نشد - ActiveLegend</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>صفحه پیدا نشد (404)</title>
   <style>
     body {
-      text-align: center;
       font-family: sans-serif;
-      padding: 50px;
+      text-align: center;
+      padding: 3rem;
+      background-color: #f8f8f8;
+      color: #333;
+    }
+    h1 {
+      font-size: 3rem;
+      color: #e63946;
+    }
+    p {
+      font-size: 1.2rem;
+      margin: 1rem 0;
     }
     a {
       color: #007bff;
       text-decoration: none;
+      font-weight: bold;
+    }
+    a:hover {
+      text-decoration: underline;
     }
   </style>
+  <script>
+    // برای SPA هایی مثل Vite: بازنشانی مسیر به index.html
+    if (!location.pathname.includes('.')) {
+      fetch('/index.html')
+        .then(res => res.text())
+        .then(html => {
+          document.open();
+          document.write(html);
+          document.close();
+        })
+        .catch(() => {
+          // نمایش 404 واقعی
+          document.body.innerHTML += '<p>بازگشت به <a href="/">صفحه اصلی</a></p>';
+        });
+    }
+  </script>
 </head>
 <body>
   <h1>صفحه پیدا نشد (404)</h1>
