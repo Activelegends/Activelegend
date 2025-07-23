@@ -2,13 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Redirecting...</title>
-    <meta http-equiv="refresh" content="0; url=/" />
+    <title>Page not found</title>
+    <script type="text/javascript">
+      // SPA fallback for GitHub Pages with BrowserRouter
+      (function() {
+        var l = window.location;
+        // Redirect to index.html to allow React Router to handle routing
+        if (!l.pathname.endsWith('/')) {
+          window.history.replaceState(null, '', l.pathname + '/');
+        }
+      })();
+    </script>
   </head>
   <body>
-    <h1>Redirecting...</h1>
-    <p>
-      If you are not redirected automatically, <a href="/">click here</a>.
-    </p>
+    <h1>Page not found</h1>
+    <p>This page does not exist. Redirecting to the app root...</p>
+    <noscript>
+      <meta http-equiv="refresh" content="3;url=/" />
+    </noscript>
   </body>
 </html>
