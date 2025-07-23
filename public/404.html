@@ -2,22 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Loading...</title>
-  <script>
-    // بارگذاری ایندکس اصلی به صورت Ajax بدون تغییر URL
-    fetch('/')
-      .then(response => response.text())
-      .then(html => {
-        document.open();
-        document.write(html);
-        document.close();
-      })
-      .catch(() => {
-        document.body.innerHTML = "<h1>Page not found</h1><p>Please go to the <a href='/'>homepage</a>.</p>";
-      });
-  </script>
+  <title>404 - Page Not Found</title>
 </head>
 <body>
-  <p>Loading...</p>
+  <h1>404 - Page Not Found</h1>
+  <p>The page you are looking for does not exist.</p>
+  <a href="/">Go to homepage</a>
 </body>
 </html>
