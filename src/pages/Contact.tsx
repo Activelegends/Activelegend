@@ -103,17 +103,17 @@ export default function Contact() {
                 <motion.span
                   initial={false}
                   animate={hovered === i
-                    ? { x: 40, opacity: 1, textAlign: 'right' }
-                    : { x: 0, opacity: 1, textAlign: 'center' }
+                    ? { x: 40, opacity: 1, textAlign: 'right', color: '#FACC15', fontSize: '1.5rem', textShadow: '0 2px 12px #FACC1580' }
+                    : { x: 0, opacity: 1, textAlign: 'center', color: '#fff', fontSize: '1.25rem', textShadow: 'none' }
                   }
                   transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-                  className="text-lg md:text-xl font-semibold text-white w-full block"
+                  className="text-xl md:text-2xl font-extrabold w-full block transition-all duration-300"
                   style={{
                     minWidth: '120px',
                     width: '100%',
                     display: 'inline-block',
                     textAlign: hovered === i ? 'right' : 'center',
-                    transition: 'text-align 0.2s',
+                    transition: 'text-align 0.2s, color 0.2s, font-size 0.2s, text-shadow 0.2s',
                   }}
                 >
                   {link.label}
