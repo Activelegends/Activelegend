@@ -1,24 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Page not found</title>
-    <script type="text/javascript">
-      // SPA fallback for GitHub Pages with BrowserRouter
-      (function() {
-        var l = window.location;
-        // Redirect to index.html to allow React Router to handle routing
-        if (!l.pathname.endsWith('/')) {
-          window.history.replaceState(null, '', l.pathname + '/');
-        }
-      })();
-    </script>
-  </head>
-  <body>
-    <h1>Page not found</h1>
-    <p>This page does not exist. Redirecting to the app root...</p>
-    <noscript>
-      <meta http-equiv="refresh" content="3;url=/" />
-    </noscript>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <title>Page not found</title>
+  <script>
+    // SPA fallback for GitHub Pages with BrowserRouter
+    window.location.replace('/');
+  </script>
+  <noscript>
+    <meta http-equiv="refresh" content="0; url=/" />
+  </noscript>
+</head>
+<body></body>
 </html>
