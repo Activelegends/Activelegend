@@ -20,6 +20,7 @@ import { Contact } from './pages/Games';
 import About from './pages/About';
 import TeamAdmin from './pages/TeamAdmin';
 import GameEngine from './pages/GameEngine';
+import { HelmetProvider } from 'react-helmet-async';
 
 function App() {
   const [showFooter, setShowFooter] = useState(false);
@@ -46,41 +47,43 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <AuthProvider>
-        <div className="min-h-screen relative scroll-container">
-          <AnimatedBackground />
-          <div className="relative z-20">
-            <Navbar />
-            <Routes>
-              <Route path="/" element={
-                <>
-                  <Hero />
-                  <MediaShowcase />
-                </>
-              } />
-              <Route path="/games" element={<Games />} />
-              <Route path="/games/:slug" element={<GameDetail />} />
-              <Route path="/my-games" element={<MyGames />} />
-              <Route path="/terms" element={<TermsAndConditionsPage />} />
-              <Route path="/admin/terms" element={<TermsManagement />} />
-              <Route path="/admin/download-links" element={<DownloadLinksAdmin />} />
-              <Route path="/download/:id" element={<DownloadPage />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/game" element={<GameEngine />} />
-              <Route path="/team-admin" element={<TeamAdmin />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </div>
-          {showFooter && (
-            <div className="fixed bottom-0 left-0 w-full z-50">
-              <Footer />
+    <HelmetProvider>
+      <Router>
+        <AuthProvider>
+          <div className="min-h-screen relative scroll-container">
+            <AnimatedBackground />
+            <div className="relative z-20">
+              <Navbar />
+              <Routes>
+                <Route path="/" element={
+                  <>
+                    <Hero />
+                    <MediaShowcase />
+                  </>
+                } />
+                <Route path="/games" element={<Games />} />
+                <Route path="/games/:slug" element={<GameDetail />} />
+                <Route path="/my-games" element={<MyGames />} />
+                <Route path="/terms" element={<TermsAndConditionsPage />} />
+                <Route path="/admin/terms" element={<TermsManagement />} />
+                <Route path="/admin/download-links" element={<DownloadLinksAdmin />} />
+                <Route path="/download/:id" element={<DownloadPage />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/game" element={<GameEngine />} />
+                <Route path="/team-admin" element={<TeamAdmin />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
             </div>
-          )}
-        </div>
-      </AuthProvider>
-    </Router>
+            {showFooter && (
+              <div className="fixed bottom-0 left-0 w-full z-50">
+                <Footer />
+              </div>
+            )}
+          </div>
+        </AuthProvider>
+      </Router>
+    </HelmetProvider>
   );
 }
 

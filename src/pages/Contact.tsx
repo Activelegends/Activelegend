@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Helmet } from 'react-helmet-async';
 
 const contactLinks = [
   {
@@ -66,6 +67,20 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900/70 via-gray-800/60 to-gray-900/70 backdrop-blur-md px-4 py-12 pt-24">
+      <Helmet>
+        <title>تماس با اکتیو لجندز | Active Legends - ارتباط با تیم بازی‌سازی</title>
+        <meta name="description" content="تماس با اکتیو لجندز (Active Legends)؛ راه‌های ارتباط با تیم بازی‌سازی و جامعه گیمرها. پشتیبانی، ایمیل، تلگرام، اینستاگرام، دیسکورد و یوتیوب." />
+        <meta name="keywords" content="تماس با ما, اکتیو لجندز, Active Legends, ارتباط, Game Studio, support, پشتیبانی, بازی, گیم, استودیو بازی‌سازی, تیم بازی‌سازی, گیمر, بازی ایرانی, تماس active legends, contact active legends" />
+        <meta property="og:title" content="تماس با اکتیو لجندز | Active Legends" />
+        <meta property="og:description" content="راه‌های ارتباط با استودیو بازی‌سازی اکتیو لجندز (Active Legends) و تیم توسعه‌دهنده." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://activelegend.ir/contact" />
+        <meta property="og:image" content="https://activelegend.ir/AE%20logo.svg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="تماس با اکتیو لجندز | Active Legends" />
+        <meta name="twitter:description" content="تماس با استودیو بازی‌سازی اکتیو لجندز (Active Legends) و جامعه گیمرها." />
+        <meta name="twitter:image" content="https://activelegend.ir/AE%20logo.svg" />
+      </Helmet>
       <motion.div
         className="w-full max-w-2xl bg-white/10 rounded-3xl shadow-2xl p-8 md:p-12 backdrop-blur-md border border-white/20 text-center"
         initial="hidden"

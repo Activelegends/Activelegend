@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Gamepad, Users, Rocket } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { Helmet } from 'react-helmet-async';
 
 const cards = [
   {
@@ -42,6 +43,20 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col items-center justify-center px-4 py-16 pt-24 pb-32">
+      <Helmet>
+        <title>درباره اکتیو لجندز | Active Legends - استودیو بازی‌سازی و جامعه گیمرها</title>
+        <meta name="description" content="درباره اکتیو لجندز (Active Legends)؛ استودیو بازی‌سازی و جامعه آنلاین گیمرها و توسعه‌دهندگان ایرانی. معرفی تیم، اهداف، مأموریت و چشم‌انداز ما در صنعت گیم ایران." />
+        <meta name="keywords" content="اکتیو لجندز, Active Legends, بازی, گیم, استودیو بازی‌سازی, تیم بازی‌سازی, Game Studio, Game Development, گیمر, بازی ایرانی, بازی موبایل, بازی کامپیوتر, بازی آنلاین, بازی آفلاین, تیم اکتیو لجندز, about active legends" />
+        <meta property="og:title" content="درباره اکتیو لجندز | Active Legends" />
+        <meta property="og:description" content="معرفی استودیو بازی‌سازی اکتیو لجندز (Active Legends) و تیم توسعه‌دهنده بازی‌های ایرانی." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://activelegend.ir/about" />
+        <meta property="og:image" content="https://activelegend.ir/AE%20logo.svg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="درباره اکتیو لجندز | Active Legends" />
+        <meta name="twitter:description" content="استودیو بازی‌سازی اکتیو لجندز (Active Legends) و جامعه گیمرها و توسعه‌دهندگان ایرانی." />
+        <meta name="twitter:image" content="https://activelegend.ir/AE%20logo.svg" />
+      </Helmet>
       <motion.h1
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
