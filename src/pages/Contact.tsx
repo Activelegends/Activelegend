@@ -103,7 +103,7 @@ export default function Contact() {
                 <motion.span
                   initial={false}
                   animate={hovered === i
-                    ? { x: 40, opacity: 1, textAlign: 'right', color: '#FACC15', fontSize: '1.5rem', textShadow: '0 2px 12px #FACC1580' }
+                    ? { x: 20, opacity: 1, textAlign: 'right', color: '#FACC15', fontSize: '1.5rem', textShadow: '0 2px 12px #FACC1580' }
                     : { x: 0, opacity: 1, textAlign: 'center', color: '#fff', fontSize: '1.25rem', textShadow: 'none' }
                   }
                   transition={{ type: 'spring', stiffness: 300, damping: 24 }}
@@ -121,7 +121,7 @@ export default function Contact() {
                 <motion.span
                   initial={false}
                   animate={hovered === i
-                    ? { x: -40, opacity: 1, textAlign: 'left' }
+                    ? { x: -20, opacity: 1, textAlign: 'left' }
                     : { x: 0, opacity: 0, textAlign: 'center' }
                   }
                   transition={{ type: 'spring', stiffness: 300, damping: 24 }}
