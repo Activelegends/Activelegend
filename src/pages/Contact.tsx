@@ -86,7 +86,9 @@ export default function Contact() {
               href={link.href}
               target="_blank"
               rel="noopener noreferrer"
-              className={`flex items-center gap-4 bg-white/20 hover:bg-white/30 transition rounded-xl px-6 py-4 shadow-lg backdrop-blur-md border border-white/10 justify-center relative`}
+              className={
+                `flex items-center gap-4 bg-white/20 hover:bg-white/30 transition rounded-xl px-6 py-4 shadow-lg backdrop-blur-md border border-white/10 justify-center relative min-h-[56px]` // min-h for stable height
+              }
               variants={itemVariants}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
@@ -98,21 +100,22 @@ export default function Contact() {
             >
               <span>{link.icon}</span>
               <span className="text-lg md:text-xl font-semibold text-white">{link.label}</span>
-              <motion.span
-                initial={{ opacity: 0, x: 20 }}
-                animate={hovered === i ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+              <span
                 className="ml-2 text-base md:text-lg text-primary-300 bg-black/30 rounded px-2 py-1 font-mono select-all"
                 style={{
-                  minWidth: '120px', // Reserve space to prevent layout shift
-                  opacity: hovered === i ? 1 : 0,
-                  pointerEvents: hovered === i ? 'auto' : 'none',
-                  visibility: hovered === i ? 'visible' : 'hidden',
-                  transition: 'opacity 0.2s, visibility 0.2s',
+                  width: '140px', // fixed width for all values
+                  display: 'inline-block',
+                  minHeight: '1.8em', // stable height
+                  opacity: hovered === i ? 1 : 0.15, // faint when not hovered
+                  visibility: 'visible',
+                  transition: 'opacity 0.2s',
+                  textAlign: 'left',
+                  verticalAlign: 'middle',
+                  userSelect: hovered === i ? 'all' : 'none',
                 }}
               >
                 {link.value}
-              </motion.span>
+              </span>
             </motion.a>
           ))}
         </div>
