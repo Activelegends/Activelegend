@@ -87,7 +87,7 @@ export default function Contact() {
               target="_blank"
               rel="noopener noreferrer"
               className={
-                `flex items-center gap-4 bg-white/20 hover:bg-white/30 transition rounded-xl px-6 py-4 shadow-lg backdrop-blur-md border border-white/10 justify-center relative min-h-[56px]` // min-h for stable height
+                `flex items-center gap-4 bg-white/20 hover:bg-white/30 transition rounded-xl px-6 py-4 shadow-lg backdrop-blur-md border border-white/10 justify-center relative min-h-[56px]`
               }
               variants={itemVariants}
               whileHover={{ scale: 1.03 }}
@@ -99,28 +99,49 @@ export default function Contact() {
               style={{ textAlign: 'center' }}
             >
               <span>{link.icon}</span>
-              <span className="text-lg md:text-xl font-semibold text-white">{link.label}</span>
-              <motion.span
-                initial={false}
-                animate={hovered === i
-                  ? { opacity: 1, x: 0 }
-                  : { opacity: 0, x: 20 }
-                }
-                transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-                className="ml-2 text-base md:text-lg text-primary-300 bg-black/30 rounded px-2 py-1 font-mono select-all"
-                style={{
-                  width: '140px',
-                  minHeight: '1.8em',
-                  display: 'inline-block',
-                  pointerEvents: hovered === i ? 'auto' : 'none',
-                  userSelect: hovered === i ? 'all' : 'none',
-                  textAlign: hovered === i ? 'left' : 'center',
-                  verticalAlign: 'middle',
-                  transition: 'text-align 0.2s',
-                }}
-              >
-                {link.value}
-              </motion.span>
+              <span className="flex flex-col flex-1 items-center justify-center w-full">
+                <motion.span
+                  initial={false}
+                  animate={hovered === i
+                    ? { x: 40, opacity: 1, textAlign: 'right' }
+                    : { x: 0, opacity: 1, textAlign: 'center' }
+                  }
+                  transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+                  className="text-lg md:text-xl font-semibold text-white w-full block"
+                  style={{
+                    minWidth: '120px',
+                    width: '100%',
+                    display: 'inline-block',
+                    textAlign: hovered === i ? 'right' : 'center',
+                    transition: 'text-align 0.2s',
+                  }}
+                >
+                  {link.label}
+                </motion.span>
+                <motion.span
+                  initial={false}
+                  animate={hovered === i
+                    ? { x: -40, opacity: 1, textAlign: 'left' }
+                    : { x: 0, opacity: 0, textAlign: 'center' }
+                  }
+                  transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+                  className="mt-1 text-base md:text-lg text-primary-300 bg-black/30 rounded-full px-3 py-1 font-mono select-all w-full max-w-full overflow-hidden text-ellipsis"
+                  style={{
+                    minWidth: '140px',
+                    width: '100%',
+                    minHeight: '1.8em',
+                    display: 'inline-block',
+                    pointerEvents: hovered === i ? 'auto' : 'none',
+                    userSelect: hovered === i ? 'all' : 'none',
+                    textAlign: hovered === i ? 'left' : 'center',
+                    verticalAlign: 'middle',
+                    transition: 'text-align 0.2s',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {link.value}
+                </motion.span>
+              </span>
             </motion.a>
           ))}
         </div>
