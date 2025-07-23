@@ -137,7 +137,7 @@ export default function About() {
       >
         <span className="text-lg md:text-xl text-white font-medium">سوالی دارید یا می‌خواهید با ما همکاری کنید؟</span>
         <a
-          href="https://activelegend.ir/#/contact"
+          href="https://activelegend.ir/contact"
           className="inline-block px-8 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-pink-500 text-white font-bold text-lg shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-300"
         >
           با ما تماس بگیرید
