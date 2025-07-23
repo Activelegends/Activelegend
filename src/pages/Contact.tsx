@@ -102,17 +102,21 @@ export default function Contact() {
               <span className="text-lg md:text-xl font-semibold text-white">{link.label}</span>
               <motion.span
                 initial={false}
-                animate={hovered === i ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
+                animate={hovered === i
+                  ? { opacity: 1, x: 0 }
+                  : { opacity: 0, x: 20 }
+                }
                 transition={{ type: 'spring', stiffness: 300, damping: 24 }}
                 className="ml-2 text-base md:text-lg text-primary-300 bg-black/30 rounded px-2 py-1 font-mono select-all"
                 style={{
-                  width: '140px', // fixed width for all values
-                  minHeight: '1.8em', // stable height
+                  width: '140px',
+                  minHeight: '1.8em',
                   display: 'inline-block',
                   pointerEvents: hovered === i ? 'auto' : 'none',
                   userSelect: hovered === i ? 'all' : 'none',
-                  textAlign: 'left',
+                  textAlign: hovered === i ? 'left' : 'center',
                   verticalAlign: 'middle',
+                  transition: 'text-align 0.2s',
                 }}
               >
                 {link.value}
