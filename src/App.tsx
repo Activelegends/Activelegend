@@ -26,7 +26,7 @@ function App() {
 
   useEffect(() => {
     // Disable scroll chaining on mobile
-    document.body.style.overscrollBehavior = 'none';
+    //document.body.style.overscrollBehavior = 'none';
     
     // Add passive scroll listener for better performance
     const handleScroll = () => {
