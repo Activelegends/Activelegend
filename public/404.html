@@ -1,59 +1,23 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>صفحه پیدا نشد | ActiveLegend</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: "Vazirmatn", sans-serif;
-    }
-
-    body {
-      background-color: #0d0d0d;
-      color: #f2f2f2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
-      padding: 2rem;
-    }
-
-    h1 {
-      font-size: 6rem;
-      color: #ff4d4f;
-      margin-bottom: 1rem;
-    }
-
-    p {
-      font-size: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    a {
-      display: inline-block;
-      text-decoration: none;
-      color: #fff;
-      background-color: #007bff;
-      padding: 0.75rem 2rem;
-      border-radius: 8px;
-      font-weight: bold;
-      transition: background-color 0.3s ease;
-    }
-
-    a:hover {
-      background-color: #0056b3;
-    }
-  </style>
+  <title>Loading...</title>
+  <script>
+    // بارگذاری ایندکس اصلی به صورت Ajax بدون تغییر URL
+    fetch('/')
+      .then(response => response.text())
+      .then(html => {
+        document.open();
+        document.write(html);
+        document.close();
+      })
+      .catch(() => {
+        document.body.innerHTML = "<h1>Page not found</h1><p>Please go to the <a href='/'>homepage</a>.</p>";
+      });
+  </script>
 </head>
 <body>
-  <h1>404</h1>
-  <p>متأسفیم، صفحه‌ای که دنبالش بودید وجود ندارد.</p>
-  <a href="/">بازگشت به صفحه اصلی</a>
+  <p>Loading...</p>
 </body>
 </html>
