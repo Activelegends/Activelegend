@@ -163,7 +163,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
     style={{ accentColor: '#2563eb' }}
   />
   <label htmlFor="accept-terms" className="text-[11px] text-gray-400 select-none cursor-pointer">
-    <a href="https://activelegend.ir/#/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-400 transition">
+    <a href="https://activelegend.ir/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-400 transition">
       من شرایط را خوانده‌ام و آن را قبول دارم
     </a>
   </label>
