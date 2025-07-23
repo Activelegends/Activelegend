@@ -104,17 +104,17 @@ export default function Contact() {
                 initial={false}
                 animate={hovered === i
                   ? { opacity: 1, x: 0 }
-                  : { opacity: 0, x: -20 }
+                  : { opacity: 0, x: 20 }
                 }
                 transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-                className="ml-2 text-base md:text-lg text-primary-300 bg-black/30 rounded px-3 py-1 font-mono select-all overflow-hidden whitespace-nowrap"
+                className="ml-2 text-base md:text-lg text-primary-300 bg-black/30 rounded px-2 py-1 font-mono select-all"
                 style={{
-                  width: '170px', // wider for all values
-                  minHeight: '2.1em', // a bit taller for all fonts
+                  width: '140px',
+                  minHeight: '1.8em',
                   display: 'inline-block',
                   pointerEvents: hovered === i ? 'auto' : 'none',
                   userSelect: hovered === i ? 'all' : 'none',
-                  textAlign: hovered === i ? 'right' : 'center', // RTL: right on hover
+                  textAlign: hovered === i ? 'left' : 'center',
                   verticalAlign: 'middle',
                   transition: 'text-align 0.2s',
                 }}
