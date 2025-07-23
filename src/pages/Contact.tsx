@@ -65,7 +65,7 @@ export default function Contact() {
   const [hovered, setHovered] = React.useState<number|null>(null);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900/70 via-gray-800/60 to-gray-900/70 backdrop-blur-md px-4 py-12 pt-24">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 px-4 py-12 pt-24">
       <motion.div
         className="w-full max-w-2xl bg-white/10 rounded-3xl shadow-2xl p-8 md:p-12 backdrop-blur-md border border-white/20 text-center"
         initial="hidden"
