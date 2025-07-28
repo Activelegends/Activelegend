@@ -89,6 +89,7 @@ export default function DownloadPage() {
         <h1 className="text-2xl font-bold text-white mb-2 text-center">دانلود فایل</h1>
         {link?.title && <div className="text-primary text-lg font-bold mb-4 text-center">{link.title}</div>}
         {AD_BANNER}
+        <div id="pos-article-text-108405"></div>
         {!ready ? (
           <>
             <div className="text-lg text-primary font-bold mb-2">دانلود تا <span className="text-2xl">{count}</span> ثانیه دیگر آغاز می‌شود...</div>
