@@ -7,7 +7,6 @@ const AD_BANNER = (
   <div className="w-full flex justify-center items-center bg-gradient-to-r from-primary/10 to-black/30 rounded-xl border border-primary/20 p-4 my-6 min-h-[80px]">
     {/* اینجا می‌توانید iframe تبلیغاتی یا بنر دلخواه قرار دهید */}
     <span className="text-primary font-bold text-lg">بنر تبلیغاتی</span>
-    <div id="pos-article-text-108405"></div>
   </div>
 );
 
@@ -90,7 +89,6 @@ export default function DownloadPage() {
         <h1 className="text-2xl font-bold text-white mb-2 text-center">دانلود فایل</h1>
         {link?.title && <div className="text-primary text-lg font-bold mb-4 text-center">{link.title}</div>}
         {AD_BANNER}
-        <div id="pos-article-text-108405"></div>
         {!ready ? (
           <>
             <div className="text-lg text-primary font-bold mb-2">دانلود تا <span className="text-2xl">{count}</span> ثانیه دیگر آغاز می‌شود...</div>
