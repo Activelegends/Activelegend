@@ -11,4 +11,10 @@ to = "/index.html"
 status = 200
 
 [site]
-bucket = "./dist" 
+bucket = "./dist"
+
+[env.production]
+name = "activelegend"
+
+[env.production.vars]
+ENVIRONMENT = "production" 

@@ -1,18 +1,13 @@
-# Cloudflare Pages SPA routing
+# Cloudflare Pages SPA routing - All routes redirect to index.html
 /*    /index.html   200
 
-# Specific routes for better performance
-/games    /index.html   200
-/contact    /index.html   200
-/about    /index.html   200
-/terms    /index.html   200
-/download/*    /index.html   200
-/my-games    /index.html   200
-/game    /index.html   200
-/admin/*    /index.html   200
-/team-admin    /index.html   200
-
-# Static files
+# Static files (these should be served directly)
 /sitemap.xml    /sitemap.xml   200
 /robots.txt    /robots.txt   200
 /favicon.ico    /favicon.ico   200
+/*.js    /index.html   200
+/*.css    /index.html   200
+/*.png    /index.html   200
+/*.jpg    /index.html   200
+/*.svg    /index.html   200
+/*.ico    /index.html   200
