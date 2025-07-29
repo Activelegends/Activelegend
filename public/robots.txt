@@ -1,31 +1,3 @@
 User-agent: *
 Allow: /
-
-# Allow all crawlers
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Slurp
-Allow: /
-
-User-agent: DuckDuckBot
-Allow: /
-
-User-agent: Baiduspider
-Allow: /
-
-User-agent: YandexBot
-Allow: /
-
-# Sitemap
-Sitemap: https://activelegend.ir/sitemap.xml
-
-# Crawl-delay
-Crawl-delay: 1
-
-# Disallow admin pages
-Disallow: /admin/
-Disallow: /team-admin/ 
+Sitemap: https://activelegend.ir/sitemap.xml 

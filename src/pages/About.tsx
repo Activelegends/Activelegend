@@ -8,7 +8,7 @@ const cards = [
   {
     icon: <Gamepad className="w-10 h-10 text-blue-500 mb-4" />, 
     title: 'مأموریت ما',
-    desc: 'ما در اکتیو لجند با هدف ارتقای سطح بازی‌سازی و سرگرمی در ایران فعالیت می‌کنیم. مأموریت ما ایجاد بستری برای کشف، معرفی و حمایت از بازی‌سازان و گیمرهای ایرانی است.'
+    desc: 'ما در اکتیو لجندز با هدف ارتقای سطح بازی‌سازی و سرگرمی در ایران فعالیت می‌کنیم. مأموریت ما ایجاد بستری برای کشف، معرفی و حمایت از بازی‌سازان و گیمرهای ایرانی است.'
   },
   {
     icon: <Users className="w-10 h-10 text-green-500 mb-4" />, 
@@ -44,17 +44,17 @@ export default function About() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col items-center justify-center px-4 py-16 pt-24 pb-32">
       <Helmet>
-        <title>درباره اکتیو لجند | Active Legend - استودیو بازی‌سازی و جامعه گیمرها</title>
-        <meta name="description" content="درباره اکتیو لجند (Active Legend)؛ استودیو بازی‌سازی و جامعه آنلاین گیمرها و توسعه‌دهندگان ایرانی. معرفی تیم، اهداف، مأموریت و چشم‌انداز ما در صنعت گیم ایران." />
-        <meta name="keywords" content="اکتیو لجند, Active Legend, بازی, گیم, استودیو بازی‌سازی, تیم بازی‌سازی, Game Studio, Game Development, گیمر, بازی ایرانی, بازی موبایل, بازی کامپیوتر, بازی آنلاین, بازی آفلاین, تیم اکتیو لجند, about active legend" />
-        <meta property="og:title" content="درباره اکتیو لجند | Active Legend" />
-        <meta property="og:description" content="معرفی استودیو بازی‌سازی اکتیو لجند (Active Legend) و تیم توسعه‌دهنده بازی‌های ایرانی." />
+        <title>درباره اکتیو لجندز | Active Legends - استودیو بازی‌سازی و جامعه گیمرها</title>
+        <meta name="description" content="درباره اکتیو لجندز (Active Legends)؛ استودیو بازی‌سازی و جامعه آنلاین گیمرها و توسعه‌دهندگان ایرانی. معرفی تیم، اهداف، مأموریت و چشم‌انداز ما در صنعت گیم ایران." />
+        <meta name="keywords" content="اکتیو لجندز, Active Legends, بازی, گیم, استودیو بازی‌سازی, تیم بازی‌سازی, Game Studio, Game Development, گیمر, بازی ایرانی, بازی موبایل, بازی کامپیوتر, بازی آنلاین, بازی آفلاین, تیم اکتیو لجندز, about active legends" />
+        <meta property="og:title" content="درباره اکتیو لجندز | Active Legends" />
+        <meta property="og:description" content="معرفی استودیو بازی‌سازی اکتیو لجندز (Active Legends) و تیم توسعه‌دهنده بازی‌های ایرانی." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://activelegend.ir/about" />
         <meta property="og:image" content="https://activelegend.ir/AE%20logo.svg" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="درباره اکتیو لجند | Active Legend" />
-        <meta name="twitter:description" content="استودیو بازی‌سازی اکتیو لجند (Active Legend) و جامعه گیمرها و توسعه‌دهندگان ایرانی." />
+        <meta name="twitter:title" content="درباره اکتیو لجندز | Active Legends" />
+        <meta name="twitter:description" content="استودیو بازی‌سازی اکتیو لجندز (Active Legends) و جامعه گیمرها و توسعه‌دهندگان ایرانی." />
         <meta name="twitter:image" content="https://activelegend.ir/AE%20logo.svg" />
       </Helmet>
       <motion.h1
@@ -63,7 +63,7 @@ export default function About() {
         transition={{ duration: 0.8, type: 'spring' }}
         className="text-4xl md:text-5xl font-extrabold text-white text-center mb-8 md:mb-12 drop-shadow-lg"
       >
-        درباره اکتیو لجند
+        درباره اکتیو لجندز
       </motion.h1>
       <motion.p
         initial={{ opacity: 0, y: 20 }}
@@ -71,7 +71,7 @@ export default function About() {
         transition={{ duration: 0.8, delay: 0.2 }}
         className="text-lg md:text-xl text-gray-300 text-center max-w-2xl mb-12"
       >
-        اکتیو لجند یک استودیو مستقل بازی‌سازی و جامعه آنلاین برای گیمرها و توسعه‌دهندگان ایرانی است. ما با الهام از بهترین استودیوهای دنیا، تلاش می‌کنیم تجربه‌ای نوآورانه، سرگرم‌کننده و اجتماعی برای کاربران ایرانی فراهم کنیم. ما به خلاقیت، همکاری و رشد فردی اعضای تیم و جامعه اهمیت می‌دهیم و همیشه به دنبال راه‌های تازه برای ارتقای صنعت گیم ایران هستیم.
+        اکتیو لجندز یک استودیو مستقل بازی‌سازی و جامعه آنلاین برای گیمرها و توسعه‌دهندگان ایرانی است. ما با الهام از بهترین استودیوهای دنیا، تلاش می‌کنیم تجربه‌ای نوآورانه، سرگرم‌کننده و اجتماعی برای کاربران ایرانی فراهم کنیم. ما به خلاقیت، همکاری و رشد فردی اعضای تیم و جامعه اهمیت می‌دهیم و همیشه به دنبال راه‌های تازه برای ارتقای صنعت گیم ایران هستیم.
       </motion.p>
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
         {cards.map((card, i) => (

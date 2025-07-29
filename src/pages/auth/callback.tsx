@@ -38,9 +38,9 @@ export default function AuthCallback() {
       >
         <div className="mb-6">
           <img 
-            src={import.meta.env.BASE_URL + 'AE logo.svg'} 
-            alt="Active Legend"
-            className="w-16 h-16 mx-auto mb-6" 
+            src="/AE logo.svg" 
+            alt="Active Legends" 
+            className="w-24 h-24 mx-auto mb-4"
           />
           <h1 className="text-2xl font-bold text-white mb-2">در حال پردازش...</h1>
           <p className="text-gray-400">لطفاً صبر کنید تا وارد حساب کاربری خود شوید.</p>
