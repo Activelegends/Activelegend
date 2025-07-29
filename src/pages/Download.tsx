@@ -52,6 +52,26 @@ export default function DownloadPage() {
     return () => clearInterval(timer);
   }, [link]);
 
+  useEffect(() => {
+    // بارگذاری اسکریپت یکتانت فقط اگر قبلاً اضافه نشده باشد
+    const scriptId = "yektanet-script";
+    if (!document.getElementById(scriptId)) {
+      const r = new Date();
+      const c = `https://cdn.yektanet.com/superscript/OYzquHID/native-activelegend.ir-43485/yn_pub.js?v=${r.getFullYear()}0${r.getMonth()}0${r.getDate()}0${r.getHours()}`;
+      const link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "script";
+      link.href = c;
+      document.head.appendChild(link);
+
+      const script = document.createElement("script");
+      script.id = scriptId;
+      script.async = true;
+      script.src = c;
+      document.head.appendChild(script);
+    }
+  }, []);
+
   const handleDownload = () => {
     if (link?.url) {
       window.location.href = link.url;
