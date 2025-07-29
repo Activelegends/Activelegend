@@ -7,10 +7,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:static": "tsc && vite build && node scripts/build-static.js",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build:static",
+    "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
