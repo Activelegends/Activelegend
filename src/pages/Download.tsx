@@ -6,7 +6,8 @@ import type { DownloadLink } from '../services/downloadLinksService';
 const AD_BANNER = (
   <div className="w-full flex justify-center items-center bg-gradient-to-r from-primary/10 to-black/30 rounded-xl border border-primary/20 p-4 my-6 min-h-[80px]">
   {/* اینجا می‌توانید iframe تبلیغاتی یا بنر دلخواه قرار دهید */}
-  <span className="text-primary font-bold text-lg">بنر تبلیغاتی</span>
+  <span className="text-primary font-bold text-lg">تبلیغات</span>
+  <div id="pos-article-display-108440"></div>
   <div id="pos-article-text-108405"></div>
 </div>
   
