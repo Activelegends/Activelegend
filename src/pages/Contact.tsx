@@ -45,7 +45,7 @@ const contactLinks = [
   },
   {
     label: 'یوتیوب',
-    href: 'https://www.youtube.com/@ActiveLegends',
+    href: 'https://www.youtube.com/@ActiveLegend',
     icon: (
       <svg className="w-7 h-7 text-red-600" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a2.994 2.994 0 00-2.107-2.117C19.403 3.5 12 3.5 12 3.5s-7.403 0-9.391.569A2.994 2.994 0 00.502 6.186C0 8.174 0 12 0 12s0 3.826.502 5.814a2.994 2.994 0 002.107 2.117C4.597 20.5 12 20.5 12 20.5s7.403 0 9.391-.569a2.994 2.994 0 002.107-2.117C24 15.826 24 12 24 12s0-3.826-.502-5.814zM9.75 15.568V8.432L15.818 12 9.75 15.568z"/></svg>
     ),
@@ -68,17 +68,17 @@ export default function Contact() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900/70 via-gray-800/60 to-gray-900/70 backdrop-blur-md px-4 py-12 pt-24">
       <Helmet>
-        <title>تماس با اکتیو لجندز | Active Legends - ارتباط با تیم بازی‌سازی</title>
-        <meta name="description" content="تماس با اکتیو لجندز (Active Legends)؛ راه‌های ارتباط با تیم بازی‌سازی و جامعه گیمرها. پشتیبانی، ایمیل، تلگرام، اینستاگرام، دیسکورد و یوتیوب." />
-        <meta name="keywords" content="تماس با ما, اکتیو لجندز, Active Legends, ارتباط, Game Studio, support, پشتیبانی, بازی, گیم, استودیو بازی‌سازی, تیم بازی‌سازی, گیمر, بازی ایرانی, تماس active legends, contact active legends" />
-        <meta property="og:title" content="تماس با اکتیو لجندز | Active Legends" />
-        <meta property="og:description" content="راه‌های ارتباط با استودیو بازی‌سازی اکتیو لجندز (Active Legends) و تیم توسعه‌دهنده." />
+        <title>تماس با اکتیو لجند | Active Legend - ارتباط با تیم بازی‌سازی</title>
+        <meta name="description" content="تماس با اکتیو لجند (Active Legend)؛ راه‌های ارتباط با تیم بازی‌سازی و جامعه گیمرها. پشتیبانی، ایمیل، تلگرام، اینستاگرام، دیسکورد و یوتیوب." />
+        <meta name="keywords" content="تماس با ما, اکتیو لجند, Active Legend, ارتباط, Game Studio, support, پشتیبانی, بازی, گیم, استودیو بازی‌سازی, تیم بازی‌سازی, گیمر, بازی ایرانی, تماس active legend, contact active legend" />
+        <meta property="og:title" content="تماس با اکتیو لجند | Active Legend" />
+        <meta property="og:description" content="راه‌های ارتباط با استودیو بازی‌سازی اکتیو لجند (Active Legend) و تیم توسعه‌دهنده." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://activelegend.ir/contact" />
         <meta property="og:image" content="https://activelegend.ir/AE%20logo.svg" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="تماس با اکتیو لجندز | Active Legends" />
-        <meta name="twitter:description" content="تماس با استودیو بازی‌سازی اکتیو لجندز (Active Legends) و جامعه گیمرها." />
+        <meta name="twitter:title" content="تماس با اکتیو لجند | Active Legend" />
+        <meta name="twitter:description" content="تماس با استودیو بازی‌سازی اکتیو لجند (Active Legend) و جامعه گیمرها." />
         <meta name="twitter:image" content="https://activelegend.ir/AE%20logo.svg" />
       </Helmet>
       <motion.div

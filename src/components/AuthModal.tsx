@@ -108,14 +108,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
             <div className="text-center mb-8">
               <img 
                 src="/AE logo.svg" 
-                alt="Active Legends" 
+                alt="Active Legend" 
                 className="w-16 h-16 mx-auto mb-4"
               />
               <h2 className="text-2xl font-bold text-white">
                 {isLogin ? 'ورود به حساب کاربری' : 'ثبت نام'}
               </h2>
               <p className="text-gray-400 mt-2">
-                {isLogin ? 'به Active Legends خوش آمدید' : 'حساب کاربری جدید بسازید'}
+                {isLogin ? 'به Active Legend خوش آمدید' : 'حساب کاربری جدید بسازید'}
               </p>
             </div>
 

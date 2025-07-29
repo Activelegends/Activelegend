@@ -39,7 +39,7 @@ export default function AuthCallback() {
         <div className="mb-6">
           <img 
             src="/AE logo.svg" 
-            alt="Active Legends" 
+            alt="Active Legend" 
             className="w-24 h-24 mx-auto mb-4"
           />
           <h1 className="text-2xl font-bold text-white mb-2">در حال پردازش...</h1>
