@@ -26,6 +26,18 @@ function App() {
   const [showFooter, setShowFooter] = useState(false);
 
   useEffect(() => {
+    // Handle GitHub Pages redirect
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectPath = urlParams.get('redirect');
+    
+    if (redirectPath) {
+      // Remove the redirect parameter and navigate to the correct path
+      const newUrl = window.location.origin + redirectPath;
+      window.history.replaceState({}, '', newUrl);
+      window.location.href = newUrl;
+      return;
+    }
+    
     // Disable scroll chaining on mobile
     //document.body.style.overscrollBehavior = 'none';
     

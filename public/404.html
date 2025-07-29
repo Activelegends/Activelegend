@@ -1,32 +1,23 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>صفحه یافت نشد | Active Legend</title>
-  <meta name="description" content="صفحه مورد نظر یافت نشد. بازگشت به صفحه اصلی Active Legend." />
-  <meta name="robots" content="noindex, nofollow" />
-  <link rel="canonical" href="https://activelegend.ir/" />
-  <script>
-    // بارگذاری ایندکس اصلی به صورت Ajax بدون تغییر URL
-    fetch('/')
-      .then(response => response.text())
-      .then(html => {
-        document.open();
-        document.write(html);
-        document.close();
-      })
-      .catch(() => {
-        document.body.innerHTML = "<h1>صفحه یافت نشد</h1><p>لطفاً به <a href='/'>صفحه اصلی</a> بازگردید.</p>";
-      });
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحه یافت نشد - اکتیو لجند</title>
+    <script>
+        // GitHub Pages SPA routing
+        const path = window.location.pathname;
+        const search = window.location.search;
+        const hash = window.location.hash;
+        
+        // Redirect to index.html with the original path
+        window.location.href = '/index.html?redirect=' + encodeURIComponent(path + search + hash);
+    </script>
 </head>
 <body>
-  <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Vazirmatn', sans-serif;">
-    <div style="text-align: center;">
-      <h1 style="color: #333; margin-bottom: 20px;">صفحه یافت نشد</h1>
-      <p style="color: #666;">در حال بارگذاری...</p>
+    <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+        <h1>در حال انتقال...</h1>
+        <p>اگر به صورت خودکار منتقل نشدید، <a href="/">اینجا</a> کلیک کنید.</p>
     </div>
-  </div>
 </body>
 </html>
