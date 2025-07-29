@@ -1,2 +1,11 @@
-# Cloudflare Pages SPA routing
+# Static HTML files
+/games    /games.html   200
+/about    /about.html   200
+/contact  /contact.html 200
+/download /download.html 200
+/my-games /my-games.html 200
+/terms    /terms.html   200
+/signup   /signup.html  200
+
+# Fallback for SPA routing
 /*    /index.html   200
