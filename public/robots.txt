@@ -24,4 +24,8 @@ Allow: /
 Sitemap: https://activelegend.ir/sitemap.xml
 
 # Crawl-delay
-Crawl-delay: 1 
+Crawl-delay: 1
+
+# Disallow admin pages
+Disallow: /admin/
+Disallow: /team-admin/ 
