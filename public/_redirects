@@ -1,1 +1,16 @@
 /*    /index.html   200
+
+# Handle client-side routing
+/contact    /index.html   200
+/about    /index.html   200
+/games    /index.html   200
+/terms    /index.html   200
+/download/*    /index.html   200
+/my-games    /index.html   200
+/game    /index.html   200
+/admin/*    /index.html   200
+/team-admin    /index.html   200
+
+# SEO redirects
+/sitemap.xml    /sitemap.xml   200
+/robots.txt    /robots.txt   200
