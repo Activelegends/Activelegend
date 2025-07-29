@@ -255,7 +255,7 @@ export default function Navbar() {
           <Link to="/">
             <motion.img
               src={import.meta.env.BASE_URL + 'AE logo.svg'}
-              alt="Active Legends"
+              alt="Active Legend"
               className="h-8 w-auto"
               whileHover={{ scale: 1.05 }}
             />

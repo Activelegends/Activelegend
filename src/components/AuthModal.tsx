@@ -105,18 +105,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
           onClick={e => e.stopPropagation()}
         >
           <div className="p-6 sm:p-8">
-            <div className="text-center mb-8">
-              <img 
-                src="/AE logo.svg" 
-                alt="Active Legends" 
-                className="w-16 h-16 mx-auto mb-4"
-              />
+            <div className="text-center mb-6">
+              <img src={import.meta.env.BASE_URL + 'AE logo.svg'} alt="Active Legend" className="w-16 h-16 mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-white">
-                {isLogin ? 'ورود به حساب کاربری' : 'ثبت نام'}
+                {isLogin ? 'به Active Legend خوش آمدید' : 'حساب کاربری جدید بسازید'}
               </h2>
-              <p className="text-gray-400 mt-2">
-                {isLogin ? 'به Active Legends خوش آمدید' : 'حساب کاربری جدید بسازید'}
-              </p>
             </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
