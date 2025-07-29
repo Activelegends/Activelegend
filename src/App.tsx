@@ -26,6 +26,18 @@ function App() {
   const [showFooter, setShowFooter] = useState(false);
 
   useEffect(() => {
+    // Handle direct URL access from 404.html
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectPath = urlParams.get('redirect');
+    
+    if (redirectPath) {
+      // Remove the redirect parameter and navigate to the correct path
+      window.history.replaceState({}, '', redirectPath);
+      // Force a page reload to ensure React Router picks up the new URL
+      window.location.href = redirectPath;
+      return;
+    }
+    
     // Disable scroll chaining on mobile
     //document.body.style.overscrollBehavior = 'none';
     
