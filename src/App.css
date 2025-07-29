@@ -80,3 +80,22 @@
     font-size: 1.1em;
   }
 }
+
+/* استایل تبلیغات یکتانت */
+#pos-article-display-108440 img,
+#pos-article-display-108441 img,
+#pos-article-text-108405 img {
+  max-width: 100%;
+  height: auto;
+  min-height: 80px;
+  object-fit: contain;
+}
+
+#pos-article-display-108440 iframe,
+#pos-article-display-108441 iframe,
+#pos-article-text-108405 iframe {
+  width: 100% !important;
+  min-height: 90px !important;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.10);
+}
