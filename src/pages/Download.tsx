@@ -104,21 +104,21 @@ export default function DownloadPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-black px-4 py-12">
-      <div className="w-full max-w-md bg-white/10 border border-white/10 rounded-2xl shadow-lg p-8 flex flex-col items-center">
-        <h1 className="text-2xl font-bold text-white mb-2 text-center">دانلود فایل</h1>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4 py-12">
+      <div className="w-full max-w-md bg-white border border-gray-200 rounded-2xl shadow-lg p-8 flex flex-col items-center">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2 text-center">دانلود فایل</h1>
         {link?.title && <div className="text-primary text-lg font-bold mb-4 text-center">{link.title}</div>}
         {AD_BANNER}
         {!ready ? (
           <>
             <div className="text-lg text-primary font-bold mb-2">دانلود تا <span className="text-2xl">{count}</span> ثانیه دیگر آغاز می‌شود...</div>
-            <div className="w-full bg-gray-800 rounded-full h-3 mb-4 overflow-hidden">
+            <div className="w-full bg-gray-200 rounded-full h-3 mb-4 overflow-hidden">
               <div
                 className="bg-primary h-3 rounded-full transition-all duration-500"
                 style={{ width: `${((10 - count) / 10) * 100}%` }}
               ></div>
             </div>
-            <div className="text-gray-400 text-sm">لطفاً تا پایان شمارش صبر کنید</div>
+            <div className="text-gray-500 text-sm">لطفاً تا پایان شمارش صبر کنید</div>
           </>
         ) : (
           <>
@@ -128,7 +128,7 @@ export default function DownloadPage() {
             >
               دانلود فایل
             </button>
-            <div className="text-gray-400 text-xs mt-4">اگر دانلود به صورت خودکار آغاز نشد، روی دکمه بالا کلیک کنید.</div>
+            <div className="text-gray-500 text-xs mt-4">اگر دانلود به صورت خودکار آغاز نشد، روی دکمه بالا کلیک کنید.</div>
             {/* تبلیغ پایین دکمه دانلود */}
             <div className="ad-container ad-container-bottom">
               <span className="ad-label">تبلیغات</span>
