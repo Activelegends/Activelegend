@@ -4,10 +4,12 @@ import { downloadLinksService } from '../services/downloadLinksService';
 import type { DownloadLink } from '../services/downloadLinksService';
 
 const AD_BANNER = (
-  <div className="w-full flex flex-col items-center justify-center bg-gradient-to-r from-primary/10 to-black/30 rounded-xl border border-primary/20 p-4 my-6 min-h-[100px] shadow-lg">
-    <span className="text-white font-bold text-lg mb-2">تبلیغات</span>
-    <div id="pos-article-display-108441" className="w-full flex justify-center items-center"></div>
-  </div>
+  <div className="w-full flex justify-center items-center bg-gradient-to-r from-primary/10 to-black/30 rounded-xl border border-primary/20 p-4 my-6 min-h-[80px]">
+  {/* اینجا می‌توانید iframe تبلیغاتی یا بنر دلخواه قرار دهید */}
+  <span className="text-primary font-bold text-lg">تبلیغات</span>
+  <div id="pos-article-display-108441"></div>
+</div>
+  
 );
 
 export default function DownloadPage() {
@@ -130,12 +132,12 @@ export default function DownloadPage() {
             </button>
             <div className="text-gray-400 text-xs mt-4">اگر دانلود به صورت خودکار آغاز نشد، روی دکمه بالا کلیک کنید.</div>
             {/* تبلیغ پایین دکمه دانلود */}
-            <div id="pos-article-display-108440" className="w-full flex justify-center items-center bg-gradient-to-r from-primary/10 to-black/30 rounded-xl border border-primary/20 p-4 my-6 min-h-[100px] shadow-lg"></div>
+            <div id="pos-article-display-108440" className="w-full mt-4"></div>
           </>
         )}
       </div>
       {/* تبلیغ متنی انتهای صفحه */}
-      <div id="pos-article-text-108405" className="w-full max-w-md flex justify-center items-center bg-gradient-to-r from-primary/10 to-black/30 rounded-xl border border-primary/20 p-4 my-6 min-h-[100px] shadow-lg"></div>
+      <div id="pos-article-text-108405" className="w-full max-w-md mt-8"></div>
     </div>
   );
 } 
