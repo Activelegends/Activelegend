@@ -1,4 +1,4 @@
-# Static HTML files
+# Static HTML files - Netlify/Cloudflare format
 /games    /games.html   200
 /about    /about.html   200
 /contact  /contact.html 200
@@ -7,5 +7,5 @@
 /terms    /terms.html   200
 /signup   /signup.html  200
 
-# Fallback for SPA routing
+# SPA fallback
 /*    /index.html   200
